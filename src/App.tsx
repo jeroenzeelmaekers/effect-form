@@ -1,9 +1,14 @@
+import EffectForm from "./features/form";
+import { ThemeProvider } from "./providers/theme-provider";
+
 export function App() {
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="font-medium">Hello World</div>
-    </div>
-  )
+    <ThemeProvider defaultTheme="system" storageKey="effect-form-theme">
+      <main className="min-h-screen flex items-center justify-center">
+        <EffectForm />
+      </main>
+    </ThemeProvider>
+  );
 }
 
-export default App
+export default App;
