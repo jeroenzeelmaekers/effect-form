@@ -1,0 +1,46 @@
+import { Schema } from "effect";
+import { languageValues } from "./language";
+
+const Name = Schema.String.pipe(
+  Schema.minLength(1, { message: () => "First name is required" }),
+  Schema.maxLength(50, {
+    message: () => "First name can max be 50 characters",
+  }),
+);
+
+const Username = Schema.String.pipe(
+  Schema.minLength(1, { message: () => "Last name is required" }),
+  Schema.maxLength(50, {
+    message: () => "Last name can max be 50 characters",
+  }),
+);
+
+const Email = Schema.String.pipe(
+  Schema.pattern(
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+    { message: () => "Invalid email address" },
+  ),
+);
+
+const Language = Schema.String.pipe(
+  Schema.filter((value) =>
+    languageValues.includes(value) ? undefined : "Select a language",
+  ),
+);
+
+const User = Schema.Struct({
+  id: Schema.Number,
+  name: Name,
+  username: Username,
+  email: Email,
+  language: Schema.optional(Language),
+});
+
+const UserForm = Schema.Struct({
+  name: Name,
+  username: Username,
+  email: Email,
+  language: Language,
+});
+
+export { User, UserForm };
