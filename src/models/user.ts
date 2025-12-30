@@ -2,16 +2,16 @@ import { Schema } from "effect";
 import { languageValues } from "./language";
 
 const Name = Schema.String.pipe(
-  Schema.minLength(1, { message: () => "First name is required" }),
+  Schema.minLength(1, { message: () => "Name is required" }),
   Schema.maxLength(50, {
-    message: () => "First name can max be 50 characters",
+    message: () => "Name can max be 50 characters",
   }),
 );
 
 const Username = Schema.String.pipe(
-  Schema.minLength(1, { message: () => "Last name is required" }),
+  Schema.minLength(1, { message: () => "Username is required" }),
   Schema.maxLength(50, {
-    message: () => "Last name can max be 50 characters",
+    message: () => "Username can max be 50 characters",
   }),
 );
 

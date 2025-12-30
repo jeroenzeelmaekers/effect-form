@@ -20,49 +20,27 @@ import {
 } from "@/components/ui/select";
 import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { Schema } from "effect";
+import { useAtomSet } from "@effect-atom/atom-react";
+import { languages, getLanguageLabel } from "@/models/language";
+import { UserForm } from "@/models/user";
+import { createUserOptimistic } from "@/lib/api/services";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { Label } from "@/components/ui/label";
 
-const languages = [
-  { value: "auto", label: "Auto" },
-  { value: "en", label: "English" },
-  { value: "nl", label: "Dutch" },
-  { value: "fr", label: "French" },
-  { value: "de", label: "German" },
-  { value: "es", label: "Spanish" },
-];
-
-const languageValues = languages.map((lang) => lang.value);
-
-function getLanguageLabel(value: string): string | undefined {
-  return languages.find((lang) => lang.value === value)?.label;
-}
-
-const UserStruct = Schema.Struct({
-  firstName: Schema.String.pipe(
-    Schema.minLength(1, { message: () => "First name is required" }),
-    Schema.maxLength(15, {
-      message: () => "First name can max be 20 characters",
-    }),
-  ),
-  lastName: Schema.String.pipe(
-    Schema.minLength(1, { message: () => "Last name is required" }),
-    Schema.maxLength(15, {
-      message: () => "Last name can max be 20 characters",
-    }),
-  ),
-  language: Schema.String.pipe(
-    Schema.filter((value) =>
-      languageValues.includes(value) ? undefined : "Select a language",
-    ),
-  ),
-});
-
-const UserFormSchema = Schema.standardSchemaV1(UserStruct);
+const UserFormSchema = Schema.standardSchemaV1(UserForm);
 
 export default function EffectForm() {
+  const createUser = useAtomSet(createUserOptimistic);
+
   const form = useForm({
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      name: "",
+      username: "",
+      email: "",
       language: "",
     },
     validationLogic: revalidateLogic(),
@@ -70,7 +48,8 @@ export default function EffectForm() {
       onDynamic: UserFormSchema,
     },
     onSubmit: ({ value }) => {
-      console.log("Form Submitted:", value);
+      createUser(value);
+      form.reset();
     },
   });
 
@@ -84,24 +63,27 @@ export default function EffectForm() {
     <Card className="w-full max-w-sm">
       <form onSubmit={onSubmit} className="flex flex-col gap-5">
         <CardHeader>
-          <CardTitle>Effect Form Example</CardTitle>
-          <CardDescription>Using Effect Schema for validation</CardDescription>
+          <CardTitle>Create User</CardTitle>
+          <CardDescription>
+            Add a new user with optimistic updates
+          </CardDescription>
           <CardAction>
             <ModeToggle />
           </CardAction>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <form.Field
-            name="firstName"
+            name="name"
             children={(field) => {
               const isInvalid =
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>First name:</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Name:</FieldLabel>
                   <Input
                     id={field.name}
                     name={field.name}
+                    autoComplete="name"
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
@@ -112,16 +94,44 @@ export default function EffectForm() {
             }}
           />
           <form.Field
-            name="lastName"
+            name="username"
             children={(field) => {
               const isInvalid =
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Last name:</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Username:</FieldLabel>
+                  <InputGroup>
+                    <InputGroupInput
+                      id={field.name}
+                      name={field.name}
+                      autoComplete="username"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    <InputGroupAddon>
+                      <Label htmlFor={field.name}>@</Label>
+                    </InputGroupAddon>
+                  </InputGroup>
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
+          />
+          <form.Field
+            name="email"
+            children={(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Email:</FieldLabel>
                   <Input
                     id={field.name}
                     name={field.name}
+                    type="email"
+                    autoComplete="email"
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
@@ -171,7 +181,7 @@ export default function EffectForm() {
           >
             {([canSubmit, isSubmitting]) => (
               <Button type="submit" disabled={!canSubmit} className="w-full">
-                {isSubmitting ? "Submitting..." : "Submit"}
+                {isSubmitting ? "Creating..." : "Create User"}
               </Button>
             )}
           </form.Subscribe>
