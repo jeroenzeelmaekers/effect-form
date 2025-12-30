@@ -1,17 +1,15 @@
 import { Result, useAtomValue } from "@effect-atom/atom-react";
 import { optimisticUsersAtom } from "@/lib/api/services";
-import { Cause, Schema } from "effect";
+import { Schema } from "effect";
 import type { User } from "@/models/user";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 
+// Define User type from schema
 type User = Schema.Schema.Type<typeof User>;
 
-interface ItemProps {
-  user: User;
-}
-
-function Item({ user }: ItemProps) {
+// Single list item card
+function Item({ user }: { user: User }) {
   const isOptimistic = user.id < 0;
 
   return (
@@ -37,11 +35,8 @@ function Item({ user }: ItemProps) {
   );
 }
 
-interface ListProps {
-  users: readonly User[];
-}
-
-function List({ users }: ListProps) {
+// List of users
+function List({ users }: { users: readonly User[] }) {
   if (users.length === 0) {
     return (
       <ul className="space-y-2">
@@ -59,21 +54,35 @@ function List({ users }: ListProps) {
   );
 }
 
+// Error message
+function Error({ message }: { message: string }) {
+  return (
+    <span id="error-container" className="text-red-500 text-sm">
+      {message}
+    </span>
+  );
+}
+
+// Main UserList component
 export default function UserList() {
   const result = useAtomValue(optimisticUsersAtom);
 
   return (
     <section className="w-full max-w-md">
       <h2 className="text-xl font-semibold mb-4">Users</h2>
-      {Result.match(result, {
-        onInitial: () => <p className="text-muted-foreground">Loading...</p>,
-        onFailure: (failure) => (
-          <p className="text-destructive">
-            Error: {Cause.pretty(failure.cause)}
-          </p>
-        ),
-        onSuccess: (success) => <List users={success.value} />,
-      })}
+      {Result.builder(result)
+        .onInitial(() => <p className="text-muted-foreground">Loading...</p>)
+        .onErrorTag("UserNotFound", (cause) => (
+          <Error message={cause["message"]} />
+        ))
+        .onErrorTag("NetworkError", (cause) => (
+          <Error message={cause["message"]} />
+        ))
+        .onErrorTag("ValidationError", (cause) => (
+          <Error message={cause["message"]} />
+        ))
+        .onSuccess((users) => <List users={users} />)
+        .render()}
     </section>
   );
 }

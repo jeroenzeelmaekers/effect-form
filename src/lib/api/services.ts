@@ -7,7 +7,7 @@ import {
   HttpBody,
 } from "@effect/platform";
 import { User, UserForm } from "@/models/user";
-import { NetworkError, UserNotFound, ValidationError } from "./errors";
+import { NetworkError, UsersNotFound, ValidationError } from "./errors";
 import { runtimeAtom } from "../runtime";
 
 // Random error simulation for demo purposes
@@ -17,12 +17,14 @@ const simulateRandomError = Effect.gen(function* () {
   // 20% chance of NetworkError
   if (random < 0.2) {
     yield* Effect.fail(
-      new NetworkError({ message: "Connection timed out - server unreachable" }),
+      new NetworkError({
+        message: "Connection timed out - server unreachable",
+      }),
     );
   }
-  // 15% chance of UserNotFound (404)
+  // 15% chance of UsersNotFound (404)
   else if (random < 0.35) {
-    yield* Effect.fail(new UserNotFound({ userId: 0 }));
+    yield* Effect.fail(new UsersNotFound({ message: "No users found" }));
   }
   // 10% chance of ValidationError
   else if (random < 0.45) {
@@ -51,7 +53,7 @@ export const usersAtom = runtimeAtom.atom(
         Effect.fail(new NetworkError({ message: error.message })),
       ResponseError: (error) =>
         error.response.status === 404
-          ? Effect.fail(new UserNotFound({ userId: 0 }))
+          ? Effect.fail(new UsersNotFound({ message: error.message }))
           : Effect.fail(new NetworkError({ message: error.message })),
       ParseError: (error) =>
         Effect.fail(new ValidationError({ message: error.message })),
