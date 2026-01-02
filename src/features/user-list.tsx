@@ -25,12 +25,9 @@ function Item({ user }: { user: User }) {
           @{user.username} - {user.email}
         </div>
       </div>
-
-      <div>
-        {isOptimistic && (
-          <Loader2 className="text-muted-foreground ml-2 inline-block h-4 w-4 animate-spin" />
-        )}
-      </div>
+      {isOptimistic && (
+        <Loader2 className="text-muted-foreground ml-2 inline-block h-4 w-4 animate-spin" />
+      )}
     </li>
   );
 }
