@@ -1,4 +1,6 @@
-import { Data, Schema } from 'effect';
+import { HttpClientResponse } from '@effect/platform';
+import type { ResponseError } from '@effect/platform/HttpClientError';
+import { Data, Effect, Schema } from 'effect';
 
 export class NetworkError extends Data.TaggedError('NetworkError')<{
   readonly message: string;
@@ -19,3 +21,35 @@ export const ProblemDetail = Schema.Struct({
   detail: Schema.optional(Schema.String),
   instance: Schema.optional(Schema.String),
 });
+
+export function getResponseError(error: ResponseError) {
+  return Effect.gen(function* () {
+    const problemDetail = yield* HttpClientResponse.schemaBodyJson(
+      ProblemDetail
+    )(error.response);
+
+    const message =
+      problemDetail.detail ?? problemDetail.title ?? error.message;
+
+    if (error.response.status === 404) {
+      return yield* Effect.fail(new UsersNotFound({ message }));
+    }
+
+    if (
+      error.response.status === 422 ||
+      problemDetail.type?.includes('validation')
+    ) {
+      return yield* Effect.fail(new ValidationError({ message }));
+    }
+
+    return yield* Effect.fail(new NetworkError({ message }));
+  }).pipe(
+    Effect.catchAll(() =>
+      Effect.fail(
+        new NetworkError({
+          message: `Unexpected error response (${error.response.status})`,
+        })
+      )
+    )
+  );
+}
