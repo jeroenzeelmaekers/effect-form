@@ -45,7 +45,7 @@ export const createUserEffect = (
     const client = yield* ApiClient;
 
     // Simulate network delay for optimistic demo purposes
-    yield* Effect.sleep('5 seconds');
+    // yield* Effect.sleep('5 seconds');
 
     const body = yield* HttpBody.json(formValues);
     const request = HttpClientRequest.post('/users').pipe(

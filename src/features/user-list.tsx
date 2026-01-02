@@ -69,8 +69,8 @@ function Loading() {
           key={i}
           className="bg-card border-border flex flex-row justify-between rounded-lg border p-3">
           <div className="flex flex-1 flex-col gap-1">
-            <Skeleton className="h-1lh w-1/3" />
-            <Skeleton className="h-lh w-2/3" />
+            <Skeleton className="h-5.5 w-1/3" />
+            <Skeleton className="h-4.5 w-2/3" />
           </div>
         </li>
       ))}
