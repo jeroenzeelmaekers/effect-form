@@ -1,22 +1,22 @@
-import { Context, Effect, Layer } from "effect";
 import {
+  FetchHttpClient,
+  HttpClient,
+  HttpClientError,
   HttpClientRequest,
   HttpClientResponse,
-  HttpClientError,
-  HttpClient,
-  FetchHttpClient,
-} from "@effect/platform";
+} from '@effect/platform';
+import { Context, Effect, Layer } from 'effect';
 
 export interface ApiClientService {
   readonly execute: (
-    request: HttpClientRequest.HttpClientRequest,
+    request: HttpClientRequest.HttpClientRequest
   ) => Effect.Effect<
     HttpClientResponse.HttpClientResponse,
     HttpClientError.HttpClientError
   >;
 }
 
-export class ApiClient extends Context.Tag("ApiClient")<
+export class ApiClient extends Context.Tag('ApiClient')<
   ApiClient,
   ApiClientService
 >() {}
@@ -28,14 +28,14 @@ const ApiClientLive = Layer.effect(
     const httpClient = yield* HttpClient.HttpClient;
 
     const client = httpClient.pipe(
-      HttpClient.mapRequest(HttpClientRequest.prependUrl(baseUrl)),
+      HttpClient.mapRequest(HttpClientRequest.prependUrl(baseUrl))
     );
 
     return {
       execute: (request: HttpClientRequest.HttpClientRequest) =>
         client.execute(request),
     };
-  }),
+  })
 );
 
 export const ApiLive = ApiClientLive.pipe(Layer.provide(FetchHttpClient.layer));

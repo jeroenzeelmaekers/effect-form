@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardAction,
@@ -7,29 +7,29 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { ModeToggle } from "@/components/ui/mode-toggle";
+} from '@/components/ui/card';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@/components/ui/input-group';
+import { Label } from '@/components/ui/label';
+import { ModeToggle } from '@/components/ui/mode-toggle';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { revalidateLogic, useForm } from "@tanstack/react-form";
-import { Schema } from "effect";
-import { useAtomSet } from "@effect-atom/atom-react";
-import { languages, getLanguageLabel } from "@/models/language";
-import { UserForm } from "@/models/user";
-import { createUserOptimistic } from "@/lib/api/services";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/select';
+import { createUserOptimistic } from '@/lib/api/services';
+import { getLanguageLabel, languages } from '@/models/language';
+import { UserForm } from '@/models/user';
+import { useAtomSet } from '@effect-atom/atom-react';
+import { revalidateLogic, useForm } from '@tanstack/react-form';
+import { Schema } from 'effect';
 
 const UserFormSchema = Schema.standardSchemaV1(UserForm);
 
@@ -38,10 +38,10 @@ export default function EffectForm() {
 
   const form = useForm({
     defaultValues: {
-      name: "",
-      username: "",
-      email: "",
-      language: "",
+      name: '',
+      username: '',
+      email: '',
+      language: '',
     },
     validationLogic: revalidateLogic(),
     validators: {
@@ -154,11 +154,11 @@ export default function EffectForm() {
                   <Select
                     name={field.name}
                     value={field.state.value}
-                    onValueChange={(value) => field.handleChange(value ?? "")}
+                    onValueChange={(value) => field.handleChange(value ?? '')}
                   >
                     <SelectTrigger id="effect-form-select-language">
                       <SelectValue>
-                        {getLanguageLabel(field.state.value) ?? "Select"}
+                        {getLanguageLabel(field.state.value) ?? 'Select'}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -181,7 +181,7 @@ export default function EffectForm() {
           >
             {([canSubmit, isSubmitting]) => (
               <Button type="submit" disabled={!canSubmit} className="w-full">
-                {isSubmitting ? "Creating..." : "Create User"}
+                {isSubmitting ? 'Creating...' : 'Create User'}
               </Button>
             )}
           </form.Subscribe>
