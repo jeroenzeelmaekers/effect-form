@@ -11,7 +11,7 @@ import { ApiClient } from './client';
 import { getResponseError, NetworkError, ValidationError } from './errors';
 import { simulateRandomError } from './simulation';
 
-const getUsersEffect = Effect.gen(function* () {
+export const getUsersEffect = Effect.gen(function* () {
   // Simulate random errors for demo
   yield* simulateRandomError;
 
@@ -38,7 +38,9 @@ const getUsersEffect = Effect.gen(function* () {
 
 export const usersAtom = runtimeAtom.atom(getUsersEffect);
 
-const createUserEffect = (formValues: Schema.Schema.Type<typeof UserForm>) =>
+export const createUserEffect = (
+  formValues: Schema.Schema.Type<typeof UserForm>
+) =>
   Effect.gen(function* () {
     const client = yield* ApiClient;
 
