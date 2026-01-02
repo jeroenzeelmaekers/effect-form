@@ -60,7 +60,7 @@ export default function EffectForm() {
   }
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm min-w-sm">
       <form onSubmit={onSubmit} className="flex flex-col gap-5">
         <CardHeader>
           <CardTitle>Create User</CardTitle>
@@ -154,8 +154,7 @@ export default function EffectForm() {
                   <Select
                     name={field.name}
                     value={field.state.value}
-                    onValueChange={(value) => field.handleChange(value ?? '')}
-                  >
+                    onValueChange={(value) => field.handleChange(value ?? '')}>
                     <SelectTrigger id="effect-form-select-language">
                       <SelectValue>
                         {getLanguageLabel(field.state.value) ?? 'Select'}
@@ -177,8 +176,7 @@ export default function EffectForm() {
         </CardContent>
         <CardFooter>
           <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting]}
-          >
+            selector={(state) => [state.canSubmit, state.isSubmitting]}>
             {([canSubmit, isSubmitting]) => (
               <Button type="submit" disabled={!canSubmit} className="w-full">
                 {isSubmitting ? 'Creating...' : 'Create User'}

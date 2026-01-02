@@ -5,35 +5,17 @@ import {
   HttpClientRequest,
   HttpClientResponse,
 } from '@effect/platform';
+import type { ResponseError } from '@effect/platform/HttpClientError';
 import { Effect, Schema } from 'effect';
 import { runtimeAtom } from '../runtime';
 import { ApiClient } from './client';
-import { NetworkError, UsersNotFound, ValidationError } from './errors';
-
-// Random error simulation for demo purposes
-const simulateRandomError = Effect.gen(function* () {
-  const random = Math.random();
-
-  // 20% chance of NetworkError
-  if (random < 0.2) {
-    yield* Effect.fail(
-      new NetworkError({
-        message: 'Connection timed out - server unreachable',
-      })
-    );
-  }
-  // 15% chance of UsersNotFound (404)
-  else if (random < 0.35) {
-    yield* Effect.fail(new UsersNotFound({ message: 'No users found' }));
-  }
-  // 10% chance of ValidationError
-  else if (random < 0.45) {
-    yield* Effect.fail(
-      new ValidationError({ message: 'Invalid response format from server' })
-    );
-  }
-  // 55% chance of success - continue normally
-});
+import {
+  NetworkError,
+  ProblemDetail,
+  UsersNotFound,
+  ValidationError,
+} from './errors';
+import { simulateRandomError } from './simulation';
 
 export const usersAtom = runtimeAtom.atom(
   Effect.gen(function* () {
@@ -43,6 +25,10 @@ export const usersAtom = runtimeAtom.atom(
     const client = yield* ApiClient;
     const request = HttpClientRequest.get('/users');
     const response = yield* client.execute(request);
+
+    // Simulate network delay for optimistic demo purposes
+    yield* Effect.sleep('3 seconds');
+
     return yield* HttpClientResponse.schemaBodyJson(Schema.Array(User))(
       response
     );
@@ -51,10 +37,7 @@ export const usersAtom = runtimeAtom.atom(
     Effect.catchTags({
       RequestError: (error) =>
         Effect.fail(new NetworkError({ message: error.message })),
-      ResponseError: (error) =>
-        error.response.status === 404
-          ? Effect.fail(new UsersNotFound({ message: error.message }))
-          : Effect.fail(new NetworkError({ message: error.message })),
+      ResponseError: (error) => getResponseError(error),
       ParseError: (error) =>
         Effect.fail(new ValidationError({ message: error.message })),
       TimeoutException: (error) =>
@@ -71,7 +54,7 @@ export const createUserFn = runtimeAtom.fn(
       const client = yield* ApiClient;
 
       // Simulate network delay for optimistic demo purposes
-      yield* Effect.sleep('3 seconds');
+      yield* Effect.sleep('5 seconds');
 
       const body = yield* HttpBody.json(formValues);
       const request = HttpClientRequest.post('/users').pipe(
@@ -108,3 +91,37 @@ export const createUserOptimistic = Atom.optimisticFn(optimisticUsersAtom, {
     ]),
   fn: createUserFn,
 });
+
+function getResponseError(error: ResponseError) {
+  return Effect.gen(function* () {
+    // Try to parse the response body as Problem Detail
+    const problemDetail = yield* HttpClientResponse.schemaBodyJson(
+      ProblemDetail
+    )(error.response);
+
+    const message =
+      problemDetail.detail ?? problemDetail.title ?? error.message;
+
+    if (error.response.status === 404) {
+      return yield* Effect.fail(new UsersNotFound({ message }));
+    }
+
+    if (
+      error.response.status === 422 ||
+      problemDetail.type?.includes('validation')
+    ) {
+      return yield* Effect.fail(new ValidationError({ message }));
+    }
+
+    return yield* Effect.fail(new NetworkError({ message }));
+  }).pipe(
+    // If Problem Detail parsing fails, return a generic error
+    Effect.catchAll(() =>
+      Effect.fail(
+        new NetworkError({
+          message: `Unexpected error response (${error.response.status})`,
+        })
+      )
+    )
+  );
+}

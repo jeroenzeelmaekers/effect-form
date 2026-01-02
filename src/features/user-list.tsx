@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import { optimisticUsersAtom } from '@/lib/api/services';
 import { cn } from '@/lib/utils';
 import type { User } from '@/models/user';
@@ -17,8 +18,7 @@ function Item({ user }: { user: User }) {
       className={cn('flex flex-row justify-between rounded-lg border p-3', {
         'bg-muted/50 border-dashed opacity-70': isOptimistic,
         'bg-card border-border': !isOptimistic,
-      })}
-    >
+      })}>
       <div className="flex-col gap-3">
         <div className="font-medium">{user.name}</div>
         <div className="text-muted-foreground text-sm">
@@ -54,9 +54,27 @@ function List({ users }: { users: readonly User[] }) {
 // Error message
 function Error({ message }: { message: string }) {
   return (
-    <span id="error-container" className="text-sm text-red-500">
-      {message}
-    </span>
+    <div className="flex h-full items-center justify-center">
+      <span className="text-sm text-red-500">{message}</span>
+    </div>
+  );
+}
+
+// Skeleton loader for user list
+function Loading() {
+  return (
+    <ul className="space-y-2">
+      {Array.from({ length: 10 }).map((_, i) => (
+        <li
+          key={i}
+          className="bg-card border-border flex flex-row justify-between rounded-lg border p-3">
+          <div className="flex flex-1 flex-col gap-1">
+            <Skeleton className="h-1lh w-1/3" />
+            <Skeleton className="h-lh w-2/3" />
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -65,10 +83,9 @@ export default function UserList() {
   const result = useAtomValue(optimisticUsersAtom);
 
   return (
-    <section className="w-full max-w-md">
-      <h2 className="mb-4 text-xl font-semibold">Users</h2>
+    <section className="w-full max-w-sm min-w-sm">
       {Result.builder(result)
-        .onInitial(() => <p className="text-muted-foreground">Loading...</p>)
+        .onInitial(() => <Loading />)
         .onErrorTag('UserNotFound', (cause) => (
           <Error message={cause['message']} />
         ))

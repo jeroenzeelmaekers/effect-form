@@ -156,14 +156,12 @@ function FieldSeparator({
         'relative -my-2 h-5 text-xs/relaxed group-data-[variant=outline]/field-group:-mb-2',
         className
       )}
-      {...props}
-    >
+      {...props}>
       <Separator className="absolute inset-0 top-1/2" />
       {children && (
         <span
           className="text-muted-foreground bg-background relative mx-auto block w-fit px-2"
-          data-slot="field-separator-content"
-        >
+          data-slot="field-separator-content">
           {children}
         </span>
       )}
@@ -215,8 +213,7 @@ function FieldError({
       role="alert"
       data-slot="field-error"
       className={cn('text-destructive text-xs/relaxed font-normal', className)}
-      {...props}
-    >
+      {...props}>
       {content}
     </div>
   );

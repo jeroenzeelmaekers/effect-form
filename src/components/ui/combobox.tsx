@@ -28,8 +28,7 @@ function ComboboxTrigger({
     <ComboboxPrimitive.Trigger
       data-slot="combobox-trigger"
       className={cn("[&_svg:not([class*='size-'])]:size-3.5", className)}
-      {...props}
-    >
+      {...props}>
       {children}
       <ChevronDownIcon className="text-muted-foreground pointer-events-none size-3.5" />
     </ComboboxPrimitive.Trigger>
@@ -42,8 +41,7 @@ function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
       data-slot="combobox-clear"
       render={<InputGroupButton variant="ghost" size="icon-xs" />}
       className={cn(className)}
-      {...props}
-    >
+      {...props}>
       <XIcon className="pointer-events-none" />
     </ComboboxPrimitive.Clear>
   );
@@ -105,8 +103,7 @@ function ComboboxContent({
         align={align}
         alignOffset={alignOffset}
         anchor={anchor}
-        className="isolate z-50"
-      >
+        className="isolate z-50">
         <ComboboxPrimitive.Popup
           data-slot="combobox-content"
           data-chips={!!anchor}
@@ -146,14 +143,12 @@ function ComboboxItem({
         "data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground relative flex min-h-7 w-full cursor-default items-center gap-2 rounded-md px-2 py-1 text-xs/relaxed outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
         className
       )}
-      {...props}
-    >
+      {...props}>
       {children}
       <ComboboxPrimitive.ItemIndicator
         render={
           <span className="pointer-events-none absolute right-2 flex items-center justify-center" />
-        }
-      >
+        }>
         <CheckIcon className="pointer-events-none" />
       </ComboboxPrimitive.ItemIndicator>
     </ComboboxPrimitive.Item>
@@ -247,15 +242,13 @@ function ComboboxChip({
         'bg-muted-foreground/10 text-foreground flex h-[calc(--spacing(4.75))] w-fit items-center justify-center gap-1 rounded-[calc(var(--radius-sm)-2px)] px-1.5 text-xs/relaxed font-medium whitespace-nowrap has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50 has-data-[slot=combobox-chip-remove]:pr-0',
         className
       )}
-      {...props}
-    >
+      {...props}>
       {children}
       {showRemove && (
         <ComboboxPrimitive.ChipRemove
           render={<Button variant="ghost" size="icon-xs" />}
           className="-ml-1 opacity-50 hover:opacity-100"
-          data-slot="combobox-chip-remove"
-        >
+          data-slot="combobox-chip-remove">
           <XIcon className="pointer-events-none" />
         </ComboboxPrimitive.ChipRemove>
       )}
