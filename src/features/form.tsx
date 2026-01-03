@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import {
   InputGroup,
   InputGroupAddon,
+  InputGroupButton,
   InputGroupInput,
 } from '@/components/ui/input-group';
 import { Label } from '@/components/ui/label';
@@ -24,12 +25,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { createUserOptimistic } from '@/lib/api/services';
 import { getLanguageLabel, languages } from '@/models/language';
 import { UserForm } from '@/models/user';
 import { useAtomSet } from '@effect-atom/atom-react';
 import { revalidateLogic, useForm } from '@tanstack/react-form';
 import { Schema } from 'effect';
+import { HelpCircle } from 'lucide-react';
 
 const UserFormSchema = Schema.standardSchemaV1(UserForm);
 
@@ -60,8 +67,8 @@ export default function EffectForm() {
   }
 
   return (
-    <Card className="w-full max-w-sm min-w-sm">
-      <form onSubmit={onSubmit} className="flex flex-col gap-5">
+    <Card className="w-full max-w-sm min-w-sm" size="sm">
+      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
         <CardHeader>
           <CardTitle>Create User</CardTitle>
           <CardDescription>
@@ -127,15 +134,33 @@ export default function EffectForm() {
               return (
                 <Field data-invalid={isInvalid}>
                   <FieldLabel htmlFor={field.name}>Email:</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="email"
-                    autoComplete="email"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
+                  <InputGroup>
+                    <InputGroupInput
+                      id={field.name}
+                      name={field.name}
+                      type="email"
+                      autoComplete="email"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    <InputGroupAddon align="inline-end">
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <InputGroupButton
+                              variant="ghost"
+                              aria-label="Help"
+                              size="icon-xs">
+                              <HelpCircle />
+                            </InputGroupButton>
+                          }></TooltipTrigger>
+                        <TooltipContent>
+                          <p>We&apos;ll use this to send you notifications</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </InputGroupAddon>
+                  </InputGroup>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );

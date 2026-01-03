@@ -1,13 +1,38 @@
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SrOnly } from '@/components/ui/sr-only';
 import { optimisticUsersAtom } from '@/lib/api/services';
 import { cn } from '@/lib/utils';
 import type { User } from '@/models/user';
 import { Result, useAtomValue } from '@effect-atom/atom-react';
 import { Schema } from 'effect';
-import { Loader2 } from 'lucide-react';
+import { EditIcon, Loader2, TrashIcon } from 'lucide-react';
 
 // Define User type from schema
 type User = Schema.Schema.Type<typeof User>;
+
+function ItemActions({ user }: { user: User }) {
+  function onEdit() {
+    console.log('Edit user', user);
+  }
+
+  function onDelete() {
+    console.log('Delete user', user);
+  }
+
+  return (
+    <div className="flex items-center space-x-1">
+      <Button size="icon" variant="outline" onClick={onEdit}>
+        <SrOnly>Edit {user.name}</SrOnly>
+        <EditIcon className="h-4 w-4" />
+      </Button>
+      <Button size="icon" variant="destructive" onClick={onDelete}>
+        <SrOnly>Delete {user.name}</SrOnly>
+        <TrashIcon className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+}
 
 // Single list item card
 function Item({ user }: { user: User }) {
@@ -20,14 +45,18 @@ function Item({ user }: { user: User }) {
         'bg-card border-border': !isOptimistic,
       })}>
       <div className="flex-col gap-3">
-        <div className="font-medium">{user.name}</div>
-        <div className="text-muted-foreground text-sm">
+        <div className="text-sm">{user.name}</div>
+        <div className="text-muted-foreground text-xs/relaxed">
           @{user.username} - {user.email}
         </div>
       </div>
-      {isOptimistic && (
-        <Loader2 className="text-muted-foreground ml-2 inline-block h-4 w-4 animate-spin" />
-      )}
+      <div>
+        {isOptimistic ? (
+          <Loader2 className="text-muted-foreground ml-2 inline-block h-4 w-4 animate-spin" />
+        ) : (
+          <ItemActions user={user} />
+        )}
+      </div>
     </li>
   );
 }
@@ -69,8 +98,8 @@ function Loading() {
           key={i}
           className="bg-card border-border flex flex-row justify-between rounded-lg border p-3">
           <div className="flex flex-1 flex-col gap-1">
-            <Skeleton className="h-5.5 w-1/3" />
-            <Skeleton className="h-4.5 w-2/3" />
+            <Skeleton className="h-5 w-1/3" />
+            <Skeleton className="h-4 w-2/3" />
           </div>
         </li>
       ))}

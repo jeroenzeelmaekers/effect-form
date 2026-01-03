@@ -12,15 +12,15 @@ import { getResponseError, NetworkError, ValidationError } from './errors';
 import { simulateRandomError } from './simulation';
 
 export const getUsersEffect = Effect.gen(function* () {
-  // Simulate random errors for demo
-  yield* simulateRandomError;
-
   const client = yield* ApiClient;
   const request = HttpClientRequest.get('/users');
   const response = yield* client.execute(request);
 
   // Simulate network delay for optimistic demo purposes
   yield* Effect.sleep('3 seconds');
+
+  // Simulate random errors for demo
+  yield* simulateRandomError;
 
   return yield* HttpClientResponse.schemaBodyJson(Schema.Array(User))(response);
 }).pipe(
