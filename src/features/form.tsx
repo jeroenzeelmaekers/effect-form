@@ -30,10 +30,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { createUserOptimistic } from '@/lib/api/services';
+import { createUserOptimistic, optimisticUsersAtom } from '@/lib/api/services';
 import { getLanguageLabel, languages } from '@/models/language';
 import { UserForm } from '@/models/user';
-import { useAtomSet } from '@effect-atom/atom-react';
+import { Result, useAtomSet, useAtomValue } from '@effect-atom/atom-react';
 import { revalidateLogic, useForm } from '@tanstack/react-form';
 import { Schema } from 'effect';
 import { HelpCircle } from 'lucide-react';
@@ -42,6 +42,8 @@ const UserFormSchema = Schema.standardSchemaV1(UserForm);
 
 export default function EffectForm() {
   const createUser = useAtomSet(createUserOptimistic);
+  const usersResult = useAtomValue(optimisticUsersAtom);
+  const hasError = Result.isFailure(usersResult);
 
   const form = useForm({
     defaultValues: {
@@ -78,137 +80,149 @@ export default function EffectForm() {
             <ModeToggle />
           </CardAction>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <form.Field
-            name="name"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Name:</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    autoComplete="name"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              );
-            }}
-          />
-          <form.Field
-            name="username"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Username:</FieldLabel>
-                  <InputGroup>
-                    <InputGroupInput
+        <fieldset disabled={hasError} className="flex flex-col gap-5">
+          <CardContent className="flex flex-col gap-4">
+            <form.Field
+              name="name"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Name:</FieldLabel>
+                    <Input
                       id={field.name}
                       name={field.name}
-                      autoComplete="username"
+                      autoComplete="name"
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
-                    <InputGroupAddon>
-                      <Label htmlFor={field.name}>@</Label>
-                    </InputGroupAddon>
-                  </InputGroup>
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              );
-            }}
-          />
-          <form.Field
-            name="email"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Email:</FieldLabel>
-                  <InputGroup>
-                    <InputGroupInput
-                      id={field.name}
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            />
+            <form.Field
+              name="username"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Username:</FieldLabel>
+                    <InputGroup>
+                      <InputGroupInput
+                        id={field.name}
+                        name={field.name}
+                        autoComplete="username"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                      <InputGroupAddon>
+                        <Label htmlFor={field.name}>@</Label>
+                      </InputGroupAddon>
+                    </InputGroup>
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            />
+            <form.Field
+              name="email"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Email:</FieldLabel>
+                    <InputGroup>
+                      <InputGroupInput
+                        id={field.name}
+                        name={field.name}
+                        type="email"
+                        autoComplete="email"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                      <InputGroupAddon align="inline-end">
+                        <Tooltip>
+                          <TooltipTrigger
+                            render={
+                              <InputGroupButton
+                                variant="ghost"
+                                aria-label="Help"
+                                size="icon-xs">
+                                <HelpCircle />
+                              </InputGroupButton>
+                            }></TooltipTrigger>
+                          <TooltipContent>
+                            <p>We&apos;ll use this to send you notifications</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </InputGroupAddon>
+                    </InputGroup>
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            />
+            <form.Field
+              name="language"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field orientation="responsive" data-invalid={isInvalid}>
+                    <FieldLabel htmlFor="effect-form-select-language">
+                      Language:
+                    </FieldLabel>
+                    <Select
                       name={field.name}
-                      type="email"
-                      autoComplete="email"
                       value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                    <InputGroupAddon align="inline-end">
-                      <Tooltip>
-                        <TooltipTrigger
-                          render={
-                            <InputGroupButton
-                              variant="ghost"
-                              aria-label="Help"
-                              size="icon-xs">
-                              <HelpCircle />
-                            </InputGroupButton>
-                          }></TooltipTrigger>
-                        <TooltipContent>
-                          <p>We&apos;ll use this to send you notifications</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </InputGroupAddon>
-                  </InputGroup>
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              );
-            }}
-          />
-          <form.Field
-            name="language"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field orientation="responsive" data-invalid={isInvalid}>
-                  <FieldLabel htmlFor="effect-form-select-language">
-                    Language:
-                  </FieldLabel>
-                  <Select
-                    name={field.name}
-                    value={field.state.value}
-                    onValueChange={(value) => field.handleChange(value ?? '')}>
-                    <SelectTrigger id="effect-form-select-language">
-                      <SelectValue>
-                        {getLanguageLabel(field.state.value) ?? 'Select'}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {languages.map((lang) => (
-                        <SelectItem key={lang.value} value={lang.value}>
-                          {lang.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              );
-            }}
-          />
-        </CardContent>
-        <CardFooter>
-          <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting]}>
-            {([canSubmit, isSubmitting]) => (
-              <Button type="submit" disabled={!canSubmit} className="w-full">
-                {isSubmitting ? 'Creating...' : 'Create User'}
-              </Button>
-            )}
-          </form.Subscribe>
-        </CardFooter>
+                      onValueChange={(value) =>
+                        field.handleChange(value ?? '')
+                      }>
+                      <SelectTrigger id="effect-form-select-language">
+                        <SelectValue>
+                          {getLanguageLabel(field.state.value) ?? 'Select'}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {languages.map((lang) => (
+                          <SelectItem key={lang.value} value={lang.value}>
+                            {lang.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            />
+          </CardContent>
+          <CardFooter>
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting]}>
+              {([canSubmit, isSubmitting]) => (
+                <Button type="submit" disabled={!canSubmit} className="w-full">
+                  {isSubmitting ? 'Creating...' : 'Create User'}
+                </Button>
+              )}
+            </form.Subscribe>
+          </CardFooter>
+        </fieldset>
       </form>
     </Card>
   );

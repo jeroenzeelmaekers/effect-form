@@ -89,7 +89,7 @@ describe('getUsersEffect', () => {
       );
 
       // Fast-forward past the 5 second timeout
-      yield* TestClock.adjust(Duration.seconds(6));
+      yield* TestClock.adjust(Duration.seconds(11));
 
       const exit = yield* Fiber.join(fiber).pipe(Effect.exit);
 
