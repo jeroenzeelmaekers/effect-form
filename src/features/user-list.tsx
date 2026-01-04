@@ -24,7 +24,7 @@ interface DataTableProps<TData extends { id: number }, TValue> {
   data: readonly TData[];
 }
 
-// DataTable component
+// DataTable
 function DataTable<TData extends { id: number }, TValue>({
   columns,
   data,
@@ -71,7 +71,7 @@ function DataTable<TData extends { id: number }, TValue>({
   );
 }
 
-// Data row component
+// Data row
 function DataTableRow<TData extends { id: number }>({
   row,
 }: {
@@ -103,6 +103,7 @@ function EmptyDataTableRow({ colSpan }: { colSpan: number }) {
   );
 }
 
+// Loading state
 function Loading<TData, TValue>({
   columns,
 }: {
