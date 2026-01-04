@@ -1,82 +1,137 @@
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { SrOnly } from '@/components/ui/sr-only';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { optimisticUsersAtom } from '@/lib/api/services';
-import { cn } from '@/lib/utils';
-import type { User } from '@/models/user';
+import { UserColumns } from '@/models/user';
 import { Result, useAtomValue } from '@effect-atom/atom-react';
-import { Schema } from 'effect';
-import { EditIcon, Loader2, TrashIcon } from 'lucide-react';
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  type ColumnDef,
+  type Row,
+} from '@tanstack/react-table';
+import { useMemo } from 'react';
 
-// Define User type from schema
-type User = Schema.Schema.Type<typeof User>;
+interface DataTableProps<TData extends { id: number }, TValue> {
+  columns: ColumnDef<TData, TValue>[];
+  data: readonly TData[];
+}
 
-function ItemActions({ user }: { user: User }) {
-  function onEdit() {
-    console.log('Edit user', user);
-  }
+// DataTable component
+function DataTable<TData extends { id: number }, TValue>({
+  columns,
+  data,
+}: DataTableProps<TData, TValue>) {
+  const memoizedData = useMemo(() => [...data], [data]);
 
-  function onDelete() {
-    console.log('Delete user', user);
-  }
+  const table = useReactTable({
+    data: memoizedData,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   return (
-    <div className="flex items-center space-x-1">
-      <Button size="icon" variant="outline" onClick={onEdit}>
-        <SrOnly>Edit {user.name}</SrOnly>
-        <EditIcon className="h-4 w-4" />
-      </Button>
-      <Button size="icon" variant="destructive" onClick={onDelete}>
-        <SrOnly>Delete {user.name}</SrOnly>
-        <TrashIcon className="h-4 w-4" />
-      </Button>
+    <div className="w-full overflow-x-auto rounded-md border">
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table
+              .getRowModel()
+              .rows.map((row) => <DataTableRow key={row.id} row={row} />)
+          ) : (
+            <EmptyDataTableRow colSpan={columns.length} />
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 }
 
-// Single list item card
-function Item({ user }: { user: User }) {
-  const isOptimistic = user.id < 0;
-
+// Data row component
+function DataTableRow<TData extends { id: number }>({
+  row,
+}: {
+  row: Row<TData>;
+}) {
+  const isOptimistic = row.original.id < 0;
   return (
-    <li
-      className={cn('flex flex-row justify-between rounded-lg border p-3', {
-        'bg-muted/50 border-dashed opacity-70': isOptimistic,
-        'bg-card border-border': !isOptimistic,
-      })}>
-      <div className="flex-col gap-3">
-        <div className="text-sm">{user.name}</div>
-        <div className="text-muted-foreground text-xs/relaxed">
-          @{user.username} - {user.email}
-        </div>
-      </div>
-      <div>
-        {isOptimistic ? (
-          <Loader2 className="text-muted-foreground ml-2 inline-block h-4 w-4 animate-spin" />
-        ) : (
-          <ItemActions user={user} />
-        )}
-      </div>
-    </li>
+    <TableRow
+      key={row.id}
+      data-state={row.getIsSelected() && 'selected'}
+      className={isOptimistic ? 'text-muted-foreground' : ''}>
+      {row.getVisibleCells().map((cell) => (
+        <TableCell key={cell.id}>
+          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </TableCell>
+      ))}
+    </TableRow>
   );
 }
 
-// List of users
-function List({ users }: { users: readonly User[] }) {
-  if (users.length === 0) {
-    return (
-      <ul className="space-y-2">
-        <li className="text-muted-foreground">No users yet</li>
-      </ul>
-    );
-  }
-
+// Empty state row
+function EmptyDataTableRow({ colSpan }: { colSpan: number }) {
   return (
-    <ul className="space-y-2">
-      {users.map((user) => (
-        <Item key={user.id} user={user} />
-      ))}
-    </ul>
+    <TableRow>
+      <TableCell colSpan={colSpan} className="h-24 text-center">
+        No results.
+      </TableCell>
+    </TableRow>
+  );
+}
+
+function Loading<TData, TValue>({
+  columns,
+}: {
+  columns: ColumnDef<TData, TValue>[];
+}) {
+  return (
+    <div className="overflow-hidden rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {columns.map((column, index) => (
+              <TableHead key={index}>
+                {typeof column.header === 'string' ? column.header : null}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 10 }).map((_, index) => (
+            <TableRow key={index}>
+              {columns.map((_, colIndex) => (
+                <TableCell key={colIndex}>
+                  <Skeleton className="h-4 w-24" />
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
 
@@ -89,32 +144,14 @@ function Error({ message }: { message: string }) {
   );
 }
 
-// Skeleton loader for user list
-function Loading() {
-  return (
-    <ul className="space-y-2">
-      {Array.from({ length: 10 }).map((_, i) => (
-        <li
-          key={i}
-          className="bg-card border-border flex flex-row justify-between rounded-lg border p-3">
-          <div className="flex flex-1 flex-col gap-1">
-            <Skeleton className="h-5 w-1/3" />
-            <Skeleton className="h-4 w-2/3" />
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 // Main UserList component
 export default function UserList() {
   const result = useAtomValue(optimisticUsersAtom);
 
   return (
-    <section className="w-full max-w-sm min-w-sm">
+    <section className="min-w-0 flex-1">
       {Result.builder(result)
-        .onInitial(() => <Loading />)
+        .onInitial(() => <Loading columns={UserColumns} />)
         .onErrorTag('UserNotFound', (cause) => (
           <Error message={cause['message']} />
         ))
@@ -124,7 +161,7 @@ export default function UserList() {
         .onErrorTag('ValidationError', (cause) => (
           <Error message={cause['message']} />
         ))
-        .onSuccess((users) => <List users={users} />)
+        .onSuccess((users) => <DataTable columns={UserColumns} data={users} />)
         .render()}
     </section>
   );

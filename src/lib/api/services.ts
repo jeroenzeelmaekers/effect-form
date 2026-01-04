@@ -24,7 +24,7 @@ export const getUsersEffect = Effect.gen(function* () {
 
   return yield* HttpClientResponse.schemaBodyJson(Schema.Array(User))(response);
 }).pipe(
-  Effect.timeout('5 seconds'),
+  Effect.timeout('10 seconds'),
   Effect.catchTags({
     RequestError: (error) =>
       Effect.fail(new NetworkError({ message: error.message })),

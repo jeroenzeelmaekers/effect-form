@@ -1,3 +1,4 @@
+import type { ColumnDef } from '@tanstack/react-table';
 import { Schema } from 'effect';
 import { languageValues } from './language';
 
@@ -36,6 +37,21 @@ const User = Schema.Struct({
   language: Schema.optional(Language),
 });
 
+const UserColumns: ColumnDef<Schema.Schema.Type<typeof User>>[] = [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+  },
+  {
+    accessorKey: 'username',
+    header: 'Username',
+  },
+  {
+    accessorKey: 'email',
+    header: 'Email',
+  },
+];
+
 const UserForm = Schema.Struct({
   name: Name,
   username: Username,
@@ -43,4 +59,4 @@ const UserForm = Schema.Struct({
   language: Language,
 });
 
-export { User, UserForm };
+export { User, UserColumns, UserForm };
