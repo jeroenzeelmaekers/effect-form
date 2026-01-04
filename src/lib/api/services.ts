@@ -33,7 +33,8 @@ export const getUsersEffect = Effect.gen(function* () {
       Effect.fail(new ValidationError({ message: error.message })),
     TimeoutException: (error) =>
       Effect.fail(new NetworkError({ message: error.message })),
-  })
+  }),
+  Effect.withSpan('Get Users')
 );
 
 export const usersAtom = runtimeAtom.atom(getUsersEffect);
@@ -44,10 +45,12 @@ export const createUserEffect = (
   Effect.gen(function* () {
     const client = yield* ApiClient;
 
-    // Simulate network delay for optimistic demo purposes
-    // yield* Effect.sleep('5 seconds');
+    yield* Effect.sleep('5 seconds');
 
     const body = yield* HttpBody.json(formValues);
+
+    Effect.logInfo('Creating user with values: ' + JSON.stringify(formValues));
+
     const request = HttpClientRequest.post('/users').pipe(
       HttpClientRequest.setBody(body)
     );
@@ -64,7 +67,8 @@ export const createUserEffect = (
         Effect.fail(new ValidationError({ message: error.message })),
       HttpBodyError: () =>
         Effect.fail(new ValidationError({ message: 'Invalid request body' })),
-    })
+    }),
+    Effect.withSpan('Create Users')
   );
 
 export const createUserFn = runtimeAtom.fn(createUserEffect);
