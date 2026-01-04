@@ -29,6 +29,7 @@ function DataTable<TData extends { id: number }, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  'use no memo';
   const memoizedData = useMemo(() => [...data], [data]);
 
   const table = useReactTable({
