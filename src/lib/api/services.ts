@@ -5,51 +5,50 @@ import {
   HttpClientRequest,
   HttpClientResponse,
 } from '@effect/platform';
-import { Effect, Schema } from 'effect';
+import { Effect, flow, Schema } from 'effect';
 import { runtimeAtom } from '../runtime';
 import { ApiClient } from './client';
 import { getResponseError, NetworkError, ValidationError } from './errors';
 import { simulateRandomError } from './simulation';
 
-export const getUsersEffect = Effect.gen(function* () {
-  const client = yield* ApiClient;
-  const request = HttpClientRequest.get('/users');
-  const response = yield* client.execute(request);
+export const getUsersEffect = Effect.fn('Get Users')(
+  function* () {
+    const client = yield* ApiClient;
+    const request = HttpClientRequest.get('/users');
+    const response = yield* client.execute(request);
 
-  // Simulate network delay for optimistic demo purposes
-  yield* Effect.sleep('3 seconds');
+    // Simulate network delay for optimistic demo purposes
+    yield* Effect.sleep('3 seconds');
 
-  // Simulate random errors for demo
-  yield* simulateRandomError;
+    // Simulate random errors for demo
+    yield* simulateRandomError;
 
-  return yield* HttpClientResponse.schemaBodyJson(Schema.Array(User))(response);
-}).pipe(
-  Effect.timeout('10 seconds'),
-  Effect.catchTags({
-    RequestError: (error) =>
-      Effect.fail(new NetworkError({ message: error.message })),
-    ResponseError: (error) => getResponseError(error),
-    ParseError: (error) =>
-      Effect.fail(new ValidationError({ message: error.message })),
-    TimeoutException: (error) =>
-      Effect.fail(new NetworkError({ message: error.message })),
-  }),
-  Effect.withSpan('Get Users')
+    return yield* HttpClientResponse.schemaBodyJson(Schema.Array(User))(
+      response
+    );
+  },
+  flow(
+    Effect.timeout('10 seconds'),
+    Effect.catchTags({
+      RequestError: (error) =>
+        Effect.fail(new NetworkError({ message: error.message })),
+      ResponseError: (error) => getResponseError(error),
+      ParseError: (error) =>
+        Effect.fail(new ValidationError({ message: error.message })),
+      TimeoutException: (error) =>
+        Effect.fail(new NetworkError({ message: error.message })),
+    })
+  )
 );
-
 export const usersAtom = runtimeAtom.atom(getUsersEffect);
 
-export const createUserEffect = (
-  formValues: Schema.Schema.Type<typeof UserForm>
-) =>
-  Effect.gen(function* () {
+export const createUserEffect = Effect.fn('Create Users')(
+  function* (formValues: Schema.Schema.Type<typeof UserForm>) {
     const client = yield* ApiClient;
 
     yield* Effect.sleep('5 seconds');
 
     const body = yield* HttpBody.json(formValues);
-
-    Effect.logInfo('Creating user with values: ' + JSON.stringify(formValues));
 
     const request = HttpClientRequest.post('/users').pipe(
       HttpClientRequest.setBody(body)
@@ -57,7 +56,8 @@ export const createUserEffect = (
 
     const response = yield* client.execute(request);
     return yield* HttpClientResponse.schemaBodyJson(User)(response);
-  }).pipe(
+  },
+  flow(
     Effect.catchTags({
       RequestError: (error) =>
         Effect.fail(new NetworkError({ message: error.message })),
@@ -68,9 +68,11 @@ export const createUserEffect = (
       HttpBodyError: () =>
         Effect.fail(new ValidationError({ message: 'Invalid request body' })),
     }),
-    Effect.withSpan('Create Users')
-  );
-
+    Effect.tap((data) =>
+      Effect.logInfo('[USER] Created user: ' + JSON.stringify(data))
+    )
+  )
+);
 export const createUserFn = runtimeAtom.fn(createUserEffect);
 
 // handle optimistic updates
