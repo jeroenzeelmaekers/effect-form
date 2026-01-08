@@ -30,7 +30,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { createUserOptimistic, optimisticUsersAtom } from '@/lib/api/services';
+import {
+  createUserOptimistic,
+  optimisticGetUsersAtom,
+} from '@/lib/api/user.atoms';
 import { getLanguageLabel, languages } from '@/models/language';
 import { UserForm } from '@/models/user';
 import { Result, useAtomSet, useAtomValue } from '@effect-atom/atom-react';
@@ -42,7 +45,7 @@ const UserFormSchema = Schema.standardSchemaV1(UserForm);
 
 export default function EffectForm() {
   const createUser = useAtomSet(createUserOptimistic);
-  const usersResult = useAtomValue(optimisticUsersAtom);
+  const usersResult = useAtomValue(optimisticGetUsersAtom);
   const hasError = Result.isFailure(usersResult);
 
   const form = useForm({

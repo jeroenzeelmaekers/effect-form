@@ -19,7 +19,9 @@ const Username = Schema.String.pipe(
 const Email = Schema.String.pipe(
   Schema.pattern(
     /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/,
-    { message: () => 'Invalid email address' }
+    {
+      message: () => 'Invalid email address',
+    }
   )
 );
 

@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { optimisticUsersAtom } from '@/lib/api/services';
+import { optimisticGetUsersAtom } from '@/lib/api/user.atoms';
 import { UserColumns } from '@/models/user';
 import { Result, useAtomValue } from '@effect-atom/atom-react';
 import {
@@ -148,7 +148,7 @@ function Error({ message }: { message: string }) {
 
 // Main UserList component
 export default function UserList() {
-  const result = useAtomValue(optimisticUsersAtom);
+  const result = useAtomValue(optimisticGetUsersAtom);
 
   return (
     <section className="min-w-0 flex-1">

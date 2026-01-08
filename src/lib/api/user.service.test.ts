@@ -1,8 +1,8 @@
 import { NetworkError, UsersNotFound, ValidationError } from '@/lib/api/errors';
-import { createUserEffect, getUsersEffect } from '@/lib/api/services';
+import { UserService } from '@/lib/api/user.service';
 import { createMockApiClient, createMockResponse } from '@/test/mock-client';
 import { it } from '@effect/vitest';
-import { Duration, Effect, Exit, Fiber, TestClock } from 'effect';
+import { Duration, Effect, Exit, Fiber, Layer, TestClock } from 'effect';
 import { beforeEach, describe, expect, vi } from 'vitest';
 
 // Mock Math.random to always return success (>= 0.45 skips all simulated errors)
@@ -10,7 +10,10 @@ beforeEach(() => {
   vi.spyOn(Math, 'random').mockReturnValue(0.5);
 });
 
-describe('getUsersEffect', () => {
+const createTestLayer = (handler: Parameters<typeof createMockApiClient>[0]) =>
+  UserService.Default.pipe(Layer.provide(createMockApiClient(handler)));
+
+describe('UserService.getUsers', () => {
   it.effect('should return users on successful response', () =>
     Effect.gen(function* () {
       const mockUsers = [
@@ -28,9 +31,9 @@ describe('getUsersEffect', () => {
         },
       ];
 
-      const fiber = yield* getUsersEffect.pipe(
+      const fiber = yield* UserService.getUsers().pipe(
         Effect.provide(
-          createMockApiClient(() =>
+          createTestLayer(() =>
             Effect.succeed(createMockResponse(200, mockUsers))
           )
         ),
@@ -49,9 +52,9 @@ describe('getUsersEffect', () => {
     Effect.gen(function* () {
       const invalidBody = [{ invalid: 'data' }];
 
-      const fiber = yield* getUsersEffect.pipe(
+      const fiber = yield* UserService.getUsers().pipe(
         Effect.provide(
-          createMockApiClient(() =>
+          createTestLayer(() =>
             Effect.succeed(createMockResponse(200, invalidBody))
           )
         ),
@@ -76,11 +79,11 @@ describe('getUsersEffect', () => {
 
   it.effect('should fail with NetworkError on request timeout', () =>
     Effect.gen(function* () {
-      const fiber = yield* getUsersEffect.pipe(
+      const fiber = yield* UserService.getUsers().pipe(
         Effect.provide(
-          createMockApiClient(() =>
-            // Simulate a slow response that exceeds the 5 second timeout
-            Effect.sleep('10 seconds').pipe(
+          createTestLayer(() =>
+            // Simulate a slow response that exceeds the 10 second timeout
+            Effect.sleep('15 seconds').pipe(
               Effect.map(() => createMockResponse(200, []))
             )
           )
@@ -88,8 +91,8 @@ describe('getUsersEffect', () => {
         Effect.fork
       );
 
-      // Fast-forward past the 5 second timeout
-      yield* TestClock.adjust(Duration.seconds(11));
+      // Fast-forward past the 10 second timeout
+      yield* TestClock.adjust(Duration.seconds(15));
 
       const exit = yield* Fiber.join(fiber).pipe(Effect.exit);
 
@@ -105,7 +108,7 @@ describe('getUsersEffect', () => {
   );
 });
 
-describe('createUserEffect', () => {
+describe('UserService.createUser', () => {
   const validFormData = {
     name: 'Test User',
     username: 'testuser',
@@ -120,9 +123,9 @@ describe('createUserEffect', () => {
         ...validFormData,
       };
 
-      const fiber = yield* createUserEffect(validFormData).pipe(
+      const fiber = yield* UserService.createUser(validFormData).pipe(
         Effect.provide(
-          createMockApiClient(() =>
+          createTestLayer(() =>
             Effect.succeed(createMockResponse(201, createdUser))
           )
         ),
@@ -141,9 +144,9 @@ describe('createUserEffect', () => {
     Effect.gen(function* () {
       const invalidResponse = { invalid: 'data' };
 
-      const fiber = yield* createUserEffect(validFormData).pipe(
+      const fiber = yield* UserService.createUser(validFormData).pipe(
         Effect.provide(
-          createMockApiClient(() =>
+          createTestLayer(() =>
             Effect.succeed(createMockResponse(201, invalidResponse))
           )
         ),
