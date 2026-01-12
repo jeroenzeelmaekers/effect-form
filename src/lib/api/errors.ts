@@ -22,6 +22,7 @@ export const ProblemDetail = Schema.Struct({
   instance: Schema.optional(Schema.String),
 });
 
+// Response errors are handled based on status codes and problem details
 export function getResponseError(error: ResponseError) {
   return Effect.gen(function* () {
     const problemDetail = yield* HttpClientResponse.schemaBodyJson(
@@ -43,13 +44,5 @@ export function getResponseError(error: ResponseError) {
     }
 
     return yield* Effect.fail(new NetworkError({ message }));
-  }).pipe(
-    Effect.catchAll(() =>
-      Effect.fail(
-        new NetworkError({
-          message: `Unexpected error response (${error.response.status})`,
-        })
-      )
-    )
-  );
+  });
 }

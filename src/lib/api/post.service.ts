@@ -2,7 +2,7 @@ import { Post } from '@/models/post';
 import { HttpClientRequest, HttpClientResponse } from '@effect/platform';
 import { Effect, flow, Schema } from 'effect';
 import { ApiClient } from './client';
-import { NetworkError, ValidationError } from './errors';
+import { getResponseError, NetworkError, ValidationError } from './errors';
 
 export class PostService extends Effect.Service<PostService>()('PostService', {
   accessors: true,
@@ -21,8 +21,7 @@ export class PostService extends Effect.Service<PostService>()('PostService', {
         Effect.catchTags({
           RequestError: (e) =>
             Effect.fail(new NetworkError({ message: e.message })),
-          ResponseError: (e) =>
-            Effect.fail(new NetworkError({ message: e.message })),
+          ResponseError: (error) => getResponseError(error),
           ParseError: (e) =>
             Effect.fail(new ValidationError({ message: e.message })),
         })

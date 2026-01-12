@@ -6,9 +6,9 @@ import { UserService } from './user.service';
 
 export const getUsersAtom = runtimeAtom
   .atom(UserService.getUsers())
-  .pipe(Atom.withReactivity({ users: ['users'] }), Atom.withLabel('usersAtom'));
+  .pipe(Atom.withReactivity({ users: ['users'] }));
 
-export const createUserFn = runtimeAtom.fn(UserService.createUser, {
+export const createUserAtom = runtimeAtom.fn(UserService.createUser, {
   reactivityKeys: { users: ['users'] },
 });
 
@@ -26,11 +26,14 @@ const createTempUser = (
   language: formValues.language,
 });
 
-export const createUserOptimistic = Atom.optimisticFn(optimisticGetUsersAtom, {
-  reducer: (currentResult, formValues) =>
-    Result.map(currentResult, (currentUsers) => [
-      ...currentUsers,
-      createTempUser(formValues),
-    ]),
-  fn: createUserFn,
-});
+export const createUserOptimisticAtom = Atom.optimisticFn(
+  optimisticGetUsersAtom,
+  {
+    reducer: (currentResult, formValues) =>
+      Result.map(currentResult, (currentUsers) => [
+        ...currentUsers,
+        createTempUser(formValues),
+      ]),
+    fn: createUserAtom,
+  }
+);

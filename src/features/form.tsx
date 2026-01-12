@@ -31,7 +31,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import {
-  createUserOptimistic,
+  createUserOptimisticAtom,
   optimisticGetUsersAtom,
 } from '@/lib/api/user.atoms';
 import { getLanguageLabel, languages } from '@/models/language';
@@ -44,7 +44,7 @@ import { HelpCircle } from 'lucide-react';
 const UserFormSchema = Schema.standardSchemaV1(UserForm);
 
 export default function EffectForm() {
-  const createUser = useAtomSet(createUserOptimistic);
+  const createUser = useAtomSet(createUserOptimisticAtom);
   const usersResult = useAtomValue(optimisticGetUsersAtom);
   const hasError = Result.isFailure(usersResult);
 

@@ -154,15 +154,7 @@ export default function UserList() {
     <section className="min-w-0 flex-1">
       {Result.builder(result)
         .onInitial(() => <Loading columns={UserColumns} />)
-        .onErrorTag('UserNotFound', (cause) => (
-          <Error message={cause['message']} />
-        ))
-        .onErrorTag('NetworkError', (cause) => (
-          <Error message={cause['message']} />
-        ))
-        .onErrorTag('ValidationError', (cause) => (
-          <Error message={cause['message']} />
-        ))
+        .onError((cause) => <Error message={cause['message']} />)
         .onSuccess((users) => <DataTable columns={UserColumns} data={users} />)
         .render()}
     </section>
