@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { Error } from '@/components/ui/error';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -10,12 +10,7 @@ import {
 } from '@/components/ui/table';
 import { optimisticGetUsersAtom } from '@/lib/api/user.atoms';
 import { UserColumns } from '@/models/user';
-import {
-  Atom,
-  Result,
-  useAtomRefresh,
-  useAtomValue,
-} from '@effect-atom/atom-react';
+import { Result, useAtomValue } from '@effect-atom/atom-react';
 import {
   flexRender,
   getCoreRowModel,
@@ -23,7 +18,7 @@ import {
   type ColumnDef,
   type Row,
 } from '@tanstack/react-table';
-import { useMemo, type ReactNode } from 'react';
+import { useMemo } from 'react';
 
 interface DataTableProps<TData extends { id: number }, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -143,15 +138,6 @@ function Loading<TData, TValue>({
   );
 }
 
-// Error message
-function Error({ message }: { message: string }) {
-  return (
-    <div className="flex h-full items-center justify-center">
-      <span className="text-sm text-red-500">{message}</span>
-    </div>
-  );
-}
-
 // Main UserList component
 export default function UserList() {
   const result = useAtomValue(optimisticGetUsersAtom);
@@ -161,55 +147,91 @@ export default function UserList() {
         .onInitial(() => <Loading columns={UserColumns} />)
         .onWaiting(() => <Loading columns={UserColumns} />)
         .onErrorTag('UserNotFound', (error) => (
-          <ErrorWithRefresh
-            title="Unable to find users"
-            atom={optimisticGetUsersAtom}>
-            <p className="text-sm">
-              We where unable to fetch the users due to a technical issue on our
-              end. Please try fetching the users again. If the issue keeps
-              happing{' '}
-              <a
-                className="underline underline-offset-2"
-                href={`mailto:contact@jeroenzeelmaekers.com?subject=Effect form: User not found&body=I keep getting a 'Users Not Found' error when trying to fetch the users. Please assist. traceId: ${error.traceId}`}>
-                contact Customer Care.
-              </a>
-            </p>
-          </ErrorWithRefresh>
+          <Error.Root>
+            <Error.Content>
+              <Error.Title>Unable to find users</Error.Title>
+              <Error.Description>
+                We where unable to fetch the users due to a technical issue on
+                our end. Please try fetching the users again. If the issue keeps
+                happing{' '}
+                <a
+                  className="underline underline-offset-2"
+                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Users not found')}&body=${encodeURIComponent(`
+
+
+---
+Do not remove this information:
+Trace ID: ${error.traceId}`)}`}>
+                  contact Customer Care.
+                </a>
+              </Error.Description>
+            </Error.Content>
+            <Error.Actions>
+              <Error.Refresh atom={optimisticGetUsersAtom} />
+            </Error.Actions>
+          </Error.Root>
         ))
-        .onError((cause) => (
-          <Error
-            message={
-              ('problemDetail' in cause
-                ? (cause.problemDetail?.detail ?? cause.problemDetail?.title)
-                : undefined) ?? 'An unexpected error occurred'
-            }
-          />
+        .onErrorTag('NetworkError', (error) => (
+          <Error.Root>
+            <Error.Content>
+              <Error.Title>Connection failed</Error.Title>
+              <Error.Description>
+                We couldn't connect to the server. Please check your internet
+                connection and try again. If the issue keeps happening{' '}
+                <a
+                  className="underline underline-offset-2"
+                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Connection failed')}&body=${encodeURIComponent(`
+
+
+---
+Do not remove this information:
+Trace ID: ${error.traceId}`)}`}>
+                  contact Customer Care.
+                </a>
+              </Error.Description>
+            </Error.Content>
+          </Error.Root>
+        ))
+        .onErrorTag('ValidationError', (error) => (
+          <Error.Root>
+            <Error.Content>
+              <Error.Title>Invalid data received</Error.Title>
+              <Error.Description>
+                The server returned data in an unexpected format. This is likely
+                a temporary issue. Please try again later. If the issue keeps
+                happening{' '}
+                <a
+                  className="underline underline-offset-2"
+                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Invalid data received')}&body=${encodeURIComponent(`
+
+
+---
+Do not remove this information:
+Trace ID: ${error.traceId}`)}`}>
+                  contact Customer Care.
+                </a>
+              </Error.Description>
+            </Error.Content>
+          </Error.Root>
+        ))
+        .onError(() => (
+          <Error.Root>
+            <Error.Content>
+              <Error.Title>Something went wrong</Error.Title>
+              <Error.Description>
+                An unexpected error occurred while loading the users. Please try
+                again later. If the issue keeps happening{' '}
+                <a
+                  className="underline underline-offset-2"
+                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Unexpected error')}`}>
+                  contact Customer Care.
+                </a>
+              </Error.Description>
+            </Error.Content>
+          </Error.Root>
         ))
         .onSuccess((users) => <DataTable columns={UserColumns} data={users} />)
         .render()}
     </section>
-  );
-}
-
-type ErrorProps<T> = {
-  title: string;
-  atom: Atom.Atom<T>;
-  children?: ReactNode;
-};
-
-function ErrorWithRefresh<T>({ title, children, atom }: ErrorProps<T>) {
-  const refetchUsers = useAtomRefresh(atom);
-  return (
-    <article className="m-auto max-w-2/3 space-y-3">
-      <div className="space-y-2">
-        <h1 className="text-xl font-bold">{title}</h1>
-        {children}
-      </div>
-      <div className="flex flex-row justify-end gap-2">
-        <Button variant="default" onClick={refetchUsers}>
-          Try Again
-        </Button>
-      </div>
-    </article>
   );
 }

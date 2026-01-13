@@ -32,14 +32,27 @@ export const getCurrentTraceId = Effect.gen(function* () {
   return span._tag === 'Some' ? span.value.traceId : undefined;
 });
 
-// Response errors are handled based on status codes and problem details
+export const annotateSpanWithProblemDetail = (
+  problemDetail: ProblemDetail,
+  statusCode?: number
+) =>
+  Effect.annotateCurrentSpan({
+    'error.type': problemDetail.type ?? 'unknown',
+    'error.title': problemDetail.title ?? 'unknown',
+    'error.status': problemDetail.status ?? statusCode ?? 0,
+    'error.detail': problemDetail.detail ?? 'unknown',
+    'error.instance': problemDetail.instance ?? 'unknown',
+  });
+
 export function getResponseError(error: ResponseError, traceId?: string) {
   return Effect.gen(function* () {
-    // If traceId not provided, try to get it from current span (may be undefined if span ended)
     const resolvedTraceId = traceId ?? (yield* getCurrentTraceId);
+
     const problemDetail = yield* HttpClientResponse.schemaBodyJson(
       ProblemDetail
     )(error.response);
+
+    yield* annotateSpanWithProblemDetail(problemDetail, error.response.status);
 
     if (error.response.status === 404) {
       return yield* Effect.fail(

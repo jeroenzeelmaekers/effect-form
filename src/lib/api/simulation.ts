@@ -82,20 +82,13 @@ const simulateErrors = (
     return yield* execute(request);
   });
 
-// Layer that adds simulated errors and delays to the HTTP client
 export const SimulatedHttpClientLive = Layer.effect(
   HttpClient.HttpClient,
   Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient;
 
     return HttpClient.make((request) =>
-      simulateErrors(request, client.execute).pipe(
-        // Add artificial delay for demo purposes
-        Effect.delay('3 seconds')
-      )
-    ).pipe(
-      // Convert non-2xx responses to ResponseError
-      HttpClient.filterStatusOk
-    );
+      simulateErrors(request, client.execute).pipe(Effect.delay('3 seconds'))
+    ).pipe(HttpClient.filterStatusOk);
   })
 );
