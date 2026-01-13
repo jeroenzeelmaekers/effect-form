@@ -72,7 +72,7 @@ export default function EffectForm() {
   }
 
   return (
-    <Card className="w-full lg:max-w-sm lg:min-w-sm" size="sm">
+    <Card className="h-fit w-full lg:max-w-sm lg:min-w-sm" size="sm">
       <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
         <CardHeader>
           <CardTitle>Create User</CardTitle>

@@ -6,6 +6,7 @@ import {
   HttpClientResponse,
 } from '@effect/platform';
 import { Context, Effect, Layer } from 'effect';
+import { SimulatedHttpClientLive } from './simulation';
 
 export interface ApiClientService {
   readonly execute: (
@@ -38,4 +39,8 @@ const ApiClientLive = Layer.effect(
   })
 );
 
-export const ApiLive = ApiClientLive.pipe(Layer.provide(FetchHttpClient.layer));
+const HttpClientLive = SimulatedHttpClientLive.pipe(
+  Layer.provide(FetchHttpClient.layer)
+);
+
+export const ApiLive = ApiClientLive.pipe(Layer.provide(HttpClientLive));

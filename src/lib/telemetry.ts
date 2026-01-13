@@ -13,7 +13,7 @@ const ResourceLive = OtelResource.layer({
 const TracerProviderLive = OtelWebSdk.layerTracerProvider(
   new BatchSpanProcessor(
     new OTLPTraceExporter({
-      url: import.meta.env.OTLP_EXPORTER_URL,
+      url: import.meta.env.VITE_OTLP_EXPORTER_URL,
     })
   )
 );

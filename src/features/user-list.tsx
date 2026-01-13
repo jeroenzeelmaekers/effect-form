@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -9,7 +10,12 @@ import {
 } from '@/components/ui/table';
 import { optimisticGetUsersAtom } from '@/lib/api/user.atoms';
 import { UserColumns } from '@/models/user';
-import { Result, useAtomValue } from '@effect-atom/atom-react';
+import {
+  Atom,
+  Result,
+  useAtomRefresh,
+  useAtomValue,
+} from '@effect-atom/atom-react';
 import {
   flexRender,
   getCoreRowModel,
@@ -17,7 +23,7 @@ import {
   type ColumnDef,
   type Row,
 } from '@tanstack/react-table';
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 
 interface DataTableProps<TData extends { id: number }, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -149,14 +155,61 @@ function Error({ message }: { message: string }) {
 // Main UserList component
 export default function UserList() {
   const result = useAtomValue(optimisticGetUsersAtom);
-
   return (
     <section className="min-w-0 flex-1">
       {Result.builder(result)
         .onInitial(() => <Loading columns={UserColumns} />)
-        .onError((cause) => <Error message={cause['message']} />)
+        .onWaiting(() => <Loading columns={UserColumns} />)
+        .onErrorTag('UserNotFound', (error) => (
+          <ErrorWithRefresh
+            title="Unable to find users"
+            atom={optimisticGetUsersAtom}>
+            <p className="text-sm">
+              We where unable to fetch the users due to a technical issue on our
+              end. Please try fetching the users again. If the issue keeps
+              happing{' '}
+              <a
+                className="underline underline-offset-2"
+                href={`mailto:contact@jeroenzeelmaekers.com?subject=Effect form: User not found&body=I keep getting a 'Users Not Found' error when trying to fetch the users. Please assist. traceId: ${error.traceId}`}>
+                contact Customer Care.
+              </a>
+            </p>
+          </ErrorWithRefresh>
+        ))
+        .onError((cause) => (
+          <Error
+            message={
+              ('problemDetail' in cause
+                ? (cause.problemDetail?.detail ?? cause.problemDetail?.title)
+                : undefined) ?? 'An unexpected error occurred'
+            }
+          />
+        ))
         .onSuccess((users) => <DataTable columns={UserColumns} data={users} />)
         .render()}
     </section>
+  );
+}
+
+type ErrorProps<T> = {
+  title: string;
+  atom: Atom.Atom<T>;
+  children?: ReactNode;
+};
+
+function ErrorWithRefresh<T>({ title, children, atom }: ErrorProps<T>) {
+  const refetchUsers = useAtomRefresh(atom);
+  return (
+    <article className="m-auto max-w-2/3 space-y-3">
+      <div className="space-y-2">
+        <h1 className="text-xl font-bold">{title}</h1>
+        {children}
+      </div>
+      <div className="flex flex-row justify-end gap-2">
+        <Button variant="default" onClick={refetchUsers}>
+          Try Again
+        </Button>
+      </div>
+    </article>
   );
 }

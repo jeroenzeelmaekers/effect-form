@@ -2,18 +2,6 @@ import { HttpClientResponse } from '@effect/platform';
 import type { ResponseError } from '@effect/platform/HttpClientError';
 import { Data, Effect, Schema } from 'effect';
 
-export class NetworkError extends Data.TaggedError('NetworkError')<{
-  readonly message: string;
-}> {}
-
-export class UsersNotFound extends Data.TaggedError('UserNotFound')<{
-  readonly message: string;
-}> {}
-
-export class ValidationError extends Data.TaggedError('ValidationError')<{
-  readonly message: string;
-}> {}
-
 export const ProblemDetail = Schema.Struct({
   type: Schema.optional(Schema.String),
   title: Schema.optional(Schema.String),
@@ -22,27 +10,52 @@ export const ProblemDetail = Schema.Struct({
   instance: Schema.optional(Schema.String),
 });
 
+export type ProblemDetail = typeof ProblemDetail.Type;
+
+export class NetworkError extends Data.TaggedError('NetworkError')<{
+  readonly traceId?: string;
+}> {}
+
+export class UsersNotFound extends Data.TaggedError('UserNotFound')<{
+  readonly traceId?: string;
+  readonly problemDetail?: ProblemDetail;
+}> {}
+
+export class ValidationError extends Data.TaggedError('ValidationError')<{
+  readonly traceId?: string;
+  readonly problemDetail?: ProblemDetail;
+}> {}
+
+// Helper to get current trace ID from the span context
+export const getCurrentTraceId = Effect.gen(function* () {
+  const span = yield* Effect.currentSpan.pipe(Effect.option);
+  return span._tag === 'Some' ? span.value.traceId : undefined;
+});
+
 // Response errors are handled based on status codes and problem details
-export function getResponseError(error: ResponseError) {
+export function getResponseError(error: ResponseError, traceId?: string) {
   return Effect.gen(function* () {
+    // If traceId not provided, try to get it from current span (may be undefined if span ended)
+    const resolvedTraceId = traceId ?? (yield* getCurrentTraceId);
     const problemDetail = yield* HttpClientResponse.schemaBodyJson(
       ProblemDetail
     )(error.response);
 
-    const message =
-      problemDetail.detail ?? problemDetail.title ?? error.message;
-
     if (error.response.status === 404) {
-      return yield* Effect.fail(new UsersNotFound({ message }));
+      return yield* Effect.fail(
+        new UsersNotFound({ traceId: resolvedTraceId, problemDetail })
+      );
     }
 
     if (
       error.response.status === 422 ||
       problemDetail.type?.includes('validation')
     ) {
-      return yield* Effect.fail(new ValidationError({ message }));
+      return yield* Effect.fail(
+        new ValidationError({ traceId: resolvedTraceId, problemDetail })
+      );
     }
 
-    return yield* Effect.fail(new NetworkError({ message }));
+    return yield* Effect.fail(new NetworkError({ traceId: resolvedTraceId }));
   });
 }
