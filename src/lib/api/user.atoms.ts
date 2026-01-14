@@ -17,7 +17,7 @@ export const createUserAtom = runtimeAtom.fn(UserService.createUser, {
 export const optimisticGetUsersAtom = Atom.optimistic(getUsersAtom);
 
 const createTempUser = (
-  formValues: Schema.Schema.Type<typeof UserForm>
+  formValues: Schema.Schema.Type<typeof UserForm>,
 ): Schema.Schema.Type<typeof UserForm> & { id: number } => ({
   id: -Date.now(),
   name: formValues.name,
@@ -35,5 +35,5 @@ export const createUserOptimisticAtom = Atom.optimisticFn(
         createTempUser(formValues),
       ]),
     fn: createUserAtom,
-  }
+  },
 );

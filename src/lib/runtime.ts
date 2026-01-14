@@ -7,7 +7,7 @@ import { TracingLive } from './telemetry';
 
 const MainLive = Layer.mergeAll(UserService.Default, PostService.Default).pipe(
   Layer.provide(ApiLive),
-  Layer.provide(TracingLive)
+  Layer.provide(TracingLive),
 );
 
 export const runtimeAtom = Atom.runtime(MainLive);

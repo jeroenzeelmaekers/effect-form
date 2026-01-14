@@ -35,10 +35,10 @@ describe('UserService', () => {
         const fiber = yield* UserService.getUsers().pipe(
           Effect.provide(
             createTestLayer(() =>
-              Effect.succeed(createMockResponse(200, mockUsers))
-            )
+              Effect.succeed(createMockResponse(200, mockUsers)),
+            ),
           ),
-          Effect.fork
+          Effect.fork,
         );
 
         // Fast-forward through the 3 second sleep
@@ -46,7 +46,7 @@ describe('UserService', () => {
 
         const result = yield* Fiber.join(fiber);
         expect(result).toEqual(mockUsers);
-      })
+      }),
     );
 
     it.effect('should fail with ValidationError on invalid response body', () =>
@@ -56,10 +56,10 @@ describe('UserService', () => {
         const fiber = yield* UserService.getUsers().pipe(
           Effect.provide(
             createTestLayer(() =>
-              Effect.succeed(createMockResponse(200, invalidBody))
-            )
+              Effect.succeed(createMockResponse(200, invalidBody)),
+            ),
           ),
-          Effect.fork
+          Effect.fork,
         );
 
         // Fast-forward through the 3 second sleep
@@ -75,7 +75,7 @@ describe('UserService', () => {
             expect(error.error).toBeInstanceOf(ValidationError);
           }
         }
-      })
+      }),
     );
 
     it.effect('should fail with NetworkError on request timeout', () =>
@@ -85,11 +85,11 @@ describe('UserService', () => {
             createTestLayer(() =>
               // Simulate a slow response that exceeds the 10 second timeout
               Effect.sleep('15 seconds').pipe(
-                Effect.map(() => createMockResponse(200, []))
-              )
-            )
+                Effect.map(() => createMockResponse(200, [])),
+              ),
+            ),
           ),
-          Effect.fork
+          Effect.fork,
         );
 
         // Fast-forward past the 10 second timeout
@@ -105,7 +105,7 @@ describe('UserService', () => {
             expect(error.error).toBeInstanceOf(NetworkError);
           }
         }
-      })
+      }),
     );
   });
 
@@ -127,10 +127,10 @@ describe('UserService', () => {
         const fiber = yield* UserService.createUser(validFormData).pipe(
           Effect.provide(
             createTestLayer(() =>
-              Effect.succeed(createMockResponse(201, createdUser))
-            )
+              Effect.succeed(createMockResponse(201, createdUser)),
+            ),
           ),
-          Effect.fork
+          Effect.fork,
         );
 
         // Fast-forward through the 5 second sleep
@@ -138,7 +138,7 @@ describe('UserService', () => {
 
         const result = yield* Fiber.join(fiber);
         expect(result).toEqual(createdUser);
-      })
+      }),
     );
 
     it.effect('should fail with ValidationError on invalid response body', () =>
@@ -148,10 +148,10 @@ describe('UserService', () => {
         const fiber = yield* UserService.createUser(validFormData).pipe(
           Effect.provide(
             createTestLayer(() =>
-              Effect.succeed(createMockResponse(201, invalidResponse))
-            )
+              Effect.succeed(createMockResponse(201, invalidResponse)),
+            ),
           ),
-          Effect.fork
+          Effect.fork,
         );
 
         // Fast-forward through the 5 second sleep
@@ -167,7 +167,7 @@ describe('UserService', () => {
             expect(error.error).toBeInstanceOf(ValidationError);
           }
         }
-      })
+      }),
     );
   });
 });

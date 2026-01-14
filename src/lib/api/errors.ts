@@ -34,7 +34,7 @@ export const getCurrentTraceId = Effect.gen(function* () {
 
 export const annotateSpanWithProblemDetail = (
   problemDetail: ProblemDetail,
-  statusCode?: number
+  statusCode?: number,
 ) =>
   Effect.annotateCurrentSpan({
     'error.type': problemDetail.type ?? 'unknown',
@@ -49,14 +49,14 @@ export function getResponseError(error: ResponseError, traceId?: string) {
     const resolvedTraceId = traceId ?? (yield* getCurrentTraceId);
 
     const problemDetail = yield* HttpClientResponse.schemaBodyJson(
-      ProblemDetail
+      ProblemDetail,
     )(error.response);
 
     yield* annotateSpanWithProblemDetail(problemDetail, error.response.status);
 
     if (error.response.status === 404) {
       return yield* Effect.fail(
-        new UsersNotFound({ traceId: resolvedTraceId, problemDetail })
+        new UsersNotFound({ traceId: resolvedTraceId, problemDetail }),
       );
     }
 
@@ -65,7 +65,7 @@ export function getResponseError(error: ResponseError, traceId?: string) {
       problemDetail.type?.includes('validation')
     ) {
       return yield* Effect.fail(
-        new ValidationError({ traceId: resolvedTraceId, problemDetail })
+        new ValidationError({ traceId: resolvedTraceId, problemDetail }),
       );
     }
 

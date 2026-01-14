@@ -10,7 +10,7 @@ import { SimulatedHttpClientLive } from './simulation';
 
 export interface ApiClientService {
   readonly execute: (
-    request: HttpClientRequest.HttpClientRequest
+    request: HttpClientRequest.HttpClientRequest,
   ) => Effect.Effect<
     HttpClientResponse.HttpClientResponse,
     HttpClientError.HttpClientError
@@ -29,18 +29,18 @@ const ApiClientLive = Layer.effect(
     const httpClient = yield* HttpClient.HttpClient;
 
     const client = httpClient.pipe(
-      HttpClient.mapRequest(HttpClientRequest.prependUrl(baseUrl))
+      HttpClient.mapRequest(HttpClientRequest.prependUrl(baseUrl)),
     );
 
     return {
       execute: (request: HttpClientRequest.HttpClientRequest) =>
         client.execute(request),
     };
-  })
+  }),
 );
 
 const HttpClientLive = SimulatedHttpClientLive.pipe(
-  Layer.provide(FetchHttpClient.layer)
+  Layer.provide(FetchHttpClient.layer),
 );
 
 export const ApiLive = ApiClientLive.pipe(Layer.provide(HttpClientLive));

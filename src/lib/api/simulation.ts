@@ -34,25 +34,25 @@ const mockProblemDetails = {
 const createMockResponse = (
   request: HttpClientRequest.HttpClientRequest,
   status: number,
-  body: unknown
+  body: unknown,
 ) =>
   HttpClientResponse.fromWeb(
     request,
     new Response(JSON.stringify(body), {
       status,
       headers: { 'Content-Type': 'application/problem+json' },
-    })
+    }),
   );
 
 // Simulate random errors at the HTTP client level
 const simulateErrors = (
   request: HttpClientRequest.HttpClientRequest,
   execute: (
-    req: HttpClientRequest.HttpClientRequest
+    req: HttpClientRequest.HttpClientRequest,
   ) => Effect.Effect<
     HttpClientResponse.HttpClientResponse,
     HttpClientError.HttpClientError
-  >
+  >,
 ) =>
   Effect.gen(function* () {
     const random = Math.random();
@@ -64,7 +64,7 @@ const simulateErrors = (
           request,
           reason: 'Transport',
           description: 'Connection timed out - server unreachable',
-        })
+        }),
       );
     }
 
@@ -88,7 +88,7 @@ export const SimulatedHttpClientLive = Layer.effect(
     const client = yield* HttpClient.HttpClient;
 
     return HttpClient.make((request) =>
-      simulateErrors(request, client.execute).pipe(Effect.delay('3 seconds'))
+      simulateErrors(request, client.execute).pipe(Effect.delay('3 seconds')),
     ).pipe(HttpClient.filterStatusOk);
-  })
+  }),
 );

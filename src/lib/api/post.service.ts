@@ -23,21 +23,21 @@ export class PostService extends Effect.Service<PostService>()('PostService', {
             Effect.fail(
               new NetworkError({
                 traceId,
-              })
+              }),
             ),
           ResponseError: (error) => getResponseError(error, traceId),
-        })
+        }),
       );
       return yield* HttpClientResponse.schemaBodyJson(Schema.Array(Post))(
-        response
+        response,
       ).pipe(
         Effect.catchTag('ParseError', () =>
           Effect.fail(
             new ValidationError({
               traceId,
-            })
-          )
-        )
+            }),
+          ),
+        ),
       );
     });
 

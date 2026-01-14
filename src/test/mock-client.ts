@@ -4,8 +4,8 @@ import { Effect, Layer } from 'effect';
 
 export const createMockApiClient = (
   handler: (
-    request: HttpClientRequest.HttpClientRequest
-  ) => Effect.Effect<HttpClientResponse.HttpClientResponse>
+    request: HttpClientRequest.HttpClientRequest,
+  ) => Effect.Effect<HttpClientResponse.HttpClientResponse>,
 ): Layer.Layer<ApiClient> =>
   Layer.succeed(ApiClient, {
     execute: handler,
@@ -13,12 +13,12 @@ export const createMockApiClient = (
 
 export const createMockResponse = (
   status: number,
-  body: unknown
+  body: unknown,
 ): HttpClientResponse.HttpClientResponse =>
   HttpClientResponse.fromWeb(
     HttpClientRequest.get('http://test'),
     new Response(JSON.stringify(body), {
       status,
       headers: { 'Content-Type': 'application/json' },
-    })
+    }),
   );

@@ -51,7 +51,7 @@ function DataTable<TData extends { id: number }, TValue>({
                     ? null
                     : flexRender(
                         header.column.columnDef.header,
-                        header.getContext()
+                        header.getContext(),
                       )}
                 </TableHead>
               ))}
