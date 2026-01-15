@@ -15,7 +15,7 @@ const createTestLayer = (handler: Parameters<typeof createMockApiClient>[0]) =>
 
 describe('UserService', () => {
   describe('Get users', () => {
-    it.effect('should return users on successful response', () =>
+    it.scoped('should return users on successful response', () =>
       Effect.gen(function* () {
         const mockUsers = [
           {
@@ -49,7 +49,7 @@ describe('UserService', () => {
       }),
     );
 
-    it.effect('should fail with ValidationError on invalid response body', () =>
+    it.scoped('should fail with ValidationError on invalid response body', () =>
       Effect.gen(function* () {
         const invalidBody = [{ invalid: 'data' }];
 
@@ -78,7 +78,7 @@ describe('UserService', () => {
       }),
     );
 
-    it.effect('should fail with NetworkError on request timeout', () =>
+    it.scoped('should fail with NetworkError on request timeout', () =>
       Effect.gen(function* () {
         const fiber = yield* UserService.getUsers().pipe(
           Effect.provide(
@@ -117,7 +117,7 @@ describe('UserService', () => {
       language: 'en',
     };
 
-    it.effect('should create user on successful response', () =>
+    it.scoped('should create user on successful response', () =>
       Effect.gen(function* () {
         const createdUser = {
           id: 1,
@@ -141,7 +141,7 @@ describe('UserService', () => {
       }),
     );
 
-    it.effect('should fail with ValidationError on invalid response body', () =>
+    it.scoped('should fail with ValidationError on invalid response body', () =>
       Effect.gen(function* () {
         const invalidResponse = { invalid: 'data' };
 

@@ -5,7 +5,7 @@ import {
   HttpClientRequest,
   HttpClientResponse,
 } from '@effect/platform';
-import { Context, Effect, Layer } from 'effect';
+import { Context, Effect, Layer, Schedule } from 'effect';
 import { SimulatedHttpClientLive } from './simulation';
 
 export interface ApiClientService {
@@ -28,13 +28,19 @@ const ApiClientLive = Layer.effect(
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
     const httpClient = yield* HttpClient.HttpClient;
 
-    const client = httpClient.pipe(
+    // Add retry logic for transient errors (network issues, rate limiting, timeouts)
+    // with exponential backoff: 100ms, 200ms, 400ms
+    const resilientClient = httpClient.pipe(
+      HttpClient.retryTransient({
+        times: 3,
+        schedule: Schedule.exponential('100 millis'),
+      }),
       HttpClient.mapRequest(HttpClientRequest.prependUrl(baseUrl)),
     );
 
     return {
       execute: (request: HttpClientRequest.HttpClientRequest) =>
-        client.execute(request),
+        resilientClient.execute(request),
     };
   }),
 );

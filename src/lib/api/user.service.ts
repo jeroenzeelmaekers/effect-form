@@ -22,6 +22,7 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       const traceId = yield* getCurrentTraceId;
       const request = HttpClientRequest.get('/users');
       const response = yield* client.execute(request).pipe(
+        Effect.timeout('10 seconds'),
         Effect.catchTags({
           RequestError: () =>
             Effect.fail(
@@ -30,12 +31,12 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
               }),
             ),
           ResponseError: (error) => getResponseError(error, traceId),
+          TimeoutException: () => Effect.fail(new NetworkError({ traceId })),
         }),
       );
       return yield* HttpClientResponse.schemaBodyJson(Schema.Array(User))(
         response,
       ).pipe(
-        Effect.timeout('10 seconds'),
         Effect.catchTags({
           ParseError: () =>
             Effect.fail(
@@ -43,7 +44,6 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
                 traceId,
               }),
             ),
-          TimeoutException: () => Effect.fail(new NetworkError({ traceId })),
         }),
       );
     });

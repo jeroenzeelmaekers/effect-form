@@ -16,9 +16,9 @@ describe('Error types', () => {
   };
 
   it('NetworkError should have correct tag', () => {
-    const error = new NetworkError({ problemDetail: testProblemDetail });
+    const error = new NetworkError({ traceId: 'test-trace-id' });
     expect(error._tag).toBe('NetworkError');
-    expect(error.problemDetail?.detail).toBe('test');
+    expect(error.traceId).toBe('test-trace-id');
   });
 
   it('ValidationError should have correct tag', () => {
@@ -34,7 +34,7 @@ describe('Error types', () => {
   });
 
   it('should allow access to all problemDetail fields', () => {
-    const error = new NetworkError({ problemDetail: testProblemDetail });
+    const error = new ValidationError({ problemDetail: testProblemDetail });
     expect(error.problemDetail?.type).toBe('https://example.com/error');
     expect(error.problemDetail?.title).toBe('Test Error');
     expect(error.problemDetail?.status).toBe(500);

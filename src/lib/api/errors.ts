@@ -1,6 +1,6 @@
 import { HttpClientResponse } from '@effect/platform';
 import type { ResponseError } from '@effect/platform/HttpClientError';
-import { Data, Effect, Schema } from 'effect';
+import { Effect, Schema } from 'effect';
 
 export const ProblemDetail = Schema.Struct({
   type: Schema.optional(Schema.String),
@@ -12,19 +12,29 @@ export const ProblemDetail = Schema.Struct({
 
 export type ProblemDetail = typeof ProblemDetail.Type;
 
-export class NetworkError extends Data.TaggedError('NetworkError')<{
-  readonly traceId?: string;
-}> {}
+export class NetworkError extends Schema.TaggedError<NetworkError>()(
+  'NetworkError',
+  {
+    traceId: Schema.optional(Schema.String),
+    cause: Schema.optional(Schema.Defect),
+  },
+) {}
 
-export class UsersNotFound extends Data.TaggedError('UserNotFound')<{
-  readonly traceId?: string;
-  readonly problemDetail?: ProblemDetail;
-}> {}
+export class UsersNotFound extends Schema.TaggedError<UsersNotFound>()(
+  'UserNotFound',
+  {
+    traceId: Schema.optional(Schema.String),
+    problemDetail: Schema.optional(ProblemDetail),
+  },
+) {}
 
-export class ValidationError extends Data.TaggedError('ValidationError')<{
-  readonly traceId?: string;
-  readonly problemDetail?: ProblemDetail;
-}> {}
+export class ValidationError extends Schema.TaggedError<ValidationError>()(
+  'ValidationError',
+  {
+    traceId: Schema.optional(Schema.String),
+    problemDetail: Schema.optional(ProblemDetail),
+  },
+) {}
 
 // Helper to get current trace ID from the span context
 export const getCurrentTraceId = Effect.gen(function* () {

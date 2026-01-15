@@ -2,6 +2,10 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { Schema } from 'effect';
 import { languageValues } from './language';
 
+// Branded UserId type for type safety
+export const UserId = Schema.Number.pipe(Schema.brand('UserId'));
+export type UserId = typeof UserId.Type;
+
 const Name = Schema.String.pipe(
   Schema.minLength(1, { message: () => 'Name is required' }),
   Schema.maxLength(50, {
@@ -31,15 +35,16 @@ const Language = Schema.String.pipe(
   ),
 );
 
-const User = Schema.Struct({
-  id: Schema.Number,
+// Using Schema.Class for domain entity
+class User extends Schema.Class<User>('User')({
+  id: UserId,
   name: Name,
   username: Username,
   email: Email,
   language: Schema.optional(Language),
-});
+}) {}
 
-const UserColumns: ColumnDef<Schema.Schema.Type<typeof User>>[] = [
+const UserColumns: ColumnDef<User>[] = [
   {
     accessorKey: 'name',
     header: 'Name',
