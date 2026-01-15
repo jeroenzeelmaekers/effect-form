@@ -104,10 +104,8 @@ function EmptyDataTableRow({ colSpan }: { colSpan: number }) {
   );
 }
 
-// Hoisted static skeleton element to avoid re-creation on each render
 const skeletonCell = <Skeleton className="h-4 w-24" />;
 
-// Loading state
 function Loading<TData, TValue>({
   columns,
 }: {
@@ -139,113 +137,105 @@ function Loading<TData, TValue>({
   );
 }
 
-// Main UserList component
 export default function UserList() {
   const result = useAtomValue(optimisticGetUsersAtom);
+
+  if (result.waiting && !Result.isSuccess(result)) {
+    return (
+      <section className="min-w-0 flex-1">
+        <Loading columns={UserColumns} />
+      </section>
+    );
+  }
+
   return (
     <section className="min-w-0 flex-1">
       {Result.builder(result)
         .onInitial(() => <Loading columns={UserColumns} />)
-        .onErrorTag('UserNotFound', (error, failure) =>
-          failure.waiting ? (
-            <Loading columns={UserColumns} />
-          ) : (
-            <Error.Root>
-              <Error.Content>
-                <Error.Title>Unable to find users</Error.Title>
-                <Error.Description>
-                  We where unable to fetch the users due to a technical issue on
-                  our end. Please try fetching the users again. If the issue
-                  keeps happing{' '}
-                  <a
-                    className="underline underline-offset-2"
-                    href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Users not found')}&body=${encodeURIComponent(`
+        .onErrorTag('UserNotFound', (error) => (
+          <Error.Root>
+            <Error.Content>
+              <Error.Title>Unable to find users</Error.Title>
+              <Error.Description>
+                We where unable to fetch the users due to a technical issue on
+                our end. Please try fetching the users again. If the issue keeps
+                happing{' '}
+                <a
+                  className="underline underline-offset-2"
+                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Users not found')}&body=${encodeURIComponent(`
 
 
 ---
 Do not remove this information:
 Trace ID: ${error.traceId}`)}`}>
-                    contact Customer Care.
-                  </a>
-                </Error.Description>
-              </Error.Content>
-              <Error.Actions>
-                <Error.Refresh atom={optimisticGetUsersAtom} />
-              </Error.Actions>
-            </Error.Root>
-          ),
-        )
-        .onErrorTag('NetworkError', (error, failure) =>
-          failure.waiting ? (
-            <Loading columns={UserColumns} />
-          ) : (
-            <Error.Root>
-              <Error.Content>
-                <Error.Title>Connection failed</Error.Title>
-                <Error.Description>
-                  We couldn't connect to the server. Please check your internet
-                  connection and try again. If the issue keeps happening{' '}
-                  <a
-                    className="underline underline-offset-2"
-                    href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Connection failed')}&body=${encodeURIComponent(`
+                  contact Customer Care.
+                </a>
+              </Error.Description>
+            </Error.Content>
+            <Error.Actions>
+              <Error.Refresh atom={optimisticGetUsersAtom} />
+            </Error.Actions>
+          </Error.Root>
+        ))
+        .onErrorTag('NetworkError', (error) => (
+          <Error.Root>
+            <Error.Content>
+              <Error.Title>Connection failed</Error.Title>
+              <Error.Description>
+                We couldn't connect to the server. Please check your internet
+                connection and try again. If the issue keeps happening{' '}
+                <a
+                  className="underline underline-offset-2"
+                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Connection failed')}&body=${encodeURIComponent(`
 
 
 ---
 Do not remove this information:
 Trace ID: ${error.traceId}`)}`}>
-                    contact Customer Care.
-                  </a>
-                </Error.Description>
-              </Error.Content>
-            </Error.Root>
-          ),
-        )
-        .onErrorTag('ValidationError', (error, failure) =>
-          failure.waiting ? (
-            <Loading columns={UserColumns} />
-          ) : (
-            <Error.Root>
-              <Error.Content>
-                <Error.Title>Invalid data received</Error.Title>
-                <Error.Description>
-                  The server returned data in an unexpected format. This is
-                  likely a temporary issue. Please try again later. If the issue
-                  keeps happening{' '}
-                  <a
-                    className="underline underline-offset-2"
-                    href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Invalid data received')}&body=${encodeURIComponent(`
+                  contact Customer Care.
+                </a>
+              </Error.Description>
+            </Error.Content>
+          </Error.Root>
+        ))
+        .onErrorTag('ValidationError', (error) => (
+          <Error.Root>
+            <Error.Content>
+              <Error.Title>Invalid data received</Error.Title>
+              <Error.Description>
+                The server returned data in an unexpected format. This is likely
+                a temporary issue. Please try again later. If the issue keeps
+                happening{' '}
+                <a
+                  className="underline underline-offset-2"
+                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Invalid data received')}&body=${encodeURIComponent(`
 
 
 ---
 Do not remove this information:
 Trace ID: ${error.traceId}`)}`}>
-                    contact Customer Care.
-                  </a>
-                </Error.Description>
-              </Error.Content>
-            </Error.Root>
-          ),
-        )
-        .onError((_error, failure) =>
-          failure.waiting ? (
-            <Loading columns={UserColumns} />
-          ) : (
-            <Error.Root>
-              <Error.Content>
-                <Error.Title>Something went wrong</Error.Title>
-                <Error.Description>
-                  An unexpected error occurred while loading the users. Please
-                  try again later. If the issue keeps happening{' '}
-                  <a
-                    className="underline underline-offset-2"
-                    href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Unexpected error')}`}>
-                    contact Customer Care.
-                  </a>
-                </Error.Description>
-              </Error.Content>
-            </Error.Root>
-          ),
-        )
+                  contact Customer Care.
+                </a>
+              </Error.Description>
+            </Error.Content>
+          </Error.Root>
+        ))
+        .onError(() => (
+          <Error.Root>
+            <Error.Content>
+              <Error.Title>Something went wrong</Error.Title>
+              <Error.Description>
+                An unexpected error occurred while loading the users. Please try
+                again later. If the issue keeps happening{' '}
+                <a
+                  className="underline underline-offset-2"
+                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Unexpected error')}`}>
+                  contact Customer Care.
+                </a>
+              </Error.Description>
+            </Error.Content>
+          </Error.Root>
+        ))
         .onSuccess((users) => <DataTable columns={UserColumns} data={users} />)
         .render()}
     </section>
