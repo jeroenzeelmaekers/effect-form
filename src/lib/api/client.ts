@@ -28,8 +28,6 @@ const ApiClientLive = Layer.effect(
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
     const httpClient = yield* HttpClient.HttpClient;
 
-    // Add retry logic for transient errors (network issues, rate limiting, timeouts)
-    // with exponential backoff: 100ms, 200ms, 400ms
     const resilientClient = httpClient.pipe(
       HttpClient.retryTransient({
         times: 3,

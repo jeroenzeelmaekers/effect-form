@@ -18,13 +18,14 @@ export const optimisticGetUsersAtom = Atom.optimistic(getUsersAtom);
 
 const createTempUser = (
   formValues: Schema.Schema.Type<typeof UserForm>,
-): User => new User({
-  id: -Date.now() as UserId,
-  name: formValues.name,
-  username: formValues.username,
-  email: formValues.email,
-  language: formValues.language,
-});
+): User =>
+  new User({
+    id: -Date.now() as UserId,
+    name: formValues.name,
+    username: formValues.username,
+    email: formValues.email,
+    language: formValues.language,
+  });
 
 export const createUserOptimisticAtom = Atom.optimisticFn(
   optimisticGetUsersAtom,

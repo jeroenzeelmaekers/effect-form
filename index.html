@@ -5,25 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Demo application of an form w/ data fetching in Effect"
-    />
+      content="Demo application of an form w/ data fetching in Effect" />
     <title>Effect Form - Demo</title>
     <script>
       (function () {
-        const storageKey = "theme-preference";
+        const storageKey = 'theme-preference';
         const theme = localStorage.getItem(storageKey);
         const systemDark = window.matchMedia(
-          "(prefers-color-scheme: dark)",
+          '(prefers-color-scheme: dark)',
         ).matches;
 
         if (
-          theme === "dark" ||
-          (theme === "system" && systemDark) ||
+          theme === 'dark' ||
+          (theme === 'system' && systemDark) ||
           (!theme && systemDark)
         ) {
-          document.documentElement.classList.add("dark");
+          document.documentElement.classList.add('dark');
         } else {
-          document.documentElement.classList.add("light");
+          document.documentElement.classList.add('light');
         }
       })();
     </script>
