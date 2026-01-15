@@ -126,4 +126,10 @@
   html {
     @apply font-sans;
   }
+
+  /* Performance: defer rendering of off-screen table rows (Section 6.2) */
+  [data-slot='table-row'] {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 40px;
+  }
 }

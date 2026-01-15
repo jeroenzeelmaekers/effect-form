@@ -104,6 +104,9 @@ function EmptyDataTableRow({ colSpan }: { colSpan: number }) {
   );
 }
 
+// Hoisted static skeleton element to avoid re-creation on each render
+const skeletonCell = <Skeleton className="h-4 w-24" />;
+
 // Loading state
 function Loading<TData, TValue>({
   columns,
@@ -126,9 +129,7 @@ function Loading<TData, TValue>({
           {Array.from({ length: 10 }).map((_, index) => (
             <TableRow key={index}>
               {columns.map((_, colIndex) => (
-                <TableCell key={colIndex}>
-                  <Skeleton className="h-4 w-24" />
-                </TableCell>
+                <TableCell key={colIndex}>{skeletonCell}</TableCell>
               ))}
             </TableRow>
           ))}
