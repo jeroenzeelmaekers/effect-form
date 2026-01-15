@@ -43,8 +43,10 @@ const ApiClientLive = Layer.effect(
   }),
 );
 
-const HttpClientLive = SimulatedHttpClientLive.pipe(
-  Layer.provide(FetchHttpClient.layer),
-);
+const isSimulationEnabled = import.meta.env.VITE_ENABLE_SIMULATION === 'true';
+
+const HttpClientLive = isSimulationEnabled
+  ? SimulatedHttpClientLive.pipe(Layer.provide(FetchHttpClient.layer))
+  : FetchHttpClient.layer;
 
 export const ApiLive = ApiClientLive.pipe(Layer.provide(HttpClientLive));

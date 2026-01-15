@@ -36,7 +36,6 @@ export class ValidationError extends Schema.TaggedError<ValidationError>()(
   },
 ) {}
 
-// Helper to get current trace ID from the span context
 export const getCurrentTraceId = Effect.gen(function* () {
   const span = yield* Effect.currentSpan.pipe(Effect.option);
   return span._tag === 'Some' ? span.value.traceId : undefined;

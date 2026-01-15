@@ -1,6 +1,5 @@
 import { User, UserForm, UserId } from '@/models/user';
 import { Atom, Result } from '@effect-atom/atom';
-import { Schema } from 'effect';
 import { runtimeAtom } from '../runtime';
 import { UserService } from './user.service';
 
@@ -16,9 +15,7 @@ export const createUserAtom = runtimeAtom.fn(UserService.createUser, {
 
 export const optimisticGetUsersAtom = Atom.optimistic(getUsersAtom);
 
-const createTempUser = (
-  formValues: Schema.Schema.Type<typeof UserForm>,
-): User =>
+const createTempUser = (formValues: UserForm): User =>
   new User({
     id: -Date.now() as UserId,
     name: formValues.name,

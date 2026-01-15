@@ -5,9 +5,15 @@ import { PostService } from './api/post.service';
 import { UserService } from './api/user.service';
 import { TracingLive } from './telemetry';
 
-const MainLive = Layer.mergeAll(UserService.Default, PostService.Default).pipe(
-  Layer.provide(ApiLive),
-  Layer.provide(TracingLive),
-);
+const isOtelEnabled = import.meta.env.VITE_ENABLE_OTEL === 'true';
+
+const ServicesLive = Layer.mergeAll(
+  UserService.Default,
+  PostService.Default,
+).pipe(Layer.provide(ApiLive));
+
+const MainLive = isOtelEnabled
+  ? ServicesLive.pipe(Layer.provide(TracingLive))
+  : ServicesLive;
 
 export const runtimeAtom = Atom.runtime(MainLive);

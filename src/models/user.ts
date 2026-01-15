@@ -59,11 +59,11 @@ const UserColumns: ColumnDef<User>[] = [
   },
 ];
 
-const UserForm = Schema.Struct({
+class UserForm extends Schema.Class<UserForm>('UserForm')({
   name: Name,
   username: Username,
   email: Email,
   language: Language,
-});
+}) {}
 
 export { User, UserColumns, UserForm };
