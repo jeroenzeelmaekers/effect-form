@@ -3,5 +3,8 @@
   "printWidth": 80,
   "singleQuote": true,
   "bracketSameLine": true,
-  "experimentalTailwindcss": ["class", "className"]
+  "experimentalTailwindcss": {
+    "attributes": ["class", "className"],
+    "functions": ["clsx", "cn", "cva"]
+  }
 }
