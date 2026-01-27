@@ -106,6 +106,7 @@ function EmptyDataTableRow({ colSpan }: { colSpan: number }) {
 
 const skeletonCell = <Skeleton className="h-4 w-24" />;
 
+// Skeleton loading
 function Loading<TData, TValue>({
   columns,
 }: {
@@ -137,6 +138,7 @@ function Loading<TData, TValue>({
   );
 }
 
+// User list
 export default function UserList() {
   const result = useAtomValue(optimisticGetUsersAtom);
 
