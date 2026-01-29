@@ -37,11 +37,9 @@ import {
 import { getLanguageLabel, languages } from '@/models/language';
 import { UserForm } from '@/models/user';
 import { Result, useAtomSet, useAtomValue } from '@effect-atom/atom-react';
-import { revalidateLogic, useForm } from '@tanstack/react-form';
+import { useForm } from '@tanstack/react-form';
 import { Schema } from 'effect';
 import { HelpCircle } from 'lucide-react';
-
-const UserFormSchema = Schema.standardSchemaV1(UserForm);
 
 export default function EffectForm() {
   const createUser = useAtomSet(createUserOptimisticAtom);
@@ -58,25 +56,25 @@ export default function EffectForm() {
       email: '',
       language: '',
     },
-    validationLogic: revalidateLogic(),
     validators: {
-      onDynamic: UserFormSchema,
+      onSubmit: Schema.standardSchemaV1(UserForm),
     },
-    onSubmit: ({ value }) => {
-      createUser(value);
-      form.reset();
+    onSubmit: ({ formApi }) => {
+      createUser(formApi.state.values);
+      formApi.reset();
     },
   });
 
-  function onSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-    form.handleSubmit();
-  }
-
   return (
     <Card className="h-fit w-full lg:max-w-sm lg:min-w-sm" size="sm">
-      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+        noValidate
+        className="flex flex-col gap-5">
         <CardHeader>
           <CardTitle>Create User</CardTitle>
           <CardDescription>
