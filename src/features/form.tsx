@@ -46,7 +46,10 @@ const UserFormSchema = Schema.standardSchemaV1(UserForm);
 export default function EffectForm() {
   const createUser = useAtomSet(createUserOptimisticAtom);
   const usersResult = useAtomValue(optimisticGetUsersAtom);
-  const hasError = Result.isFailure(usersResult);
+  const isDisabled =
+    Result.isFailure(usersResult) ||
+    Result.isWaiting(usersResult) ||
+    Result.isInitial(usersResult);
 
   const form = useForm({
     defaultValues: {
@@ -83,7 +86,7 @@ export default function EffectForm() {
             <ModeToggle />
           </CardAction>
         </CardHeader>
-        <fieldset disabled={hasError} className="flex flex-col gap-5">
+        <fieldset disabled={isDisabled} className="flex flex-col gap-5">
           <CardContent className="flex flex-col gap-4">
             <form.Field
               name="name"
