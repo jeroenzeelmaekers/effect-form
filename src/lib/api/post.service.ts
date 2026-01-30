@@ -31,13 +31,14 @@ export class PostService extends Effect.Service<PostService>()('PostService', {
       return yield* HttpClientResponse.schemaBodyJson(Schema.Array(Post))(
         response,
       ).pipe(
-        Effect.catchTag('ParseError', () =>
-          Effect.fail(
-            new ValidationError({
-              traceId,
-            }),
-          ),
-        ),
+        Effect.catchTags({
+          ParseError: () =>
+            Effect.fail(
+              new ValidationError({
+                traceId,
+              }),
+            ),
+        }),
       );
     });
 
