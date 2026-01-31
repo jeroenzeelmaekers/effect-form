@@ -19,6 +19,9 @@ exporters:
   otlphttp/tempo:
     endpoint: http://tempo:4318
 
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+
   debug:
     verbosity: detailed
 
@@ -28,3 +31,11 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [otlphttp/tempo, debug]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/loki, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]

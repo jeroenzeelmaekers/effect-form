@@ -10,19 +10,23 @@
     <title>Effect Form - Demo</title>
     <script>
       (function () {
-        const storageKey = 'theme-preference';
-        const theme = localStorage.getItem(storageKey);
-        const systemDark = window.matchMedia(
-          '(prefers-color-scheme: dark)',
-        ).matches;
+        try {
+          const storageKey = 'theme-preference';
+          const theme = localStorage.getItem(storageKey);
+          const systemDark = window.matchMedia(
+            '(prefers-color-scheme: dark)',
+          ).matches;
 
-        if (
-          theme === 'dark' ||
-          (theme === 'system' && systemDark) ||
-          (!theme && systemDark)
-        ) {
-          document.documentElement.classList.add('dark');
-        } else {
+          if (
+            theme === 'dark' ||
+            (theme === 'system' && systemDark) ||
+            (!theme && systemDark)
+          ) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.add('light');
+          }
+        } catch {
           document.documentElement.classList.add('light');
         }
       })();

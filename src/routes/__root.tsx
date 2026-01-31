@@ -1,8 +1,16 @@
 import { ModeToggle } from '@/components/ui/mode-toggle';
 import { ThemeProvider } from '@/providers/theme-provider';
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { PostHogProvider } from 'posthog-js/react';
+import { lazy } from 'react';
+
+const TanStackRouterDevtools = import.meta.env.PROD
+  ? () => null
+  : lazy(() =>
+      import('@tanstack/react-router-devtools').then((mod) => ({
+        default: mod.TanStackRouterDevtools,
+      })),
+    );
 
 const options = {
   api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,

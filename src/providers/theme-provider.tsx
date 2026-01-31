@@ -18,6 +18,22 @@ const initialState: ThemeProviderState = {
   setTheme: () => null,
 };
 
+const getStoredTheme = (storageKey: string, defaultTheme: Theme): Theme => {
+  try {
+    return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
+  } catch {
+    return defaultTheme;
+  }
+};
+
+const setStoredTheme = (storageKey: string, theme: Theme): void => {
+  try {
+    localStorage.setItem(storageKey, theme);
+  } catch {
+    // localStorage unavailable (e.g., private browsing mode)
+  }
+};
+
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
@@ -26,8 +42,8 @@ export function ThemeProvider({
   storageKey = 'theme-preference',
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
+  const [theme, setTheme] = useState<Theme>(() =>
+    getStoredTheme(storageKey, defaultTheme),
   );
 
   useEffect(() => {
@@ -51,7 +67,7 @@ export function ThemeProvider({
   const value = {
     theme,
     setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
+      setStoredTheme(storageKey, theme);
       setTheme(theme);
     },
   };

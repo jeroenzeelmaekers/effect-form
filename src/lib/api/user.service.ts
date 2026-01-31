@@ -37,6 +37,9 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       return yield* HttpClientResponse.schemaBodyJson(Schema.Array(User))(
         response,
       ).pipe(
+        Effect.tap((data) =>
+          Effect.logInfo(`[USER] fetching ${data.length} users`),
+        ),
         Effect.catchTags({
           ParseError: () =>
             Effect.fail(
@@ -73,7 +76,7 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       );
       return yield* HttpClientResponse.schemaBodyJson(User)(response).pipe(
         Effect.tap((data) =>
-          Effect.logInfo('[USER] Created user: ' + JSON.stringify(data)),
+          Effect.logInfo(`[USER] Created user with id: ${data.id}`),
         ),
         Effect.catchTag('ParseError', () =>
           Effect.fail(

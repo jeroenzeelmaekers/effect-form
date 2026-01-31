@@ -1,0 +1,819 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "panels": [],
+      "title": "Service Health Overview",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 50 },
+              { "color": "red", "value": 100 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["count"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "query": "{resource.service.name=\"$service\"}",
+          "queryType": "traceql",
+          "refId": "A",
+          "limit": 1000,
+          "tableType": "search"
+        }
+      ],
+      "title": "Total Traces",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["count"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "query": "{resource.service.name=\"$service\" && status=error}",
+          "queryType": "traceql",
+          "refId": "A",
+          "limit": 1000,
+          "tableType": "search"
+        }
+      ],
+      "title": "Error Traces",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 100 },
+              { "color": "red", "value": 500 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["sum"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "count_over_time({service_name=\"$service\"} [$__range])",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Logs",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["sum"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "count_over_time({service_name=\"$service\"} | severity_text=\"ERROR\" [$__range])",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Logs",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 101,
+      "panels": [],
+      "title": "Activity Over Time",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "normal" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "ERROR" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "WARN" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "INFO" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "DEBUG" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }]
+          }
+        ]
+      },
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 6 },
+      "id": 5,
+      "options": {
+        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "right", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "sum by (severity_text) (count_over_time({service_name=\"$service\"} [$__auto]))",
+          "legendFormat": "{{severity_text}}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Volume by Severity",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false }
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "ERROR" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "WARN" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "INFO" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "DEBUG" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }]
+          }
+        ]
+      },
+      "gridPos": { "h": 7, "w": 6, "x": 12, "y": 6 },
+      "id": 6,
+      "options": {
+        "displayLabels": ["percent"],
+        "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "values": ["value", "percent"] },
+        "pieType": "donut",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "sum by (severity_text) (count_over_time({service_name=\"$service\"} [$__range]))",
+          "legendFormat": "{{severity_text}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Distribution",
+      "type": "piechart"
+    },
+    {
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false }
+          },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "error" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "ok" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "unset" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }]
+          }
+        ]
+      },
+      "gridPos": { "h": 7, "w": 6, "x": 18, "y": 6 },
+      "id": 7,
+      "options": {
+        "displayLabels": ["percent"],
+        "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "values": ["value", "percent"] },
+        "pieType": "donut",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "query": "{resource.service.name=\"$service\"} | count() by (status)",
+          "queryType": "traceqlmetrics",
+          "refId": "A"
+        }
+      ],
+      "title": "Trace Status Distribution",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 13 },
+      "id": 102,
+      "panels": [],
+      "title": "Span Analytics",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineWidth": 1,
+            "scaleDistribution": { "type": "linear" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "id": 8,
+      "options": {
+        "barRadius": 0.1,
+        "barWidth": 0.8,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": { "calcs": [], "displayMode": "list", "placement": "right", "showLegend": true },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": { "mode": "single", "sort": "none" },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "query": "{resource.service.name=\"$service\"} | count() by (name)",
+          "queryType": "traceqlmetrics",
+          "refId": "A"
+        }
+      ],
+      "title": "Spans by Operation",
+      "type": "barchart"
+    },
+    {
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "continuous-BlYlRd" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineWidth": 1,
+            "scaleDistribution": { "type": "linear" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "id": 9,
+      "options": {
+        "barRadius": 0.1,
+        "barWidth": 0.8,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": { "calcs": [], "displayMode": "list", "placement": "right", "showLegend": false },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": { "mode": "single", "sort": "none" },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "query": "{resource.service.name=\"$service\"} | avg(duration) by (name)",
+          "queryType": "traceqlmetrics",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg Duration by Operation",
+      "type": "barchart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 },
+      "id": 103,
+      "panels": [],
+      "title": "Recent Traces",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Trace ID" },
+            "properties": [
+              { "id": "custom.width", "value": 280 },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "View Trace",
+                    "url": "/explore?orgId=1&left=%7B%22datasource%22:%22tempo%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22datasource%22:%7B%22type%22:%22tempo%22,%22uid%22:%22tempo%22%7D,%22queryType%22:%22traceql%22,%22query%22:%22${__value.raw}%22%7D%5D%7D"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Duration" },
+            "properties": [
+              { "id": "unit", "value": "ms" },
+              { "id": "custom.width", "value": 100 },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "gauge",
+                  "valueDisplayMode": "text"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "green", "value": null },
+                    { "color": "yellow", "value": 500 },
+                    { "color": "red", "value": 1000 }
+                  ]
+                }
+              },
+              { "id": "min", "value": 0 },
+              { "id": "max", "value": 2000 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Start time" },
+            "properties": [{ "id": "custom.width", "value": 180 }]
+          }
+        ]
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 23 },
+      "id": 10,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": { "show": false, "reducer": ["sum"], "fields": "" },
+        "sortBy": [{ "desc": true, "displayName": "Start time" }]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "query": "{resource.service.name=\"$service\"}",
+          "queryType": "traceql",
+          "refId": "A",
+          "limit": 50,
+          "tableType": "search"
+        }
+      ],
+      "title": "Recent Traces",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 33 },
+      "id": 104,
+      "panels": [],
+      "title": "Application Logs",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 34 },
+      "id": 11,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{service_name=\"$service\"}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Application Logs",
+      "type": "logs"
+    },
+    {
+      "collapsed": true,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 46 },
+      "id": 105,
+      "panels": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 47 },
+          "id": 12,
+          "options": {
+            "dedupStrategy": "none",
+            "enableLogDetails": true,
+            "prettifyLogMessage": true,
+            "showCommonLabels": false,
+            "showLabels": true,
+            "showTime": true,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
+          },
+          "targets": [
+            {
+              "datasource": { "type": "loki", "uid": "loki" },
+              "editorMode": "code",
+              "expr": "{service_name=\"$service\"} | severity_text=\"ERROR\"",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "Error Logs",
+          "type": "logs"
+        }
+      ],
+      "title": "Error Logs",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 47 },
+      "id": 106,
+      "panels": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "fieldConfig": {
+            "defaults": {
+              "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false },
+              "mappings": [],
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Trace ID" },
+                "properties": [
+                  {
+                    "id": "links",
+                    "value": [
+                      {
+                        "title": "View Trace",
+                        "url": "/explore?orgId=1&left=%7B%22datasource%22:%22tempo%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22datasource%22:%7B%22type%22:%22tempo%22,%22uid%22:%22tempo%22%7D,%22queryType%22:%22traceql%22,%22query%22:%22${__value.raw}%22%7D%5D%7D"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 48 },
+          "id": 13,
+          "options": { "showHeader": true, "cellHeight": "sm" },
+          "targets": [
+            {
+              "datasource": { "type": "tempo", "uid": "tempo" },
+              "query": "{resource.service.name=\"$service\" && status=error}",
+              "queryType": "traceql",
+              "refId": "A",
+              "limit": 50,
+              "tableType": "search"
+            }
+          ],
+          "title": "Error Traces",
+          "type": "table"
+        }
+      ],
+      "title": "Error Traces",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 48 },
+      "id": 107,
+      "panels": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "fieldConfig": {
+            "defaults": {
+              "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false },
+              "mappings": [],
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Trace ID" },
+                "properties": [
+                  {
+                    "id": "links",
+                    "value": [
+                      {
+                        "title": "View Trace",
+                        "url": "/explore?orgId=1&left=%7B%22datasource%22:%22tempo%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22datasource%22:%7B%22type%22:%22tempo%22,%22uid%22:%22tempo%22%7D,%22queryType%22:%22traceql%22,%22query%22:%22${__value.raw}%22%7D%5D%7D"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Duration" },
+                "properties": [
+                  { "id": "unit", "value": "ms" },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "gradient",
+                      "type": "gauge",
+                      "valueDisplayMode": "text"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        { "color": "yellow", "value": null },
+                        { "color": "orange", "value": 2000 },
+                        { "color": "red", "value": 5000 }
+                      ]
+                    }
+                  },
+                  { "id": "min", "value": 1000 },
+                  { "id": "max", "value": 10000 }
+                ]
+              }
+            ]
+          },
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 49 },
+          "id": 14,
+          "options": { "showHeader": true, "cellHeight": "sm" },
+          "targets": [
+            {
+              "datasource": { "type": "tempo", "uid": "tempo" },
+              "query": "{resource.service.name=\"$service\" && duration>1s}",
+              "queryType": "traceql",
+              "refId": "A",
+              "limit": 50,
+              "tableType": "search"
+            }
+          ],
+          "title": "Slow Traces (>1s)",
+          "type": "table"
+        }
+      ],
+      "title": "Slow Traces",
+      "type": "row"
+    }
+  ],
+  "preload": false,
+  "refresh": "10s",
+  "schemaVersion": 40,
+  "tags": ["effect-form", "observability"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": false, "text": "effect-form", "value": "effect-form" },
+        "description": "Service name to filter by",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Service",
+        "multi": false,
+        "name": "service",
+        "options": [{ "selected": true, "text": "effect-form", "value": "effect-form" }],
+        "query": "effect-form",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Effect Form - Logs & Traces",
+  "uid": "effect-form-observability",
+  "version": 1,
+  "weekStart": ""
+}
