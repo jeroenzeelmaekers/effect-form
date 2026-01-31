@@ -17,7 +17,6 @@ import {
   InputGroupInput,
 } from '@/components/ui/input-group';
 import { Label } from '@/components/ui/label';
-import { ModeToggle } from '@/components/ui/mode-toggle';
 import {
   Select,
   SelectContent,
@@ -80,9 +79,7 @@ export default function EffectForm() {
           <CardDescription>
             Add a new user with optimistic updates
           </CardDescription>
-          <CardAction>
-            <ModeToggle />
-          </CardAction>
+          <CardAction></CardAction>
         </CardHeader>
         <fieldset disabled={isDisabled} className="flex flex-col gap-5">
           <CardContent className="flex flex-col gap-4">
