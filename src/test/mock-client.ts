@@ -1,4 +1,4 @@
-import { ApiClient, type ApiClientService } from '@/lib/api/client';
+import { ApiClient, type ApiClientService } from '@/shared/api/client';
 import { HttpClientRequest, HttpClientResponse } from '@effect/platform';
 import { Effect, Layer } from 'effect';
 

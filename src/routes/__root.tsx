@@ -1,5 +1,5 @@
-import { ModeToggle } from '@/components/ui/mode-toggle';
-import { ThemeProvider } from '@/providers/theme-provider';
+import { ModeToggle } from '@/shared/components/ui/mode-toggle';
+import { ThemeProvider } from '@/shared/providers/theme-provider';
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
 import { PostHogProvider } from 'posthog-js/react';
 import { lazy } from 'react';

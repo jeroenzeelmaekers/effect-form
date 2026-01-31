@@ -1,5 +1,5 @@
-import EffectForm from '@/features/form';
-import UserList from '@/features/user-list';
+import EffectForm from '@/domains/user/components/user-form';
+import UserList from '@/domains/user/components/user-list';
 import { createFileRoute } from '@tanstack/react-router';
 import { useFeatureFlagEnabled } from 'posthog-js/react';
 
