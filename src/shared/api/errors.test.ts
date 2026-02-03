@@ -34,11 +34,9 @@ describe('Error types', () => {
   it('NotFoundError should have correct tag and resource', () => {
     const error = new NotFoundError({
       problemDetail: testProblemDetail,
-      resource: 'user',
     });
     expect(error._tag).toBe('NotFoundError');
     expect(error.problemDetail?.detail).toBe('test');
-    expect(error.resource).toBe('user');
   });
 
   it('should allow access to all problemDetail fields', () => {
@@ -52,18 +50,13 @@ describe('Error types', () => {
 });
 
 describe('getResponseError', () => {
-  function createMockResponseError(
-    status: number,
-    body: unknown,
-    headers: Record<string, string> = {},
-  ) {
+  function createMockResponseError(status: number, body: unknown) {
     const bodyText = JSON.stringify(body);
     const request = HttpClientRequest.get('https://test.com');
     const response = HttpClientResponse.fromWeb(
       request,
       new Response(bodyText, {
         status,
-        headers: { 'content-type': 'application/json', ...headers },
       }),
     );
     return new HttpClientError.ResponseError({
@@ -86,24 +79,13 @@ describe('getResponseError', () => {
 
   it('should return NotFoundError for 404 status', async () => {
     const error = createMockResponseError(404, problemDetail);
-    const result = await runError(getResponseError(error, 'trace-1', 'user'));
+    const result = await runError(getResponseError(error, 'trace-1'));
     expect(result._tag).toBe('NotFoundError');
-    expect((result as NotFoundError).resource).toBe('user');
   });
 
   it('should return ValidationError for 422 status', async () => {
     const error = createMockResponseError(422, problemDetail);
     const result = await runError(getResponseError(error, 'trace-2'));
-    expect(result._tag).toBe('ValidationError');
-  });
-
-  it('should return ValidationError for validation problem detail type', async () => {
-    const validationProblem = {
-      ...problemDetail,
-      type: 'https://example.com/validation-error',
-    };
-    const error = createMockResponseError(400, validationProblem);
-    const result = await runError(getResponseError(error, 'trace-3'));
     expect(result._tag).toBe('ValidationError');
   });
 
@@ -119,7 +101,6 @@ describe('getResponseError', () => {
       request,
       new Response('Not Found', {
         status: 404,
-        headers: { 'content-type': 'text/plain' },
       }),
     );
     const error = new HttpClientError.ResponseError({
@@ -127,8 +108,7 @@ describe('getResponseError', () => {
       response,
       reason: 'StatusCode',
     });
-    const result = await runError(getResponseError(error, 'trace-5', 'user'));
+    const result = await runError(getResponseError(error, 'trace-5'));
     expect(result._tag).toBe('NotFoundError');
-    expect((result as NotFoundError).resource).toBe('user');
   });
 });

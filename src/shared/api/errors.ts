@@ -2,10 +2,6 @@ import { HttpClientResponse } from '@effect/platform';
 import type { ResponseError } from '@effect/platform/HttpClientError';
 import { Effect, Schema } from 'effect';
 
-export type Resource = 'user' | 'post' | 'language';
-
-export const Resource = Schema.Literal('user', 'post', 'language');
-
 export const ProblemDetail = Schema.Struct({
   type: Schema.optional(Schema.String),
   title: Schema.optional(Schema.String),
@@ -29,7 +25,6 @@ export class NotFoundError extends Schema.TaggedError<NotFoundError>()(
   {
     traceId: Schema.optional(Schema.String),
     problemDetail: Schema.optional(ProblemDetail),
-    resource: Schema.optional(Resource),
   },
 ) {}
 
@@ -58,39 +53,38 @@ export const annotateSpanWithProblemDetail = (
     'error.instance': problemDetail.instance ?? 'unknown',
   });
 
-export function getResponseError(
-  error: ResponseError,
-  traceId?: string,
-  resource?: Resource,
-) {
+export function getResponseError(error: ResponseError, traceId?: string) {
   return Effect.gen(function* () {
-    const resolvedTraceId = traceId ?? (yield* getCurrentTraceId);
+    traceId = traceId ?? (yield* getCurrentTraceId);
 
+    // extract problem detail from server error
     const problemDetail = yield* HttpClientResponse.schemaBodyJson(
       ProblemDetail,
     )(error.response).pipe(
       Effect.catchAll(() => Effect.succeed({} as ProblemDetail)),
     );
 
+    // annotate span with problem detail
     if (Object.keys(problemDetail).length > 0) {
-      yield* annotateSpanWithProblemDetail(problemDetail, error.response.status);
-    }
-
-    if (error.response.status === 404) {
-      return yield* Effect.fail(
-        new NotFoundError({ traceId: resolvedTraceId, problemDetail, resource }),
+      yield* annotateSpanWithProblemDetail(
+        problemDetail,
+        error.response.status,
       );
     }
 
-    if (
-      error.response.status === 422 ||
-      problemDetail.type?.includes('validation')
-    ) {
-      return yield* Effect.fail(
-        new ValidationError({ traceId: resolvedTraceId, problemDetail }),
-      );
+    // map to specific error types based on status code,
+    // could also map on problem detail type
+    switch (error.response.status) {
+      case 404:
+        return yield* Effect.fail(
+          new NotFoundError({ traceId, problemDetail }),
+        );
+      case 422:
+        return yield* Effect.fail(
+          new ValidationError({ traceId, problemDetail }),
+        );
+      default:
+        return yield* Effect.fail(new NetworkError({ traceId }));
     }
-
-    return yield* Effect.fail(new NetworkError({ traceId: resolvedTraceId }));
   });
 }

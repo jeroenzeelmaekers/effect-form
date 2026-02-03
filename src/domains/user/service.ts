@@ -30,7 +30,7 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
                 traceId,
               }),
             ),
-          ResponseError: (error) => getResponseError(error, traceId, 'user'),
+          ResponseError: (error) => getResponseError(error, traceId),
           TimeoutException: () => Effect.fail(new NetworkError({ traceId })),
         }),
       );
@@ -71,7 +71,7 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
                 traceId,
               }),
             ),
-          ResponseError: (error) => getResponseError(error, traceId, 'user'),
+          ResponseError: (error) => getResponseError(error, traceId),
         }),
       );
       return yield* HttpClientResponse.schemaBodyJson(User)(response).pipe(

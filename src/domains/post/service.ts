@@ -25,7 +25,7 @@ export class PostService extends Effect.Service<PostService>()('PostService', {
                 traceId,
               }),
             ),
-          ResponseError: (error) => getResponseError(error, traceId, 'post'),
+          ResponseError: (error) => getResponseError(error, traceId),
         }),
       );
       return yield* HttpClientResponse.schemaBodyJson(Schema.Array(Post))(
