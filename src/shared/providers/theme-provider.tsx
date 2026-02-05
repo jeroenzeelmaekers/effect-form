@@ -49,18 +49,21 @@ export function ThemeProvider({
   useEffect(() => {
     const root = window.document.documentElement;
 
-    root.classList.remove('light', 'dark');
+    const applyTheme = (isDark: boolean) => {
+      root.classList.remove('light', 'dark');
+      root.classList.add(isDark ? 'dark' : 'light');
+    };
 
     if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
-        .matches
-        ? 'dark'
-        : 'light';
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      applyTheme(mediaQuery.matches);
 
-      root.classList.add(systemTheme);
-      return;
+      const handleChange = (e: MediaQueryListEvent) => applyTheme(e.matches);
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
     }
 
+    root.classList.remove('light', 'dark');
     root.classList.add(theme);
   }, [theme]);
 
