@@ -1,17 +1,13 @@
 import { Button } from './button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './card';
 import { usePostHog } from 'posthog-js/react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function CookieBanner() {
   const posthog = usePostHog();
-  const [consentGiven, setConsentGiven] = useState<
-    'pending' | 'granted' | 'denied' | null
-  >(null);
-
-  useEffect(() => {
-    setConsentGiven(posthog.get_explicit_consent_status());
-  }, [posthog]);
+  const [consentGiven, setConsentGiven] = useState(() =>
+    posthog.get_explicit_consent_status(),
+  );
 
   function handleAcceptCookies() {
     posthog.opt_in_capturing();
