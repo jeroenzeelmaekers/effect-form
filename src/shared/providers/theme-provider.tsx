@@ -13,11 +13,13 @@ type ThemeProviderState = {
   setTheme: (theme: Theme) => void;
 };
 
+// Initial state for the context
 const initialState: ThemeProviderState = {
   theme: 'system',
   setTheme: () => null,
 };
 
+// Helper functions to get and set theme in localStorage
 const getStoredTheme = (storageKey: string, defaultTheme: Theme): Theme => {
   try {
     return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
@@ -42,6 +44,7 @@ export function ThemeProvider({
   storageKey = 'theme-preference',
   ...props
 }: ThemeProviderProps) {
+  // State to hold the current theme
   const [theme, setTheme] = useState<Theme>(() =>
     getStoredTheme(storageKey, defaultTheme),
   );
@@ -49,20 +52,26 @@ export function ThemeProvider({
   useEffect(() => {
     const root = window.document.documentElement;
 
+    // Function to apply the theme class to the root element
     const applyTheme = (isDark: boolean) => {
       root.classList.remove('light', 'dark');
       root.classList.add(isDark ? 'dark' : 'light');
     };
 
+    // Handle system theme preference
     if (theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       applyTheme(mediaQuery.matches);
 
+      // Listen for changes in system theme preference
       const handleChange = (e: MediaQueryListEvent) => applyTheme(e.matches);
       mediaQuery.addEventListener('change', handleChange);
+
+      // Cleanup listener on unmount or theme changes to non-system
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
 
+    // Apply the selected theme
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
   }, [theme]);
