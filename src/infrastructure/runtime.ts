@@ -4,15 +4,14 @@ import { PostService } from '@/domains/post/service';
 import { UserService } from '@/domains/user/service';
 import { ApiLive } from '@/shared/api/client';
 import { TelemetryLive } from '@/infrastructure/telemetry';
-
-const isOtelEnabled = import.meta.env.VITE_ENABLE_OTEL === 'true';
+import { getDebugSettingsSync } from '@/domains/debug/service';
 
 const ServicesLive = Layer.mergeAll(
   UserService.Default,
   PostService.Default,
 ).pipe(Layer.provide(ApiLive));
 
-const MainLive = isOtelEnabled
+const MainLive = getDebugSettingsSync().otelEnabled
   ? ServicesLive.pipe(Layer.provideMerge(TelemetryLive))
   : ServicesLive;
 

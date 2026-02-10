@@ -1,3 +1,4 @@
+import DebugPanel from '@/debug-panel';
 import CookieBanner from '@/shared/components/ui/cookie-banner';
 import { ModeToggle } from '@/shared/components/ui/mode-toggle';
 import Providers from '@/shared/providers/providers';
@@ -18,7 +19,10 @@ const RootLayout = () => (
           </Link>
         </li>
       </ul>
-      <ModeToggle />
+      <div className="space-x-2">
+        <DebugPanel />
+        <ModeToggle />
+      </div>
     </div>
     <Outlet />
     <CookieBanner />

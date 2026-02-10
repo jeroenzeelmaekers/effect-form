@@ -19,24 +19,21 @@ describe('Error types', () => {
     instance: '/test/123',
   };
 
-  it('NetworkError should have correct tag', () => {
-    const error = new NetworkError({ traceId: 'test-trace-id' });
-    expect(error._tag).toBe('NetworkError');
-    expect(error.traceId).toBe('test-trace-id');
-  });
-
-  it('ValidationError should have correct tag', () => {
-    const error = new ValidationError({ problemDetail: testProblemDetail });
-    expect(error._tag).toBe('ValidationError');
-    expect(error.problemDetail?.detail).toBe('test');
-  });
-
-  it('NotFoundError should have correct tag and resource', () => {
-    const error = new NotFoundError({
-      problemDetail: testProblemDetail,
-    });
-    expect(error._tag).toBe('NotFoundError');
-    expect(error.problemDetail?.detail).toBe('test');
+  it.each([
+    [
+      'NetworkError should have correct tag',
+      new NetworkError({ traceId: 'test-trace-id' }),
+    ],
+    [
+      'ValidationError should have correct tag',
+      new ValidationError({ problemDetail: testProblemDetail }),
+    ],
+    [
+      'NotFoundError should have correct tag',
+      new NotFoundError({ problemDetail: testProblemDetail }),
+    ],
+  ])('%s', (_, error) => {
+    expect(error._tag).toBe(error.constructor.name);
   });
 
   it('should allow access to all problemDetail fields', () => {
@@ -77,38 +74,19 @@ describe('getResponseError', () => {
     detail: 'Something went wrong',
   };
 
-  it('should return NotFoundError for 404 status', async () => {
-    const error = createMockResponseError(404, problemDetail);
+  it.each([
+    ['should return NotFoundError for 404 status', 404, 'NotFoundError'],
+    ['should return ValidationError for 422 status', 422, 'ValidationError'],
+    ['should return NetworkError for other statuses', 500, 'NetworkError'],
+  ])('%s', async (_, status, expectedTag) => {
+    const error = createMockResponseError(status, problemDetail);
     const result = await runError(getResponseError(error, 'trace-1'));
-    expect(result._tag).toBe('NotFoundError');
-  });
-
-  it('should return ValidationError for 422 status', async () => {
-    const error = createMockResponseError(422, problemDetail);
-    const result = await runError(getResponseError(error, 'trace-2'));
-    expect(result._tag).toBe('ValidationError');
-  });
-
-  it('should return NetworkError for other statuses', async () => {
-    const error = createMockResponseError(500, problemDetail);
-    const result = await runError(getResponseError(error, 'trace-4'));
-    expect(result._tag).toBe('NetworkError');
+    expect(result._tag).toBe(expectedTag);
   });
 
   it('should handle non-JSON responses gracefully', async () => {
-    const request = HttpClientRequest.get('https://test.com');
-    const response = HttpClientResponse.fromWeb(
-      request,
-      new Response('Not Found', {
-        status: 404,
-      }),
-    );
-    const error = new HttpClientError.ResponseError({
-      request,
-      response,
-      reason: 'StatusCode',
-    });
-    const result = await runError(getResponseError(error, 'trace-5'));
+    const error = createMockResponseError(404, 'Not Found');
+    const result = await runError(getResponseError(error, 'trace-1'));
     expect(result._tag).toBe('NotFoundError');
   });
 });

@@ -6,7 +6,8 @@ import {
   HttpClientResponse,
 } from '@effect/platform';
 import { Context, Effect, Layer, Schedule } from 'effect';
-import { SimulatedHttpClientLive } from './simulation';
+import { withSimulation } from './simulation';
+import { DebugService } from '@/domains/debug/service';
 
 export interface ApiClientService {
   readonly execute: (
@@ -27,6 +28,7 @@ const ApiClientLive = Layer.effect(
   Effect.gen(function* () {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
     const httpClient = yield* HttpClient.HttpClient;
+    const debugService = yield* DebugService;
 
     const resilientClient = httpClient.pipe(
       HttpClient.retryTransient({
@@ -38,15 +40,18 @@ const ApiClientLive = Layer.effect(
 
     return {
       execute: (request: HttpClientRequest.HttpClientRequest) =>
-        resilientClient.execute(request),
+        Effect.gen(function* () {
+          const settings = yield* debugService.get;
+          const client = settings.simulationEnabled
+            ? withSimulation(resilientClient)
+            : resilientClient;
+          return yield* client.execute(request);
+        }),
     };
   }),
 );
 
-const isSimulationEnabled = import.meta.env.VITE_ENABLE_SIMULATION === 'true';
-
-const HttpClientLive = isSimulationEnabled
-  ? SimulatedHttpClientLive.pipe(Layer.provide(FetchHttpClient.layer))
-  : FetchHttpClient.layer;
-
-export const ApiLive = ApiClientLive.pipe(Layer.provide(HttpClientLive));
+export const ApiLive = ApiClientLive.pipe(
+  Layer.provide(FetchHttpClient.layer),
+  Layer.provide(DebugService.Default),
+);

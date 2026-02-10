@@ -4,7 +4,7 @@ import {
   HttpClientRequest,
   HttpClientResponse,
 } from '@effect/platform';
-import { Effect, Layer } from 'effect';
+import { Effect } from 'effect';
 
 const mockProblemDetails = {
   notFound: {
@@ -45,7 +45,7 @@ const createMockResponse = (
   );
 
 // Simulate random errors at the HTTP client level
-const simulateErrors = (
+export const simulateRequest = (
   request: HttpClientRequest.HttpClientRequest,
   execute: (
     req: HttpClientRequest.HttpClientRequest,
@@ -53,7 +53,10 @@ const simulateErrors = (
     HttpClientResponse.HttpClientResponse,
     HttpClientError.HttpClientError
   >,
-) =>
+): Effect.Effect<
+  HttpClientResponse.HttpClientResponse,
+  HttpClientError.HttpClientError
+> =>
   Effect.gen(function* () {
     const random = Math.random();
 
@@ -80,15 +83,12 @@ const simulateErrors = (
 
     // 55% chance of success - execute the real request
     return yield* execute(request);
-  });
+  }).pipe(Effect.delay('3 seconds'));
 
-export const SimulatedHttpClientLive = Layer.effect(
-  HttpClient.HttpClient,
-  Effect.gen(function* () {
-    const client = yield* HttpClient.HttpClient;
-
-    return HttpClient.make((request) =>
-      simulateErrors(request, client.execute).pipe(Effect.delay('3 seconds')),
-    ).pipe(HttpClient.filterStatusOk);
-  }),
-);
+// Wrap an HttpClient with simulation behavior
+export const withSimulation = (
+  client: HttpClient.HttpClient,
+): HttpClient.HttpClient =>
+  HttpClient.make((request) =>
+    simulateRequest(request, client.execute),
+  ).pipe(HttpClient.filterStatusOk);
