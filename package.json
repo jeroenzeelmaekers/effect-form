@@ -8,6 +8,7 @@
     "dev": "vite",
     "fmt": "oxfmt",
     "lint": "oxlint",
+    "lint:github": "oxlint --format=github",
     "preview": "vite preview",
     "test": "vitest",
     "test:browser": "vitest --config=vitest.browser.config.ts"
