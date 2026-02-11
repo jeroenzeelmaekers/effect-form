@@ -11,6 +11,7 @@
     "lint:github": "oxlint --format=github",
     "preview": "vite preview",
     "test": "vitest",
+    "test:coverage": "vitest run --coverage",
     "test:browser": "vitest --config=vitest.browser.config.ts"
   },
   "dependencies": {
