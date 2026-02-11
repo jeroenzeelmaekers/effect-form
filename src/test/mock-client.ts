@@ -1,6 +1,7 @@
-import { ApiClient, type ApiClientService } from '@/shared/api/client';
 import { HttpClientRequest, HttpClientResponse } from '@effect/platform';
 import { Effect, Layer } from 'effect';
+
+import { ApiClient, type ApiClientService } from '@/shared/api/client';
 
 export const createMockApiClient = (
   handler: (

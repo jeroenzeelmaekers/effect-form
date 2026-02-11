@@ -1,7 +1,8 @@
-import { Button } from './button';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './card';
 import { usePostHog } from 'posthog-js/react';
 import { useState } from 'react';
+
+import { Button } from './button';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './card';
 
 export default function CookieBanner() {
   const posthog = usePostHog();

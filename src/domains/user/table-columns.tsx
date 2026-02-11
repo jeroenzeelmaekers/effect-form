@@ -1,7 +1,9 @@
 import type { Column, ColumnDef } from '@tanstack/react-table';
-import type { User } from './model';
-import { Button } from '@/shared/components/ui/button';
 import { ArrowDown, ArrowUp } from 'lucide-react';
+
+import { Button } from '@/shared/components/ui/button';
+
+import type { User } from './model';
 
 function handleSortToggle(column: Column<User>) {
   const current = column.getIsSorted();

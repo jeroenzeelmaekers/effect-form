@@ -1,3 +1,14 @@
+import { Result, useAtomSet, useAtomValue } from '@effect-atom/atom-react';
+import { useForm } from '@tanstack/react-form';
+import { Schema } from 'effect';
+import { HelpCircle } from 'lucide-react';
+
+import { getLanguageLabel, languages } from '@/domains/language/model';
+import {
+  createUserOptimisticAtom,
+  optimisticGetUsersAtom,
+} from '@/domains/user/atoms';
+import { UserForm } from '@/domains/user/model';
 import { Button } from '@/shared/components/ui/button';
 import {
   Card,
@@ -29,16 +40,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/shared/components/ui/tooltip';
-import {
-  createUserOptimisticAtom,
-  optimisticGetUsersAtom,
-} from '@/domains/user/atoms';
-import { getLanguageLabel, languages } from '@/domains/language/model';
-import { UserForm } from '@/domains/user/model';
-import { Result, useAtomSet, useAtomValue } from '@effect-atom/atom-react';
-import { useForm } from '@tanstack/react-form';
-import { Schema } from 'effect';
-import { HelpCircle } from 'lucide-react';
 
 export default function EffectForm() {
   const createUser = useAtomSet(createUserOptimisticAtom);

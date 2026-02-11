@@ -1,8 +1,9 @@
+import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
+
 import DebugPanel from '@/debug-panel';
 import CookieBanner from '@/shared/components/ui/cookie-banner';
 import { ModeToggle } from '@/shared/components/ui/mode-toggle';
 import Providers from '@/shared/providers/providers';
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
 
 const RootLayout = () => (
   <Providers>

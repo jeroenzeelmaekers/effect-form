@@ -1,14 +1,3 @@
-import { Error } from '@/shared/components/ui/error';
-import { Skeleton } from '@/shared/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/shared/components/ui/table';
-import { optimisticGetUsersAtom } from '@/domains/user/atoms';
 import { Result, useAtomValue } from '@effect-atom/atom-react';
 import {
   flexRender,
@@ -20,6 +9,19 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
+
+import { optimisticGetUsersAtom } from '@/domains/user/atoms';
+import { Error } from '@/shared/components/ui/error';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/shared/components/ui/table';
+
 import { UserColumns } from '../table-columns';
 
 interface DataTableProps<TData extends { id: number }, TValue> {

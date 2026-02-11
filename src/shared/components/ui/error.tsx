@@ -1,6 +1,7 @@
-import { Button } from '@/shared/components/ui/button';
 import { Atom, useAtomRefresh } from '@effect-atom/atom-react';
 import type { ReactNode } from 'react';
+
+import { Button } from '@/shared/components/ui/button';
 
 // Error container - the root component
 function ErrorRoot({ children }: { children: ReactNode }) {

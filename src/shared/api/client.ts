@@ -6,8 +6,10 @@ import {
   HttpClientResponse,
 } from '@effect/platform';
 import { Context, Effect, Layer, Schedule } from 'effect';
-import { withSimulation } from './simulation';
+
 import { DebugService } from '@/domains/debug/service';
+
+import { withSimulation } from './simulation';
 
 export interface ApiClientService {
   readonly execute: (

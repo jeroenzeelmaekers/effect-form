@@ -1,6 +1,7 @@
-import { Post } from '@/domains/post/model';
 import { HttpClientRequest, HttpClientResponse } from '@effect/platform';
 import { Effect, Schema } from 'effect';
+
+import { Post } from '@/domains/post/model';
 import { ApiClient } from '@/shared/api/client';
 import {
   getCurrentTraceId,

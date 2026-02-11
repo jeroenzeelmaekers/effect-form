@@ -1,6 +1,7 @@
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 import type { ReactNode } from 'react';
+
 import { ThemeProvider } from './theme-provider';
 
 posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {

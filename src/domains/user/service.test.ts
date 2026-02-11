@@ -1,8 +1,9 @@
-import { NetworkError, ValidationError } from '@/shared/api/errors';
-import { UserService } from '@/domains/user/service';
-import { createMockApiClient, createMockResponse } from '@/test/mock-client';
 import { beforeEach, describe, expect, it, vi } from '@effect/vitest';
 import { Duration, Effect, Exit, Fiber, Layer, TestClock } from 'effect';
+
+import { UserService } from '@/domains/user/service';
+import { NetworkError, ValidationError } from '@/shared/api/errors';
+import { createMockApiClient, createMockResponse } from '@/test/mock-client';
 
 // Mock Math.random to always return success (>= 0.45 skips all simulated errors)
 beforeEach(() => {

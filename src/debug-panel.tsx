@@ -1,4 +1,12 @@
+import { Result, useAtomSet, useAtomValue } from '@effect-atom/atom-react';
 import { BugIcon } from 'lucide-react';
+
+import {
+  debugSettingsAtom,
+  setSimulationEnabledAtom,
+  setOtelEnabledAtom,
+} from './domains/debug/atoms';
+import { Button } from './shared/components/ui/button';
 import {
   Sheet,
   SheetContent,
@@ -7,14 +15,7 @@ import {
   SheetDescription,
   SheetTrigger,
 } from './shared/components/ui/sheet';
-import { Button } from './shared/components/ui/button';
 import { Switch } from './shared/components/ui/switch';
-import { Result, useAtomSet, useAtomValue } from '@effect-atom/atom-react';
-import {
-  debugSettingsAtom,
-  setSimulationEnabledAtom,
-  setOtelEnabledAtom,
-} from './domains/debug/atoms';
 
 export default function DebugPanel() {
   const settingsResult = useAtomValue(debugSettingsAtom);

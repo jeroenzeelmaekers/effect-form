@@ -89,6 +89,6 @@ export const simulateRequest = (
 export const withSimulation = (
   client: HttpClient.HttpClient,
 ): HttpClient.HttpClient =>
-  HttpClient.make((request) =>
-    simulateRequest(request, client.execute),
-  ).pipe(HttpClient.filterStatusOk);
+  HttpClient.make((request) => simulateRequest(request, client.execute)).pipe(
+    HttpClient.filterStatusOk,
+  );

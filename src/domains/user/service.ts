@@ -1,10 +1,11 @@
-import { User, UserForm } from '@/domains/user/model';
 import {
   HttpBody,
   HttpClientRequest,
   HttpClientResponse,
 } from '@effect/platform';
 import { Effect, Schema } from 'effect';
+
+import { User, UserForm } from '@/domains/user/model';
 import { ApiClient } from '@/shared/api/client';
 import {
   getCurrentTraceId,

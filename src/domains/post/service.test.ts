@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from '@effect/vitest';
+import { Duration, Effect, Fiber, Layer, TestClock } from 'effect';
+
 import { PostService } from '@/domains/post/service';
 import { createMockApiClient, createMockResponse } from '@/test/mock-client';
-import { Duration, Effect, Fiber, Layer, TestClock } from 'effect';
 
 beforeEach(() => {
   vi.spyOn(Math, 'random').mockReturnValue(0.5);

@@ -1,7 +1,8 @@
-import * as HttpClientError from '@effect/platform/HttpClientError';
 import { HttpClientRequest, HttpClientResponse } from '@effect/platform';
+import * as HttpClientError from '@effect/platform/HttpClientError';
 import { Effect, Layer, ManagedRuntime } from 'effect';
 import { describe, expect, it } from 'vitest';
+
 import {
   getResponseError,
   NetworkError,
