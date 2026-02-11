@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -b && vite build",
     "dev": "vite",
-    "fmt": "oxfmt",
+    "fmt": "oxfmt --ignore-path=.oxfmtignore",
     "lint": "oxlint",
     "lint:github": "oxlint --format=github",
     "preview": "vite preview",
