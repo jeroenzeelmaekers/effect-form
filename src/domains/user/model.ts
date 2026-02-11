@@ -1,4 +1,3 @@
-import type { ColumnDef } from '@tanstack/react-table';
 import { Schema } from 'effect';
 import { languageValues } from '@/domains/language/model';
 
@@ -44,21 +43,6 @@ class User extends Schema.Class<User>('User')({
   language: Schema.optional(Language),
 }) {}
 
-const UserColumns: ColumnDef<User>[] = [
-  {
-    accessorKey: 'name',
-    header: 'Name',
-  },
-  {
-    accessorKey: 'username',
-    header: 'Username',
-  },
-  {
-    accessorKey: 'email',
-    header: 'Email',
-  },
-];
-
 class UserForm extends Schema.Class<UserForm>('UserForm')({
   name: Name,
   username: Username,
@@ -66,4 +50,4 @@ class UserForm extends Schema.Class<UserForm>('UserForm')({
   language: Language,
 }) {}
 
-export { User, UserColumns, UserForm };
+export { User, UserForm };

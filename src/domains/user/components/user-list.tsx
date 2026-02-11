@@ -9,16 +9,18 @@ import {
   TableRow,
 } from '@/shared/components/ui/table';
 import { optimisticGetUsersAtom } from '@/domains/user/atoms';
-import { UserColumns } from '@/domains/user/model';
 import { Result, useAtomValue } from '@effect-atom/atom-react';
 import {
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
   type ColumnDef,
   type Row,
+  type SortingState,
 } from '@tanstack/react-table';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { UserColumns } from '../table-columns';
 
 interface DataTableProps<TData extends { id: number }, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -32,11 +34,15 @@ function DataTable<TData extends { id: number }, TValue>({
 }: DataTableProps<TData, TValue>) {
   'use no memo';
   const memoizedData = useMemo(() => [...data], [data]);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
     data: memoizedData,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: { sorting },
   });
 
   return (
@@ -46,7 +52,7 @@ function DataTable<TData extends { id: number }, TValue>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
+                <TableHead key={header.id} className="p-0">
                   {header.isPlaceholder
                     ? null
                     : flexRender(
