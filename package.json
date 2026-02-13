@@ -10,8 +10,8 @@
     "lint": "oxlint",
     "lint:github": "oxlint --format=github",
     "preview": "vite preview",
-    "test": "vitest",
-    "test:browser": "vitest --config=vitest.browser.config.ts",
+    "test": "vitest --project node",
+    "test:browser": "vitest --project browser",
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
@@ -50,10 +50,13 @@
     "@vitest/browser-playwright": "^4.0.18",
     "@vitest/coverage-v8": "4.0.18",
     "babel-plugin-react-compiler": "^1.0.0",
+    "babel-plugin-react-remove-properties": "^0.3.1",
     "oxfmt": "^0.32.0",
     "oxlint": "^1.47.0",
     "shadcn": "^3.8.4",
     "typescript": "~5.9.3",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest-browser-react": "^2.0.5"
   }
 }

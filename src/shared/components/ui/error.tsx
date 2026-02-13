@@ -5,7 +5,11 @@ import { Button } from "@/shared/components/ui/button";
 
 // Error container - the root component
 function ErrorRoot({ children }: { children: ReactNode }) {
-  return <article className="m-auto max-w-2/3 space-y-3">{children}</article>;
+  return (
+    <article data-testid="error" className="m-auto max-w-2/3 space-y-3">
+      {children}
+    </article>
+  );
 }
 
 // Error content section (title + description)
@@ -15,7 +19,11 @@ function ErrorContent({ children }: { children: ReactNode }) {
 
 // Error title
 function ErrorTitle({ children }: { children: ReactNode }) {
-  return <h1 className="text-xl font-bold">{children}</h1>;
+  return (
+    <h1 data-testid="error-title" className="text-xl font-bold">
+      {children}
+    </h1>
+  );
 }
 
 // Error description
@@ -38,7 +46,7 @@ function ErrorRefresh<T>({
 }) {
   const refresh = useAtomRefresh(atom);
   return (
-    <Button variant="default" onClick={refresh}>
+    <Button data-testid="error-refresh" variant="default" onClick={refresh}>
       {label}
     </Button>
   );

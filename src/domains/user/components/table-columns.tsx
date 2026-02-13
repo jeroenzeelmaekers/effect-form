@@ -3,7 +3,7 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 
-import type { User } from "./model";
+import type { User } from "../model";
 
 function handleSortToggle(column: Column<User>) {
   const current = column.getIsSorted();
@@ -31,6 +31,7 @@ const UserColumns: ColumnDef<User>[] = [
     accessorKey: "name",
     header: ({ column }) => (
       <Button
+        data-testid="sort-name"
         variant="ghost"
         className="h-full w-full justify-between rounded-none"
         onClick={() => handleSortToggle(column)}>
@@ -43,6 +44,7 @@ const UserColumns: ColumnDef<User>[] = [
     accessorKey: "username",
     header: ({ column }) => (
       <Button
+        data-testid="sort-username"
         variant="ghost"
         className="h-full w-full justify-between rounded-none"
         onClick={() => handleSortToggle(column)}>
@@ -55,6 +57,7 @@ const UserColumns: ColumnDef<User>[] = [
     accessorKey: "email",
     header: ({ column }) => (
       <Button
+        data-testid="sort-email"
         variant="ghost"
         className="h-full w-full justify-between rounded-none"
         onClick={() => handleSortToggle(column)}>

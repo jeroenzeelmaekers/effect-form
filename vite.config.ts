@@ -14,7 +14,12 @@ export default defineConfig({
     }),
     react({
       babel: {
-        plugins: [["babel-plugin-react-compiler"]],
+        plugins: [
+          ["babel-plugin-react-compiler"],
+          ...(process.env.NODE_ENV === "production"
+            ? [["react-remove-properties", { properties: ["data-testid"] }]]
+            : []),
+        ],
       },
     }),
     tailwindcss(),
@@ -31,6 +36,7 @@ export default defineConfig({
           react: ["react", "react-dom"],
           effect: ["effect", "@effect/platform", "@effect-atom/atom-react"],
           form: ["@tanstack/react-form"],
+          table: ["@tanstack/react-table"],
           icons: ["lucide-react"],
           ui: ["@base-ui/react"],
           posthog: ["posthog-js/react"],

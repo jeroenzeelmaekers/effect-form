@@ -66,7 +66,10 @@ export default function EffectForm() {
   });
 
   return (
-    <Card className="h-fit w-full lg:max-w-sm lg:min-w-sm" size="sm">
+    <Card
+      className="h-fit w-full lg:max-w-sm lg:min-w-sm"
+      size="sm"
+      data-testid="user-form">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -82,7 +85,10 @@ export default function EffectForm() {
           </CardDescription>
           <CardAction></CardAction>
         </CardHeader>
-        <fieldset disabled={isDisabled} className="flex flex-col gap-5">
+        <fieldset
+          disabled={isDisabled}
+          data-testid="user-form-fieldset"
+          className="flex flex-col gap-5">
           <CardContent className="flex flex-col gap-4">
             <form.Field
               name="name"
@@ -95,13 +101,17 @@ export default function EffectForm() {
                     <Input
                       id={field.name}
                       name={field.name}
+                      data-testid="user-form-name"
                       autoComplete="name"
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
                     {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
+                      <FieldError
+                        data-testid="user-form-name-error"
+                        errors={field.state.meta.errors}
+                      />
                     )}
                   </Field>
                 );
@@ -119,6 +129,7 @@ export default function EffectForm() {
                       <InputGroupInput
                         id={field.name}
                         name={field.name}
+                        data-testid="user-form-username"
                         autoComplete="username"
                         value={field.state.value}
                         onBlur={field.handleBlur}
@@ -129,7 +140,10 @@ export default function EffectForm() {
                       </InputGroupAddon>
                     </InputGroup>
                     {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
+                      <FieldError
+                        data-testid="user-form-username-error"
+                        errors={field.state.meta.errors}
+                      />
                     )}
                   </Field>
                 );
@@ -147,6 +161,7 @@ export default function EffectForm() {
                       <InputGroupInput
                         id={field.name}
                         name={field.name}
+                        data-testid="user-form-email"
                         type="email"
                         autoComplete="email"
                         value={field.state.value}
@@ -171,7 +186,10 @@ export default function EffectForm() {
                       </InputGroupAddon>
                     </InputGroup>
                     {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
+                      <FieldError
+                        data-testid="user-form-email-error"
+                        errors={field.state.meta.errors}
+                      />
                     )}
                   </Field>
                 );
@@ -193,7 +211,9 @@ export default function EffectForm() {
                       onValueChange={(value) =>
                         field.handleChange(value ?? "")
                       }>
-                      <SelectTrigger id="effect-form-select-language">
+                      <SelectTrigger
+                        id="effect-form-select-language"
+                        data-testid="user-form-language">
                         <SelectValue>
                           {getLanguageLabel(field.state.value) ?? "Select"}
                         </SelectValue>
@@ -207,7 +227,10 @@ export default function EffectForm() {
                       </SelectContent>
                     </Select>
                     {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
+                      <FieldError
+                        data-testid="user-form-language-error"
+                        errors={field.state.meta.errors}
+                      />
                     )}
                   </Field>
                 );
@@ -218,7 +241,11 @@ export default function EffectForm() {
             <form.Subscribe
               selector={(state) => [state.canSubmit, state.isSubmitting]}>
               {([canSubmit, isSubmitting]) => (
-                <Button type="submit" disabled={!canSubmit} className="w-full">
+                <Button
+                  type="submit"
+                  disabled={!canSubmit}
+                  data-testid="user-form-submit"
+                  className="w-full">
                   {isSubmitting ? "Creating..." : "Create User"}
                 </Button>
               )}

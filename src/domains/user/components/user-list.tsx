@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 
-import { UserColumns } from "../table-columns";
+import { UserColumns } from "./table-columns";
 
 interface DataTableProps<TData extends { id: number }, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -90,6 +90,7 @@ function DataTableRow<TData extends { id: number }>({
   return (
     <TableRow
       key={row.id}
+      data-testid={`user-row-${row.original.id}`}
       data-state={row.getIsSelected() && "selected"}
       className={isOptimistic ? "text-muted-foreground" : ""}>
       {row.getVisibleCells().map((cell) => (
@@ -104,7 +105,7 @@ function DataTableRow<TData extends { id: number }>({
 // Empty state row
 function EmptyDataTableRow({ colSpan }: { colSpan: number }) {
   return (
-    <TableRow>
+    <TableRow data-testid="empty-row">
       <TableCell colSpan={colSpan} className="h-24 text-center">
         No results.
       </TableCell>
@@ -121,7 +122,9 @@ function Loading<TData, TValue>({
   columns: ColumnDef<TData, TValue>[];
 }) {
   return (
-    <div className="overflow-hidden rounded-md border">
+    <div
+      className="overflow-hidden rounded-md border"
+      data-testid="user-list-loading">
       <Table>
         <TableHeader>
           <TableRow>
