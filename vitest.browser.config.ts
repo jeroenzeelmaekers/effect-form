@@ -1,8 +1,8 @@
-import path from 'path';
+import path from "path";
 
-import react from '@vitejs/plugin-react';
-import { playwright } from '@vitest/browser-playwright';
-import { defineConfig } from 'vitest/config';
+import react from "@vitejs/plugin-react";
+import { playwright } from "@vitest/browser-playwright";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [react()],
@@ -12,15 +12,15 @@ export default defineConfig({
       provider: playwright(),
       headless: true,
       instances: [
-        { browser: 'chromium' },
-        { browser: 'firefox' },
-        { browser: 'webkit' },
+        { browser: "chromium" },
+        { browser: "firefox" },
+        { browser: "webkit" },
       ],
     },
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 });

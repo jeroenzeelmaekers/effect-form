@@ -1,22 +1,22 @@
-import { Schema } from 'effect';
+import { Schema } from "effect";
 
-import { languageValues } from '@/domains/language/model';
+import { languageValues } from "@/domains/language/model";
 
 // Branded UserId type for type safety
-export const UserId = Schema.Number.pipe(Schema.brand('UserId'));
+export const UserId = Schema.Number.pipe(Schema.brand("UserId"));
 export type UserId = typeof UserId.Type;
 
 const Name = Schema.String.pipe(
-  Schema.minLength(1, { message: () => 'Name is required' }),
+  Schema.minLength(1, { message: () => "Name is required" }),
   Schema.maxLength(50, {
-    message: () => 'Name can max be 50 characters',
+    message: () => "Name can max be 50 characters",
   }),
 );
 
 const Username = Schema.String.pipe(
-  Schema.minLength(1, { message: () => 'Username is required' }),
+  Schema.minLength(1, { message: () => "Username is required" }),
   Schema.maxLength(50, {
-    message: () => 'Username can max be 50 characters',
+    message: () => "Username can max be 50 characters",
   }),
 );
 /* oxlint-disable */
@@ -24,19 +24,19 @@ const Email = Schema.String.pipe(
   Schema.pattern(
     /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/,
     {
-      message: () => 'Invalid email address',
+      message: () => "Invalid email address",
     },
   ),
 );
 
 const Language = Schema.String.pipe(
   Schema.filter((value) =>
-    languageValues.includes(value) ? undefined : 'Select a language',
+    languageValues.includes(value) ? undefined : "Select a language",
   ),
 );
 
 // Using Schema.Class for domain entity
-class User extends Schema.Class<User>('User')({
+class User extends Schema.Class<User>("User")({
   id: UserId,
   name: Name,
   username: Username,
@@ -44,7 +44,7 @@ class User extends Schema.Class<User>('User')({
   language: Schema.optional(Language),
 }) {}
 
-class UserForm extends Schema.Class<UserForm>('UserForm')({
+class UserForm extends Schema.Class<UserForm>("UserForm")({
   name: Name,
   username: Username,
   email: Email,

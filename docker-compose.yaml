@@ -2,12 +2,12 @@ services:
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector
-    command: ['--config=/etc/otel-collector.yaml']
+    command: ["--config=/etc/otel-collector.yaml"]
     volumes:
       - ./observability/otel-collector.yaml:/etc/otel-collector.yaml:ro
     ports:
       # OTLP HTTP receiver (your app sends traces here)
-      - '4318:4318'
+      - "4318:4318"
     depends_on:
       - tempo
       - loki
@@ -15,7 +15,7 @@ services:
   tempo:
     image: grafana/tempo:2.6.1
     container_name: tempo
-    command: ['-config.file=/etc/tempo.yaml']
+    command: ["-config.file=/etc/tempo.yaml"]
     volumes:
       - ./observability/tempo.yaml:/etc/tempo.yaml:ro
       - tempo-data:/var/tempo
@@ -23,9 +23,9 @@ services:
   loki:
     image: grafana/loki:latest
     container_name: loki
-    command: ['-config.file=/etc/loki/local-config.yaml']
+    command: ["-config.file=/etc/loki/local-config.yaml"]
     ports:
-      - '3100:3100'
+      - "3100:3100"
     volumes:
       - loki-data:/loki
 
@@ -41,7 +41,7 @@ services:
       - grafana-data:/var/lib/grafana
     ports:
       # Grafana UI (using 3001 to avoid conflict with Next.js on 3000)
-      - '3001:3000'
+      - "3001:3000"
     depends_on:
       - tempo
       - loki

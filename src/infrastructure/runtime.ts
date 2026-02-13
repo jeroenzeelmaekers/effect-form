@@ -1,11 +1,11 @@
-import { Atom } from '@effect-atom/atom-react';
-import { Layer } from 'effect';
+import { Atom } from "@effect-atom/atom-react";
+import { Layer } from "effect";
 
-import { getDebugSettingsSync } from '@/domains/debug/service';
-import { PostService } from '@/domains/post/service';
-import { UserService } from '@/domains/user/service';
-import { TelemetryLive } from '@/infrastructure/telemetry';
-import { ApiLive } from '@/shared/api/client';
+import { getDebugSettingsSync } from "@/domains/debug/service";
+import { PostService } from "@/domains/post/service";
+import { UserService } from "@/domains/user/service";
+import { TelemetryLive } from "@/infrastructure/telemetry";
+import { ApiLive } from "@/shared/api/client";
 
 const ServicesLive = Layer.mergeAll(
   UserService.Default,

@@ -1,6 +1,6 @@
-import { Atom } from '@effect-atom/atom';
+import { Atom } from "@effect-atom/atom";
 
-import { DebugService } from './service';
+import { DebugService } from "./service";
 
 const debugRuntimeAtom = Atom.runtime(DebugService.Default);
 

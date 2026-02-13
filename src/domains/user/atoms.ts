@@ -1,15 +1,15 @@
-import { Atom, Result } from '@effect-atom/atom';
+import { Atom, Result } from "@effect-atom/atom";
 
-import { User, UserForm, UserId } from '@/domains/user/model';
-import { UserService } from '@/domains/user/service';
-import { runtimeAtom } from '@/infrastructure/runtime';
+import { User, UserForm, UserId } from "@/domains/user/model";
+import { UserService } from "@/domains/user/service";
+import { runtimeAtom } from "@/infrastructure/runtime";
 
 export const getUsersAtom = runtimeAtom
   .atom(UserService.getUsers())
-  .pipe(Atom.withReactivity({ users: ['users'] }));
+  .pipe(Atom.withReactivity({ users: ["users"] }));
 
 export const createUserAtom = runtimeAtom.fn(UserService.createUser, {
-  reactivityKeys: { users: ['users'] },
+  reactivityKeys: { users: ["users"] },
 });
 
 // Optimistic updates

@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = 'dark' | 'light' | 'system';
+type Theme = "dark" | "light" | "system";
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -15,7 +15,7 @@ type ThemeProviderState = {
 
 // Initial state for the context
 const initialState: ThemeProviderState = {
-  theme: 'system',
+  theme: "system",
   setTheme: () => null,
 };
 
@@ -40,8 +40,8 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
   children,
-  defaultTheme = 'system',
-  storageKey = 'theme-preference',
+  defaultTheme = "system",
+  storageKey = "theme-preference",
   ...props
 }: ThemeProviderProps) {
   // State to hold the current theme
@@ -54,25 +54,25 @@ export function ThemeProvider({
 
     // Function to apply the theme class to the root element
     const applyTheme = (isDark: boolean) => {
-      root.classList.remove('light', 'dark');
-      root.classList.add(isDark ? 'dark' : 'light');
+      root.classList.remove("light", "dark");
+      root.classList.add(isDark ? "dark" : "light");
     };
 
     // Handle system theme preference
-    if (theme === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    if (theme === "system") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
       applyTheme(mediaQuery.matches);
 
       // Listen for changes in system theme preference
       const handleChange = (e: MediaQueryListEvent) => applyTheme(e.matches);
-      mediaQuery.addEventListener('change', handleChange);
+      mediaQuery.addEventListener("change", handleChange);
 
       // Cleanup listener on unmount or theme changes to non-system
-      return () => mediaQuery.removeEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
     }
 
     // Apply the selected theme
-    root.classList.remove('light', 'dark');
+    root.classList.remove("light", "dark");
     root.classList.add(theme);
   }, [theme]);
 
@@ -95,7 +95,7 @@ export const useTheme = () => {
   const context = useContext(ThemeProviderContext);
 
   if (context === undefined)
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error("useTheme must be used within a ThemeProvider");
 
   return context;
 };

@@ -1,7 +1,7 @@
-import { HttpClientRequest, HttpClientResponse } from '@effect/platform';
-import { Effect, Layer } from 'effect';
+import { HttpClientRequest, HttpClientResponse } from "@effect/platform";
+import { Effect, Layer } from "effect";
 
-import { ApiClient, type ApiClientService } from '@/shared/api/client';
+import { ApiClient, type ApiClientService } from "@/shared/api/client";
 
 export const createMockApiClient = (
   handler: (
@@ -17,9 +17,9 @@ export const createMockResponse = (
   body: unknown,
 ): HttpClientResponse.HttpClientResponse =>
   HttpClientResponse.fromWeb(
-    HttpClientRequest.get('http://test'),
+    HttpClientRequest.get("http://test"),
     new Response(JSON.stringify(body), {
       status,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     }),
   );

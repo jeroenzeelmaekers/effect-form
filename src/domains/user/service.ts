@@ -2,28 +2,28 @@ import {
   HttpBody,
   HttpClientRequest,
   HttpClientResponse,
-} from '@effect/platform';
-import { Effect, Schema } from 'effect';
+} from "@effect/platform";
+import { Effect, Schema } from "effect";
 
-import { User, UserForm } from '@/domains/user/model';
-import { ApiClient } from '@/shared/api/client';
+import { User, UserForm } from "@/domains/user/model";
+import { ApiClient } from "@/shared/api/client";
 import {
   getCurrentTraceId,
   getResponseError,
   NetworkError,
   ValidationError,
-} from '@/shared/api/errors';
+} from "@/shared/api/errors";
 
-export class UserService extends Effect.Service<UserService>()('UserService', {
+export class UserService extends Effect.Service<UserService>()("UserService", {
   accessors: true,
   scoped: Effect.gen(function* () {
     const client = yield* ApiClient;
 
-    const getUsers = Effect.fn('Get Users')(function* () {
+    const getUsers = Effect.fn("Get Users")(function* () {
       const traceId = yield* getCurrentTraceId;
-      const request = HttpClientRequest.get('/users');
+      const request = HttpClientRequest.get("/users");
       const response = yield* client.execute(request).pipe(
-        Effect.timeout('10 seconds'),
+        Effect.timeout("10 seconds"),
         Effect.catchTags({
           RequestError: () =>
             Effect.fail(
@@ -52,16 +52,16 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       );
     });
 
-    const createUser = Effect.fn('Create Users')(function* (
+    const createUser = Effect.fn("Create Users")(function* (
       formValues: Schema.Schema.Type<typeof UserForm>,
     ) {
       const traceId = yield* getCurrentTraceId;
       const body = yield* HttpBody.json(formValues).pipe(
-        Effect.catchTag('HttpBodyError', () =>
+        Effect.catchTag("HttpBodyError", () =>
           Effect.fail(new ValidationError({ traceId })),
         ),
       );
-      const request = HttpClientRequest.post('/users').pipe(
+      const request = HttpClientRequest.post("/users").pipe(
         HttpClientRequest.setBody(body),
       );
       const response = yield* client.execute(request).pipe(
@@ -79,7 +79,7 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
         Effect.tap((data) =>
           Effect.logInfo(`[USER] Created user with id: ${data.id}`),
         ),
-        Effect.catchTag('ParseError', () =>
+        Effect.catchTag("ParseError", () =>
           Effect.fail(
             new ValidationError({
               traceId,

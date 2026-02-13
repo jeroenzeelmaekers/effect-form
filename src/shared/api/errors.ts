@@ -1,6 +1,6 @@
-import { HttpClientResponse } from '@effect/platform';
-import type { ResponseError } from '@effect/platform/HttpClientError';
-import { Effect, Schema } from 'effect';
+import { HttpClientResponse } from "@effect/platform";
+import type { ResponseError } from "@effect/platform/HttpClientError";
+import { Effect, Schema } from "effect";
 
 export const ProblemDetail = Schema.Struct({
   type: Schema.optional(Schema.String),
@@ -13,7 +13,7 @@ export const ProblemDetail = Schema.Struct({
 export type ProblemDetail = typeof ProblemDetail.Type;
 
 export class NetworkError extends Schema.TaggedError<NetworkError>()(
-  'NetworkError',
+  "NetworkError",
   {
     traceId: Schema.optional(Schema.String),
     cause: Schema.optional(Schema.Defect),
@@ -21,7 +21,7 @@ export class NetworkError extends Schema.TaggedError<NetworkError>()(
 ) {}
 
 export class NotFoundError extends Schema.TaggedError<NotFoundError>()(
-  'NotFoundError',
+  "NotFoundError",
   {
     traceId: Schema.optional(Schema.String),
     problemDetail: Schema.optional(ProblemDetail),
@@ -29,7 +29,7 @@ export class NotFoundError extends Schema.TaggedError<NotFoundError>()(
 ) {}
 
 export class ValidationError extends Schema.TaggedError<ValidationError>()(
-  'ValidationError',
+  "ValidationError",
   {
     traceId: Schema.optional(Schema.String),
     problemDetail: Schema.optional(ProblemDetail),
@@ -38,7 +38,7 @@ export class ValidationError extends Schema.TaggedError<ValidationError>()(
 
 export const getCurrentTraceId = Effect.gen(function* () {
   const span = yield* Effect.currentSpan.pipe(Effect.option);
-  return span._tag === 'Some' ? span.value.traceId : undefined;
+  return span._tag === "Some" ? span.value.traceId : undefined;
 });
 
 export const annotateSpanWithProblemDetail = (
@@ -46,11 +46,11 @@ export const annotateSpanWithProblemDetail = (
   statusCode?: number,
 ) =>
   Effect.annotateCurrentSpan({
-    'error.type': problemDetail.type ?? 'unknown',
-    'error.title': problemDetail.title ?? 'unknown',
-    'error.status': problemDetail.status ?? statusCode ?? 0,
-    'error.detail': problemDetail.detail ?? 'unknown',
-    'error.instance': problemDetail.instance ?? 'unknown',
+    "error.type": problemDetail.type ?? "unknown",
+    "error.title": problemDetail.title ?? "unknown",
+    "error.status": problemDetail.status ?? statusCode ?? 0,
+    "error.detail": problemDetail.detail ?? "unknown",
+    "error.instance": problemDetail.instance ?? "unknown",
   });
 
 export function getResponseError(error: ResponseError, traceId?: string) {

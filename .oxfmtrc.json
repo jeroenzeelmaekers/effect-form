@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "printWidth": 80,
-  "singleQuote": true,
+  "singleQuote": false,
   "bracketSameLine": true,
   "experimentalTailwindcss": {
     "attributes": ["class", "className"],

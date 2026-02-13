@@ -1,39 +1,39 @@
-import path from 'path';
+import path from "path";
 
-import tailwindcss from '@tailwindcss/vite';
-import { tanstackRouter } from '@tanstack/router-plugin/vite';
-import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import tailwindcss from "@tailwindcss/vite";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     tanstackRouter({
-      target: 'react',
+      target: "react",
       autoCodeSplitting: true,
     }),
     react({
       babel: {
-        plugins: [['babel-plugin-react-compiler']],
+        plugins: [["babel-plugin-react-compiler"]],
       },
     }),
     tailwindcss(),
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
-          react: ['react', 'react-dom'],
-          effect: ['effect', '@effect/platform', '@effect-atom/atom-react'],
-          form: ['@tanstack/react-form'],
-          icons: ['lucide-react'],
-          ui: ['@base-ui/react'],
-          posthog: ['posthog-js/react'],
+          react: ["react", "react-dom"],
+          effect: ["effect", "@effect/platform", "@effect-atom/atom-react"],
+          form: ["@tanstack/react-form"],
+          icons: ["lucide-react"],
+          ui: ["@base-ui/react"],
+          posthog: ["posthog-js/react"],
         },
       },
     },

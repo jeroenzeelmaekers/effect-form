@@ -1,15 +1,15 @@
-import { Result, useAtomSet, useAtomValue } from '@effect-atom/atom-react';
-import { useForm } from '@tanstack/react-form';
-import { Schema } from 'effect';
-import { HelpCircle } from 'lucide-react';
+import { Result, useAtomSet, useAtomValue } from "@effect-atom/atom-react";
+import { useForm } from "@tanstack/react-form";
+import { Schema } from "effect";
+import { HelpCircle } from "lucide-react";
 
-import { getLanguageLabel, languages } from '@/domains/language/model';
+import { getLanguageLabel, languages } from "@/domains/language/model";
 import {
   createUserOptimisticAtom,
   optimisticGetUsersAtom,
-} from '@/domains/user/atoms';
-import { UserForm } from '@/domains/user/model';
-import { Button } from '@/shared/components/ui/button';
+} from "@/domains/user/atoms";
+import { UserForm } from "@/domains/user/model";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardAction,
@@ -18,28 +18,28 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/shared/components/ui/card';
-import { Field, FieldError, FieldLabel } from '@/shared/components/ui/field';
-import { Input } from '@/shared/components/ui/input';
+} from "@/shared/components/ui/card";
+import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
-} from '@/shared/components/ui/input-group';
-import { Label } from '@/shared/components/ui/label';
+} from "@/shared/components/ui/input-group";
+import { Label } from "@/shared/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/shared/components/ui/select';
+} from "@/shared/components/ui/select";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/shared/components/ui/tooltip';
+} from "@/shared/components/ui/tooltip";
 
 export default function EffectForm() {
   const createUser = useAtomSet(createUserOptimisticAtom);
@@ -51,10 +51,10 @@ export default function EffectForm() {
 
   const form = useForm({
     defaultValues: {
-      name: '',
-      username: '',
-      email: '',
-      language: '',
+      name: "",
+      username: "",
+      email: "",
+      language: "",
     },
     validators: {
       onSubmit: Schema.standardSchemaV1(UserForm),
@@ -191,11 +191,11 @@ export default function EffectForm() {
                       name={field.name}
                       value={field.state.value}
                       onValueChange={(value) =>
-                        field.handleChange(value ?? '')
+                        field.handleChange(value ?? "")
                       }>
                       <SelectTrigger id="effect-form-select-language">
                         <SelectValue>
-                          {getLanguageLabel(field.state.value) ?? 'Select'}
+                          {getLanguageLabel(field.state.value) ?? "Select"}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
@@ -219,7 +219,7 @@ export default function EffectForm() {
               selector={(state) => [state.canSubmit, state.isSubmitting]}>
               {([canSubmit, isSubmitting]) => (
                 <Button type="submit" disabled={!canSubmit} className="w-full">
-                  {isSubmitting ? 'Creating...' : 'Create User'}
+                  {isSubmitting ? "Creating..." : "Create User"}
                 </Button>
               )}
             </form.Subscribe>

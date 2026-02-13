@@ -3,30 +3,30 @@ import {
   HttpClientError,
   HttpClientRequest,
   HttpClientResponse,
-} from '@effect/platform';
-import { Effect } from 'effect';
+} from "@effect/platform";
+import { Effect } from "effect";
 
 const mockProblemDetails = {
   notFound: {
-    type: 'https://api.example.com/problems/not-found',
-    title: 'Resource Not Found',
+    type: "https://api.example.com/problems/not-found",
+    title: "Resource Not Found",
     status: 404,
-    detail: 'The requested users collection could not be found.',
-    instance: '/users',
+    detail: "The requested users collection could not be found.",
+    instance: "/users",
   },
   validation: {
-    type: 'https://api.example.com/problems/validation-error',
-    title: 'Validation Failed',
+    type: "https://api.example.com/problems/validation-error",
+    title: "Validation Failed",
     status: 422,
-    detail: 'The request payload contains invalid data.',
-    instance: '/users',
+    detail: "The request payload contains invalid data.",
+    instance: "/users",
   },
   serverError: {
-    type: 'https://api.example.com/problems/internal-error',
-    title: 'Internal Server Error',
+    type: "https://api.example.com/problems/internal-error",
+    title: "Internal Server Error",
     status: 500,
-    detail: 'An unexpected error occurred while processing your request.',
-    instance: '/users',
+    detail: "An unexpected error occurred while processing your request.",
+    instance: "/users",
   },
 };
 
@@ -40,7 +40,7 @@ const createMockResponse = (
     request,
     new Response(JSON.stringify(body), {
       status,
-      headers: { 'Content-Type': 'application/problem+json' },
+      headers: { "Content-Type": "application/problem+json" },
     }),
   );
 
@@ -65,8 +65,8 @@ export const simulateRequest = (
       return yield* Effect.fail(
         new HttpClientError.RequestError({
           request,
-          reason: 'Transport',
-          description: 'Connection timed out - server unreachable',
+          reason: "Transport",
+          description: "Connection timed out - server unreachable",
         }),
       );
     }
@@ -83,7 +83,7 @@ export const simulateRequest = (
 
     // 55% chance of success - execute the real request
     return yield* execute(request);
-  }).pipe(Effect.delay('3 seconds'));
+  }).pipe(Effect.delay("3 seconds"));
 
 // Wrap an HttpClient with simulation behavior
 export const withSimulation = (

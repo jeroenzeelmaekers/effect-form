@@ -4,12 +4,12 @@ import {
   HttpClientError,
   HttpClientRequest,
   HttpClientResponse,
-} from '@effect/platform';
-import { Context, Effect, Layer, Schedule } from 'effect';
+} from "@effect/platform";
+import { Context, Effect, Layer, Schedule } from "effect";
 
-import { DebugService } from '@/domains/debug/service';
+import { DebugService } from "@/domains/debug/service";
 
-import { withSimulation } from './simulation';
+import { withSimulation } from "./simulation";
 
 export interface ApiClientService {
   readonly execute: (
@@ -20,7 +20,7 @@ export interface ApiClientService {
   >;
 }
 
-export class ApiClient extends Context.Tag('ApiClient')<
+export class ApiClient extends Context.Tag("ApiClient")<
   ApiClient,
   ApiClientService
 >() {}
@@ -35,7 +35,7 @@ const ApiClientLive = Layer.effect(
     const resilientClient = httpClient.pipe(
       HttpClient.retryTransient({
         times: 3,
-        schedule: Schedule.exponential('100 millis'),
+        schedule: Schedule.exponential("100 millis"),
       }),
       HttpClient.mapRequest(HttpClientRequest.prependUrl(baseUrl)),
     );

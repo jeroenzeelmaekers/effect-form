@@ -1,13 +1,13 @@
-import * as OtlpLogger from '@effect/opentelemetry/OtlpLogger';
-import * as OtlpSerialization from '@effect/opentelemetry/OtlpSerialization';
-import * as OtlpTracer from '@effect/opentelemetry/OtlpTracer';
-import { FetchHttpClient } from '@effect/platform';
-import { Layer, Logger } from 'effect';
+import * as OtlpLogger from "@effect/opentelemetry/OtlpLogger";
+import * as OtlpSerialization from "@effect/opentelemetry/OtlpSerialization";
+import * as OtlpTracer from "@effect/opentelemetry/OtlpTracer";
+import { FetchHttpClient } from "@effect/platform";
+import { Layer, Logger } from "effect";
 
-const baseUrl = import.meta.env.VITE_OTLP_BASE_URL ?? 'http://localhost:4318';
+const baseUrl = import.meta.env.VITE_OTLP_BASE_URL ?? "http://localhost:4318";
 const resource = {
-  serviceName: 'effect-form',
-  serviceVersion: '0.0.0',
+  serviceName: "effect-form",
+  serviceVersion: "0.0.0",
 };
 
 const TracerLive = OtlpTracer.layer({

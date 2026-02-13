@@ -1,7 +1,7 @@
-import { Atom, useAtomRefresh } from '@effect-atom/atom-react';
-import type { ReactNode } from 'react';
+import { Atom, useAtomRefresh } from "@effect-atom/atom-react";
+import type { ReactNode } from "react";
 
-import { Button } from '@/shared/components/ui/button';
+import { Button } from "@/shared/components/ui/button";
 
 // Error container - the root component
 function ErrorRoot({ children }: { children: ReactNode }) {
@@ -31,7 +31,7 @@ function ErrorActions({ children }: { children: ReactNode }) {
 // Refresh button that works with atoms
 function ErrorRefresh<T>({
   atom,
-  label = 'Try Again',
+  label = "Try Again",
 }: {
   atom: Atom.Atom<T>;
   label?: string;

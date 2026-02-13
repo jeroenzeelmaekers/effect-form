@@ -1,8 +1,8 @@
-import { usePostHog } from 'posthog-js/react';
-import { useState } from 'react';
+import { usePostHog } from "posthog-js/react";
+import { useState } from "react";
 
-import { Button } from './button';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './card';
+import { Button } from "./button";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "./card";
 
 export default function CookieBanner() {
   const posthog = usePostHog();
@@ -12,15 +12,15 @@ export default function CookieBanner() {
 
   function handleAcceptCookies() {
     posthog.opt_in_capturing();
-    setConsentGiven('granted');
+    setConsentGiven("granted");
   }
 
   function handleDeclineCookies() {
     posthog.opt_out_capturing();
-    setConsentGiven('denied');
+    setConsentGiven("denied");
   }
 
-  if (consentGiven !== 'pending') return null;
+  if (consentGiven !== "pending") return null;
 
   return (
     <Card className="absolute bottom-0 left-0 m-2 md:w-1/2 lg:w-1/3">

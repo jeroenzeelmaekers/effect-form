@@ -1,8 +1,8 @@
-import { Effect, Schema } from 'effect';
+import { Effect, Schema } from "effect";
 
 const STORAGE_KEYS = {
-  simulation: 'debug:simulation:v1',
-  otel: 'debug:otel:v1',
+  simulation: "debug:simulation:v1",
+  otel: "debug:otel:v1",
 } as const;
 
 export const DebugSettings = Schema.Struct({
@@ -15,8 +15,8 @@ export type DebugSettings = typeof DebugSettings.Type;
 const readBoolean = (key: string, defaultValue: boolean): boolean => {
   try {
     const stored = localStorage.getItem(key);
-    if (stored === 'true') return true;
-    if (stored === 'false') return false;
+    if (stored === "true") return true;
+    if (stored === "false") return false;
   } catch {
     // Fall through to default
   }
@@ -38,7 +38,7 @@ export const getDebugSettingsSync = (): DebugSettings => ({
 });
 
 export class DebugService extends Effect.Service<DebugService>()(
-  'DebugService',
+  "DebugService",
   {
     accessors: true,
     effect: Effect.sync(() => {

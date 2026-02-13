@@ -1,4 +1,4 @@
-import { Result, useAtomValue } from '@effect-atom/atom-react';
+import { Result, useAtomValue } from "@effect-atom/atom-react";
 import {
   flexRender,
   getCoreRowModel,
@@ -7,12 +7,12 @@ import {
   type ColumnDef,
   type Row,
   type SortingState,
-} from '@tanstack/react-table';
-import { useMemo, useState } from 'react';
+} from "@tanstack/react-table";
+import { useMemo, useState } from "react";
 
-import { optimisticGetUsersAtom } from '@/domains/user/atoms';
-import { Error } from '@/shared/components/ui/error';
-import { Skeleton } from '@/shared/components/ui/skeleton';
+import { optimisticGetUsersAtom } from "@/domains/user/atoms";
+import { Error } from "@/shared/components/ui/error";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -20,9 +20,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/shared/components/ui/table';
+} from "@/shared/components/ui/table";
 
-import { UserColumns } from '../table-columns';
+import { UserColumns } from "../table-columns";
 
 interface DataTableProps<TData extends { id: number }, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -34,7 +34,7 @@ function DataTable<TData extends { id: number }, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  'use no memo';
+  "use no memo";
   const memoizedData = useMemo(() => [...data], [data]);
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -90,8 +90,8 @@ function DataTableRow<TData extends { id: number }>({
   return (
     <TableRow
       key={row.id}
-      data-state={row.getIsSelected() && 'selected'}
-      className={isOptimistic ? 'text-muted-foreground' : ''}>
+      data-state={row.getIsSelected() && "selected"}
+      className={isOptimistic ? "text-muted-foreground" : ""}>
       {row.getVisibleCells().map((cell) => (
         <TableCell key={cell.id}>
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -127,7 +127,7 @@ function Loading<TData, TValue>({
           <TableRow>
             {columns.map((column, index) => (
               <TableHead key={index}>
-                {typeof column.header === 'string' ? column.header : null}
+                {typeof column.header === "string" ? column.header : null}
               </TableHead>
             ))}
           </TableRow>
@@ -162,17 +162,17 @@ export default function UserList() {
     <section className="min-w-0 flex-1">
       {Result.builder(result)
         .onInitial(() => <Loading columns={UserColumns} />)
-        .onErrorTag('NotFoundError', (error) => (
+        .onErrorTag("NotFoundError", (error) => (
           <Error.Root>
             <Error.Content>
               <Error.Title>Unable to find users</Error.Title>
               <Error.Description>
                 We where unable to fetch the users due to a technical issue on
                 our end. Please try fetching the users again. If the issue keeps
-                happing{' '}
+                happing{" "}
                 <a
                   className="underline underline-offset-2"
-                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Users not found')}&body=${encodeURIComponent(`
+                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent("Effect form: Users not found")}&body=${encodeURIComponent(`
 
 
 ---
@@ -187,16 +187,16 @@ Trace ID: ${error.traceId}`)}`}>
             </Error.Actions>
           </Error.Root>
         ))
-        .onErrorTag('NetworkError', (error) => (
+        .onErrorTag("NetworkError", (error) => (
           <Error.Root>
             <Error.Content>
               <Error.Title>Connection failed</Error.Title>
               <Error.Description>
                 We couldn't connect to the server. Please check your internet
-                connection and try again. If the issue keeps happening{' '}
+                connection and try again. If the issue keeps happening{" "}
                 <a
                   className="underline underline-offset-2"
-                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Connection failed')}&body=${encodeURIComponent(`
+                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent("Effect form: Connection failed")}&body=${encodeURIComponent(`
 
 
 ---
@@ -208,17 +208,17 @@ Trace ID: ${error.traceId}`)}`}>
             </Error.Content>
           </Error.Root>
         ))
-        .onErrorTag('ValidationError', (error) => (
+        .onErrorTag("ValidationError", (error) => (
           <Error.Root>
             <Error.Content>
               <Error.Title>Invalid data received</Error.Title>
               <Error.Description>
                 The server returned data in an unexpected format. This is likely
                 a temporary issue. Please try again later. If the issue keeps
-                happening{' '}
+                happening{" "}
                 <a
                   className="underline underline-offset-2"
-                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Invalid data received')}&body=${encodeURIComponent(`
+                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent("Effect form: Invalid data received")}&body=${encodeURIComponent(`
 
 
 ---
@@ -236,10 +236,10 @@ Trace ID: ${error.traceId}`)}`}>
               <Error.Title>Something went wrong</Error.Title>
               <Error.Description>
                 An unexpected error occurred while loading the users. Please try
-                again later. If the issue keeps happening{' '}
+                again later. If the issue keeps happening{" "}
                 <a
                   className="underline underline-offset-2"
-                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent('Effect form: Unexpected error')}`}>
+                  href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent("Effect form: Unexpected error")}`}>
                   contact Customer Care.
                 </a>
               </Error.Description>
