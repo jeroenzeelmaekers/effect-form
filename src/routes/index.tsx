@@ -11,7 +11,9 @@ export const Route = createFileRoute("/")({
 export default function Index() {
   const userCreationFlag = useFeatureFlagEnabled("allow-user-creation");
   return (
-    <main className="flex min-h-screen flex-col items-baseline p-3 antialiased">
+    <main
+      id="main"
+      className="flex min-h-screen flex-col items-baseline p-3 antialiased">
       <h1 className="pl-3 text-2xl leading-loose font-semibold">
         Effect Form Demo
       </h1>

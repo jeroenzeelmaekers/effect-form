@@ -8,7 +8,7 @@ import {
   type Row,
   type SortingState,
 } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { optimisticGetUsersAtom } from "@/domains/user/atoms";
 import { Error } from "@/shared/components/ui/error";
@@ -26,7 +26,7 @@ import { UserColumns } from "./table-columns";
 
 interface DataTableProps<TData extends { id: number }, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: readonly TData[];
+  data: TData[];
 }
 
 // DataTable
@@ -35,11 +35,10 @@ function DataTable<TData extends { id: number }, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   "use no memo";
-  const memoizedData = useMemo(() => [...data], [data]);
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
-    data: memoizedData,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
@@ -107,7 +106,7 @@ function EmptyDataTableRow({ colSpan }: { colSpan: number }) {
   return (
     <TableRow data-testid="empty-row">
       <TableCell colSpan={colSpan} className="h-24 text-center">
-        No results.
+        No users yet. Create one to get started.
       </TableCell>
     </TableRow>
   );
@@ -155,14 +154,14 @@ export default function UserList() {
 
   if (result.waiting && !Result.isSuccess(result)) {
     return (
-      <section className="min-w-0 flex-1">
+      <section aria-label="Users" className="min-w-0 flex-1">
         <Loading columns={UserColumns} />
       </section>
     );
   }
 
   return (
-    <section className="min-w-0 flex-1">
+    <section aria-label="Users" className="min-w-0 flex-1">
       {Result.builder(result)
         .onInitial(() => <Loading columns={UserColumns} />)
         .onErrorTag("NotFoundError", (error) => (
@@ -172,7 +171,7 @@ export default function UserList() {
               <Error.Description>
                 We where unable to fetch the users due to a technical issue on
                 our end. Please try fetching the users again. If the issue keeps
-                happing{" "}
+                happening{" "}
                 <a
                   className="underline underline-offset-2"
                   href={`mailto:contact@jeroenzeelmaekers.com?subject=${encodeURIComponent("Effect form: Users not found")}&body=${encodeURIComponent(`
@@ -209,6 +208,9 @@ Trace ID: ${error.traceId}`)}`}>
                 </a>
               </Error.Description>
             </Error.Content>
+            <Error.Actions>
+              <Error.Refresh atom={optimisticGetUsersAtom} />
+            </Error.Actions>
           </Error.Root>
         ))
         .onErrorTag("ValidationError", (error) => (
@@ -231,6 +233,9 @@ Trace ID: ${error.traceId}`)}`}>
                 </a>
               </Error.Description>
             </Error.Content>
+            <Error.Actions>
+              <Error.Refresh atom={optimisticGetUsersAtom} />
+            </Error.Actions>
           </Error.Root>
         ))
         .onError(() => (
@@ -247,9 +252,14 @@ Trace ID: ${error.traceId}`)}`}>
                 </a>
               </Error.Description>
             </Error.Content>
+            <Error.Actions>
+              <Error.Refresh atom={optimisticGetUsersAtom} />
+            </Error.Actions>
           </Error.Root>
         ))
-        .onSuccess((users) => <DataTable columns={UserColumns} data={users} />)
+        .onSuccess((users) => (
+          <DataTable columns={UserColumns} data={Array.from(users)} />
+        ))
         .render()}
     </section>
   );

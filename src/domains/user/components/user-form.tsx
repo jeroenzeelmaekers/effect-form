@@ -2,6 +2,7 @@ import { Result, useAtomSet, useAtomValue } from "@effect-atom/atom-react";
 import { useForm } from "@tanstack/react-form";
 import { Schema } from "effect";
 import { HelpCircle } from "lucide-react";
+import { useEffect, useState } from 'react';
 
 import { getLanguageLabel, languages } from "@/domains/language/model";
 import {
@@ -12,7 +13,6 @@ import { UserForm } from "@/domains/user/model";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -49,6 +49,10 @@ export default function EffectForm() {
     Result.isWaiting(usersResult) ||
     Result.isInitial(usersResult);
 
+  const [submitStatus, setSubmitStatus] = useState<
+    'idle' | 'success' | 'error'
+  >('idle');
+
   const form = useForm({
     defaultValues: {
       name: "",
@@ -62,8 +66,28 @@ export default function EffectForm() {
     onSubmit: ({ formApi }) => {
       createUser(formApi.state.values);
       formApi.reset();
+      setSubmitStatus('success');
     },
   });
+
+  // Clear success message after delay
+  useEffect(() => {
+    if (submitStatus !== 'success') return;
+    const timer = setTimeout(() => setSubmitStatus('idle'), 1000);
+    return () => clearTimeout(timer);
+  }, [submitStatus]);
+
+  // Warn before navigating away with unsaved changes
+  const isDirty = form.state.isDirty;
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
 
   return (
     <Card
@@ -83,7 +107,6 @@ export default function EffectForm() {
           <CardDescription>
             Add a new user with optimistic updates
           </CardDescription>
-          <CardAction></CardAction>
         </CardHeader>
         <fieldset
           disabled={isDisabled}
@@ -103,6 +126,7 @@ export default function EffectForm() {
                       name={field.name}
                       data-testid="user-form-name"
                       autoComplete="name"
+                      placeholder="Jane Doe…"
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
@@ -130,7 +154,9 @@ export default function EffectForm() {
                         id={field.name}
                         name={field.name}
                         data-testid="user-form-username"
-                        autoComplete="username"
+                        autoComplete="off"
+                        spellCheck={false}
+                        placeholder="janedoe…"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
@@ -164,6 +190,8 @@ export default function EffectForm() {
                         data-testid="user-form-email"
                         type="email"
                         autoComplete="email"
+                        spellCheck={false}
+                        placeholder="jane@example.com…"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
@@ -237,7 +265,15 @@ export default function EffectForm() {
               }}
             />
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex-col gap-2">
+            {submitStatus === 'success' && (
+              <p
+                role="status"
+                aria-live="polite"
+                className="text-xs text-green-600 dark:text-green-400">
+                User created successfully
+              </p>
+            )}
             <form.Subscribe
               selector={(state) => [state.canSubmit, state.isSubmitting]}>
               {([canSubmit, isSubmitting]) => (
@@ -246,7 +282,7 @@ export default function EffectForm() {
                   disabled={!canSubmit}
                   data-testid="user-form-submit"
                   className="w-full">
-                  {isSubmitting ? "Creating..." : "Create User"}
+                  {isSubmitting ? "Creating\u2026" : "Create User"}
                 </Button>
               )}
             </form.Subscribe>

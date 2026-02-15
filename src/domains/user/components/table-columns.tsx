@@ -16,6 +16,13 @@ function handleSortToggle(column: Column<User>) {
   }
 }
 
+function sortLabel(column: Column<User>, name: string) {
+  const sorted = column.getIsSorted();
+  if (sorted === 'asc') return `Sort ${name} descending`;
+  if (sorted === 'desc') return `Clear ${name} sort`;
+  return `Sort ${name} ascending`;
+}
+
 function sortIcon(column: Column<User>) {
   const sorted = column.getIsSorted();
   return (
@@ -34,6 +41,7 @@ const UserColumns: ColumnDef<User>[] = [
         data-testid="sort-name"
         variant="ghost"
         className="h-full w-full justify-between rounded-none"
+        aria-label={sortLabel(column, 'name')}
         onClick={() => handleSortToggle(column)}>
         Name
         {sortIcon(column)}
@@ -47,6 +55,7 @@ const UserColumns: ColumnDef<User>[] = [
         data-testid="sort-username"
         variant="ghost"
         className="h-full w-full justify-between rounded-none"
+        aria-label={sortLabel(column, 'username')}
         onClick={() => handleSortToggle(column)}>
         Username
         {sortIcon(column)}
@@ -60,6 +69,7 @@ const UserColumns: ColumnDef<User>[] = [
         data-testid="sort-email"
         variant="ghost"
         className="h-full w-full justify-between rounded-none"
+        aria-label={sortLabel(column, 'email')}
         onClick={() => handleSortToggle(column)}>
         Email
         {sortIcon(column)}

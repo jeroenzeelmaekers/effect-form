@@ -23,11 +23,15 @@ export default function CookieBanner() {
   if (consentGiven !== "pending") return null;
 
   return (
-    <Card className="absolute bottom-0 left-0 m-2 md:w-1/2 lg:w-1/3">
+    <Card
+      className="fixed bottom-0 left-0 z-40 m-3 md:w-1/2 lg:w-1/3"
+      role="dialog"
+      aria-label="Cookie consent"
+      aria-describedby="cookie-banner-description">
       <CardHeader>
         <CardTitle>Can we store some cookies?</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent id="cookie-banner-description">
         We use tracking cookies to understand how you use the product and help
         us improve it. Please accept cookies to help us improve.
       </CardContent>
