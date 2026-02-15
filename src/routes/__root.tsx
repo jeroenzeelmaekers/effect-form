@@ -19,14 +19,14 @@ const RootLayout = () => (
           <li>
             <Link
               to="/"
-              className="text-muted-foreground hover:text-foreground transition-colors [&.active]:font-bold [&.active]:text-foreground">
+              className="text-muted-foreground hover:text-foreground [&.active]:text-foreground transition-colors [&.active]:font-bold">
               Home
             </Link>
           </li>
           <li>
             <Link
               to="/about"
-              className="text-muted-foreground hover:text-foreground transition-colors [&.active]:font-bold [&.active]:text-foreground">
+              className="text-muted-foreground hover:text-foreground [&.active]:text-foreground transition-colors [&.active]:font-bold">
               About
             </Link>
           </li>

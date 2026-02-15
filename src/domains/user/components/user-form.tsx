@@ -2,7 +2,7 @@ import { Result, useAtomSet, useAtomValue } from "@effect-atom/atom-react";
 import { useForm } from "@tanstack/react-form";
 import { Schema } from "effect";
 import { HelpCircle } from "lucide-react";
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 import { getLanguageLabel, languages } from "@/domains/language/model";
 import {
@@ -50,8 +50,8 @@ export default function EffectForm() {
     Result.isInitial(usersResult);
 
   const [submitStatus, setSubmitStatus] = useState<
-    'idle' | 'success' | 'error'
-  >('idle');
+    "idle" | "success" | "error"
+  >("idle");
 
   const form = useForm({
     defaultValues: {
@@ -66,14 +66,14 @@ export default function EffectForm() {
     onSubmit: ({ formApi }) => {
       createUser(formApi.state.values);
       formApi.reset();
-      setSubmitStatus('success');
+      setSubmitStatus("success");
     },
   });
 
   // Clear success message after delay
   useEffect(() => {
-    if (submitStatus !== 'success') return;
-    const timer = setTimeout(() => setSubmitStatus('idle'), 1000);
+    if (submitStatus !== "success") return;
+    const timer = setTimeout(() => setSubmitStatus("idle"), 1000);
     return () => clearTimeout(timer);
   }, [submitStatus]);
 
@@ -85,8 +85,8 @@ export default function EffectForm() {
         e.preventDefault();
       }
     };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isDirty]);
 
   return (
@@ -266,7 +266,7 @@ export default function EffectForm() {
             />
           </CardContent>
           <CardFooter className="flex-col gap-2">
-            {submitStatus === 'success' && (
+            {submitStatus === "success" && (
               <p
                 role="status"
                 aria-live="polite"
