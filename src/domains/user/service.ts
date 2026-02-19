@@ -1,9 +1,9 @@
+import { Effect, Layer, Schema, ServiceMap } from "effect";
 import {
   HttpBody,
   HttpClientRequest,
   HttpClientResponse,
 } from "effect/unstable/http";
-import { Effect, Layer, Schema, ServiceMap } from "effect";
 
 import { User, UserForm } from "@/domains/user/model";
 import { ApiClient } from "@/shared/api/client";

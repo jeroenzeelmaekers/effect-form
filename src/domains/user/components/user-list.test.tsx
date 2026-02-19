@@ -1,5 +1,5 @@
-import { AsyncResult } from "effect/unstable/reactivity";
 import { Cause } from "effect";
+import { AsyncResult } from "effect/unstable/reactivity";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render } from "vitest-browser-react";
 
@@ -17,8 +17,7 @@ const mockUseAtomValue = vi.fn();
 const mockUseAtomRefresh = vi.fn(() => vi.fn());
 
 vi.mock("@effect/atom-react", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("@effect/atom-react")>();
+  const actual = await importOriginal<typeof import("@effect/atom-react")>();
   return {
     ...actual,
     useAtomValue: (atom: unknown) => mockUseAtomValue(atom),
@@ -100,7 +99,9 @@ describe("UserList", () => {
     });
 
     it("styles optimistic rows with muted text", async () => {
-      mockUseAtomValue.mockReturnValue(AsyncResult.success([alice, optimisticUser]));
+      mockUseAtomValue.mockReturnValue(
+        AsyncResult.success([alice, optimisticUser]),
+      );
 
       const screen = await render(<UserList />);
 

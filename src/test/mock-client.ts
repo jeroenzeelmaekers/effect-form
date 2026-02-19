@@ -1,5 +1,5 @@
-import { HttpClientRequest, HttpClientResponse } from "effect/unstable/http";
 import { Effect, Layer } from "effect";
+import { HttpClientRequest, HttpClientResponse } from "effect/unstable/http";
 
 import { ApiClient } from "@/shared/api/client";
 

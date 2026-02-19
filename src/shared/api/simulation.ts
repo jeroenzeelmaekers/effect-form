@@ -1,10 +1,10 @@
+import { Effect } from "effect";
 import {
   HttpClient,
   HttpClientError,
   HttpClientRequest,
   HttpClientResponse,
 } from "effect/unstable/http";
-import { Effect } from "effect";
 
 const mockProblemDetails = {
   notFound: {

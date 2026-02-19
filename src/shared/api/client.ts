@@ -1,9 +1,9 @@
+import { Effect, Layer, Schedule, ServiceMap } from "effect";
 import {
   FetchHttpClient,
   HttpClient,
   HttpClientRequest,
 } from "effect/unstable/http";
-import { Effect, Layer, Schedule, ServiceMap } from "effect";
 
 import { DebugService } from "@/domains/debug/service";
 

@@ -19,9 +19,7 @@ describe("UserService", () => {
     it.effect("should return users on successful response", () =>
       Effect.gen(function* () {
         const svc = yield* UserService;
-        const fiber = yield* svc.getUsers().pipe(
-          Effect.forkChild,
-        );
+        const fiber = yield* svc.getUsers().pipe(Effect.forkChild);
 
         // Fast-forward through the 3 second sleep
         yield* TestClock.adjust(Duration.seconds(3));
@@ -46,20 +44,22 @@ describe("UserService", () => {
       }).pipe(
         Effect.provide(
           createTestLayer(() =>
-            Effect.succeed(createMockResponse(200, [
-              {
-                id: 1,
-                name: "John Doe",
-                username: "johndoe",
-                email: "john@example.com",
-              },
-              {
-                id: 2,
-                name: "Jane Doe",
-                username: "janedoe",
-                email: "jane@example.com",
-              },
-            ])),
+            Effect.succeed(
+              createMockResponse(200, [
+                {
+                  id: 1,
+                  name: "John Doe",
+                  username: "johndoe",
+                  email: "john@example.com",
+                },
+                {
+                  id: 2,
+                  name: "Jane Doe",
+                  username: "janedoe",
+                  email: "jane@example.com",
+                },
+              ]),
+            ),
           ),
         ),
       ),
@@ -68,9 +68,7 @@ describe("UserService", () => {
     it.effect("should fail with ValidationError on invalid response body", () =>
       Effect.gen(function* () {
         const svc = yield* UserService;
-        const fiber = yield* svc.getUsers().pipe(
-          Effect.forkChild,
-        );
+        const fiber = yield* svc.getUsers().pipe(Effect.forkChild);
 
         // Fast-forward through the 3 second sleep
         yield* TestClock.adjust(Duration.seconds(3));
@@ -98,9 +96,7 @@ describe("UserService", () => {
     it.effect("should fail with NetworkError on request timeout", () =>
       Effect.gen(function* () {
         const svc = yield* UserService;
-        const fiber = yield* svc.getUsers().pipe(
-          Effect.forkChild,
-        );
+        const fiber = yield* svc.getUsers().pipe(Effect.forkChild);
 
         // Fast-forward past the 10 second timeout
         yield* TestClock.adjust(Duration.seconds(15));
@@ -141,9 +137,9 @@ describe("UserService", () => {
     it.effect("should create user on successful response", () =>
       Effect.gen(function* () {
         const svc = yield* UserService;
-        const fiber = yield* svc.createUser(validFormData).pipe(
-          Effect.forkChild,
-        );
+        const fiber = yield* svc
+          .createUser(validFormData)
+          .pipe(Effect.forkChild);
 
         // Fast-forward through the 5 second sleep
         yield* TestClock.adjust(Duration.seconds(5));
@@ -177,9 +173,9 @@ describe("UserService", () => {
     it.effect("should fail with ValidationError on invalid response body", () =>
       Effect.gen(function* () {
         const svc = yield* UserService;
-        const fiber = yield* svc.createUser(validFormData).pipe(
-          Effect.forkChild,
-        );
+        const fiber = yield* svc
+          .createUser(validFormData)
+          .pipe(Effect.forkChild);
 
         // Fast-forward through the 5 second sleep
         yield* TestClock.adjust(Duration.seconds(5));
@@ -198,9 +194,7 @@ describe("UserService", () => {
       }).pipe(
         Effect.provide(
           createTestLayer(() =>
-            Effect.succeed(
-              createMockResponse(201, { invalid: "data" }),
-            ),
+            Effect.succeed(createMockResponse(201, { invalid: "data" })),
           ),
         ),
       ),

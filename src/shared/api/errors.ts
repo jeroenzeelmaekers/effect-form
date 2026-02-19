@@ -1,6 +1,6 @@
+import { Effect, Schema } from "effect";
 import { HttpClientResponse } from "effect/unstable/http";
 import type { ResponseError } from "effect/unstable/http/HttpClientError";
-import { Effect, Schema } from "effect";
 
 export const ProblemDetail = Schema.Struct({
   type: Schema.optional(Schema.String),

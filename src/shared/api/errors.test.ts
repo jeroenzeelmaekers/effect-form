@@ -1,9 +1,6 @@
-import {
-  HttpClientRequest,
-  HttpClientResponse,
-} from "effect/unstable/http";
-import { StatusCodeError } from "effect/unstable/http/HttpClientError";
 import { Effect, Layer, ManagedRuntime } from "effect";
+import { HttpClientRequest, HttpClientResponse } from "effect/unstable/http";
+import { StatusCodeError } from "effect/unstable/http/HttpClientError";
 import { describe, expect, it } from "vitest";
 
 import {

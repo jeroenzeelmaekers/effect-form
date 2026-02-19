@@ -30,9 +30,8 @@ const Email = Schema.String.check(
 );
 
 const Language = Schema.String.check(
-  Schema.makeFilter<string>(
-    (value) =>
-      languageValues.includes(value) ? undefined : "Select a language",
+  Schema.makeFilter<string>((value) =>
+    languageValues.includes(value) ? undefined : "Select a language",
   ),
 );
 

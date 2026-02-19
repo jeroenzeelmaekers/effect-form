@@ -1,5 +1,5 @@
-import { Atom } from "effect/unstable/reactivity";
 import { Effect } from "effect";
+import { Atom } from "effect/unstable/reactivity";
 
 import { DebugService } from "./service";
 
@@ -20,10 +20,9 @@ export const setSimulationEnabledAtom = debugRuntimeAtom.fn(
     }),
 );
 
-export const setOtelEnabledAtom = debugRuntimeAtom.fn(
-  (enabled: boolean) =>
-    Effect.gen(function* () {
-      const svc = yield* DebugService;
-      return yield* svc.setOtelEnabled(enabled);
-    }),
+export const setOtelEnabledAtom = debugRuntimeAtom.fn((enabled: boolean) =>
+  Effect.gen(function* () {
+    const svc = yield* DebugService;
+    return yield* svc.setOtelEnabled(enabled);
+  }),
 );

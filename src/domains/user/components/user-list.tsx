@@ -8,8 +8,8 @@ import {
   type Row,
   type SortingState,
 } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
 import { AsyncResult } from "effect/unstable/reactivity";
+import { useMemo, useState } from "react";
 
 import { optimisticGetUsersAtom } from "@/domains/user/atoms";
 import { Error } from "@/shared/components/ui/error";
