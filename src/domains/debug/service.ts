@@ -1,4 +1,4 @@
-import { Effect, Schema } from "effect";
+import { Effect, Layer, Schema, ServiceMap } from "effect";
 
 const STORAGE_KEYS = {
   simulation: "debug:simulation:v1",
@@ -37,30 +37,37 @@ export const getDebugSettingsSync = (): DebugSettings => ({
   otelEnabled: readBoolean(STORAGE_KEYS.otel, false),
 });
 
-export class DebugService extends Effect.Service<DebugService>()(
-  "DebugService",
-  {
-    accessors: true,
-    effect: Effect.sync(() => {
-      const get = Effect.sync(getDebugSettingsSync);
+export interface DebugServiceShape {
+  readonly get: Effect.Effect<DebugSettings>;
+  readonly setSimulationEnabled: (enabled: boolean) => Effect.Effect<void>;
+  readonly setOtelEnabled: (enabled: boolean) => Effect.Effect<void>;
+}
 
-      const setSimulationEnabled = (enabled: boolean): Effect.Effect<void> =>
-        Effect.sync(() => {
-          writeBoolean(STORAGE_KEYS.simulation, enabled);
-          window.location.reload();
-        });
+export class DebugService extends ServiceMap.Service<
+  DebugService,
+  DebugServiceShape
+>()("DebugService", {
+  make: Effect.sync(() => {
+    const get = Effect.sync(getDebugSettingsSync);
 
-      const setOtelEnabled = (enabled: boolean): Effect.Effect<void> =>
-        Effect.sync(() => {
-          writeBoolean(STORAGE_KEYS.otel, enabled);
-          window.location.reload();
-        });
+    const setSimulationEnabled = (enabled: boolean): Effect.Effect<void> =>
+      Effect.sync(() => {
+        writeBoolean(STORAGE_KEYS.simulation, enabled);
+        window.location.reload();
+      });
 
-      return {
-        get,
-        setSimulationEnabled,
-        setOtelEnabled,
-      } as const;
-    }),
-  },
-) {}
+    const setOtelEnabled = (enabled: boolean): Effect.Effect<void> =>
+      Effect.sync(() => {
+        writeBoolean(STORAGE_KEYS.otel, enabled);
+        window.location.reload();
+      });
+
+    return {
+      get,
+      setSimulationEnabled,
+      setOtelEnabled,
+    } as const;
+  }),
+}) {
+  static layer = Layer.effect(this, this.make);
+}

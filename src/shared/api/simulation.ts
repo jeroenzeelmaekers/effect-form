@@ -3,7 +3,7 @@ import {
   HttpClientError,
   HttpClientRequest,
   HttpClientResponse,
-} from "@effect/platform";
+} from "effect/unstable/http";
 import { Effect } from "effect";
 
 const mockProblemDetails = {
@@ -63,10 +63,11 @@ export const simulateRequest = (
     // 20% chance of request error (connection level)
     if (random < 0.2) {
       return yield* Effect.fail(
-        new HttpClientError.RequestError({
-          request,
-          reason: "Transport",
-          description: "Connection timed out - server unreachable",
+        new HttpClientError.HttpClientError({
+          reason: new HttpClientError.TransportError({
+            request,
+            description: "Connection timed out - server unreachable",
+          }),
         }),
       );
     }
@@ -89,6 +90,6 @@ export const simulateRequest = (
 export const withSimulation = (
   client: HttpClient.HttpClient,
 ): HttpClient.HttpClient =>
-  HttpClient.make((request) => simulateRequest(request, client.execute)).pipe(
-    HttpClient.filterStatusOk,
-  );
+  HttpClient.make((request, _url, _signal, _fiber) =>
+    simulateRequest(request, client.execute),
+  ).pipe(HttpClient.filterStatusOk);

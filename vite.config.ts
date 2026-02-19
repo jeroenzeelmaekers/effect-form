@@ -34,7 +34,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           react: ["react", "react-dom"],
-          effect: ["effect", "@effect/platform", "@effect-atom/atom-react"],
+          effect: ["effect", "@effect/atom-react"],
           form: ["@tanstack/react-form"],
           table: ["@tanstack/react-table"],
           icons: ["lucide-react"],

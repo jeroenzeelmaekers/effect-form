@@ -1,4 +1,4 @@
-import { Result } from "@effect-atom/atom";
+import { AsyncResult } from "effect/unstable/reactivity";
 import { Cause } from "effect";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render } from "vitest-browser-react";
@@ -16,9 +16,9 @@ import UserList from "./user-list";
 const mockUseAtomValue = vi.fn();
 const mockUseAtomRefresh = vi.fn(() => vi.fn());
 
-vi.mock("@effect-atom/atom-react", async (importOriginal) => {
+vi.mock("@effect/atom-react", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("@effect-atom/atom-react")>();
+    await importOriginal<typeof import("@effect/atom-react")>();
   return {
     ...actual,
     useAtomValue: (atom: unknown) => mockUseAtomValue(atom),
@@ -55,7 +55,7 @@ describe("UserList", () => {
 
   describe("Handle loading state", () => {
     it("shows skeleton on initial load", async () => {
-      mockUseAtomValue.mockReturnValue(Result.initial(true));
+      mockUseAtomValue.mockReturnValue(AsyncResult.initial(true));
 
       const screen = await render(<UserList />);
 
@@ -66,7 +66,7 @@ describe("UserList", () => {
 
     it("shows data table during revalidation", async () => {
       mockUseAtomValue.mockReturnValue(
-        Result.success([alice], { waiting: true }),
+        AsyncResult.success([alice], { waiting: true }),
       );
 
       const screen = await render(<UserList />);
@@ -79,7 +79,7 @@ describe("UserList", () => {
 
   describe("Render users table", () => {
     it("renders user rows", async () => {
-      mockUseAtomValue.mockReturnValue(Result.success([alice, bob]));
+      mockUseAtomValue.mockReturnValue(AsyncResult.success([alice, bob]));
 
       const screen = await render(<UserList />);
 
@@ -92,7 +92,7 @@ describe("UserList", () => {
     });
 
     it("shows empty state when no users", async () => {
-      mockUseAtomValue.mockReturnValue(Result.success([]));
+      mockUseAtomValue.mockReturnValue(AsyncResult.success([]));
 
       const screen = await render(<UserList />);
 
@@ -100,7 +100,7 @@ describe("UserList", () => {
     });
 
     it("styles optimistic rows with muted text", async () => {
-      mockUseAtomValue.mockReturnValue(Result.success([alice, optimisticUser]));
+      mockUseAtomValue.mockReturnValue(AsyncResult.success([alice, optimisticUser]));
 
       const screen = await render(<UserList />);
 
@@ -121,7 +121,7 @@ describe("UserList", () => {
 
   describe("Sorting", () => {
     it("sorts ascending on first click", async () => {
-      mockUseAtomValue.mockReturnValue(Result.success([bob, alice]));
+      mockUseAtomValue.mockReturnValue(AsyncResult.success([bob, alice]));
 
       const screen = await render(<UserList />);
 
@@ -133,7 +133,7 @@ describe("UserList", () => {
     });
 
     it("sorts descending on second click", async () => {
-      mockUseAtomValue.mockReturnValue(Result.success([alice, bob]));
+      mockUseAtomValue.mockReturnValue(AsyncResult.success([alice, bob]));
 
       const screen = await render(<UserList />);
 
@@ -148,7 +148,7 @@ describe("UserList", () => {
     });
 
     it("clears sort on third click", async () => {
-      mockUseAtomValue.mockReturnValue(Result.success([bob, alice]));
+      mockUseAtomValue.mockReturnValue(AsyncResult.success([bob, alice]));
 
       const screen = await render(<UserList />);
 
@@ -167,7 +167,7 @@ describe("UserList", () => {
   describe("Handle error state", () => {
     it("shows not found error with trace id", async () => {
       mockUseAtomValue.mockReturnValue(
-        Result.fail(new NotFoundError({ traceId: "trace-1" })),
+        AsyncResult.fail(new NotFoundError({ traceId: "trace-1" })),
       );
 
       const screen = await render(<UserList />);
@@ -185,7 +185,7 @@ describe("UserList", () => {
       const mockRefresh = vi.fn();
       mockUseAtomRefresh.mockReturnValue(mockRefresh);
       mockUseAtomValue.mockReturnValue(
-        Result.fail(new NotFoundError({ traceId: "trace-1" })),
+        AsyncResult.fail(new NotFoundError({ traceId: "trace-1" })),
       );
 
       const screen = await render(<UserList />);
@@ -197,7 +197,7 @@ describe("UserList", () => {
 
     it("shows network error with trace id", async () => {
       mockUseAtomValue.mockReturnValue(
-        Result.fail(new NetworkError({ traceId: "trace-2" })),
+        AsyncResult.fail(new NetworkError({ traceId: "trace-2" })),
       );
 
       const screen = await render(<UserList />);
@@ -212,7 +212,7 @@ describe("UserList", () => {
 
     it("shows validation error with trace id", async () => {
       mockUseAtomValue.mockReturnValue(
-        Result.fail(new ValidationError({ traceId: "trace-3" })),
+        AsyncResult.fail(new ValidationError({ traceId: "trace-3" })),
       );
 
       const screen = await render(<UserList />);
@@ -227,7 +227,7 @@ describe("UserList", () => {
 
     it("shows fallback error for unmatched error tags", async () => {
       mockUseAtomValue.mockReturnValue(
-        Result.failure(Cause.fail({ _tag: "UnexpectedError" })),
+        AsyncResult.failure(Cause.fail({ _tag: "UnexpectedError" })),
       );
 
       const screen = await render(<UserList />);

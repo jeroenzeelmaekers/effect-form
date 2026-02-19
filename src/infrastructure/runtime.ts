@@ -1,4 +1,4 @@
-import { Atom } from "@effect-atom/atom-react";
+import { Atom } from "effect/unstable/reactivity";
 import { Layer } from "effect";
 
 import { getDebugSettingsSync } from "@/domains/debug/service";
@@ -8,8 +8,8 @@ import { TelemetryLive } from "@/infrastructure/telemetry";
 import { ApiLive } from "@/shared/api/client";
 
 const ServicesLive = Layer.mergeAll(
-  UserService.Default,
-  PostService.Default,
+  UserService.layer,
+  PostService.layer,
 ).pipe(Layer.provide(ApiLive));
 
 const MainLive = getDebugSettingsSync().otelEnabled
