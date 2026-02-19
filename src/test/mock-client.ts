@@ -1,16 +1,16 @@
-import { HttpClientRequest, HttpClientResponse } from "@effect/platform";
 import { Effect, Layer } from "effect";
+import { HttpClientRequest, HttpClientResponse } from "effect/unstable/http";
 
-import { ApiClient, type ApiClientService } from "@/shared/api/client";
+import { ApiClient } from "@/shared/api/client";
 
 export const createMockApiClient = (
   handler: (
     request: HttpClientRequest.HttpClientRequest,
   ) => Effect.Effect<HttpClientResponse.HttpClientResponse>,
 ): Layer.Layer<ApiClient> =>
-  Layer.succeed(ApiClient, {
+  Layer.succeed(ApiClient)({
     execute: handler,
-  } as ApiClientService);
+  });
 
 export const createMockResponse = (
   status: number,

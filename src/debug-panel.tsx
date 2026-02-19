@@ -1,4 +1,5 @@
-import { Result, useAtomSet, useAtomValue } from "@effect-atom/atom-react";
+import { useAtomSet, useAtomValue } from "@effect/atom-react";
+import { AsyncResult } from "effect/unstable/reactivity";
 import { BugIcon } from "lucide-react";
 
 import {
@@ -25,7 +26,8 @@ export default function DebugPanel() {
   const setOtelEnabled = useAtomSet(setOtelEnabledAtom);
 
   const isLoading =
-    Result.isInitial(settingsResult) || Result.isWaiting(settingsResult);
+    AsyncResult.isInitial(settingsResult) ||
+    AsyncResult.isWaiting(settingsResult);
 
   return (
     <Sheet key="top">
@@ -43,7 +45,7 @@ export default function DebugPanel() {
             Configure development and debugging options.
           </SheetDescription>
         </SheetHeader>
-        {isLoading ? (
+        {isLoading ? null : AsyncResult.isSuccess(settingsResult) ? (
           <div className="flex flex-col gap-6 px-6 pb-6 lg:mx-auto lg:w-full lg:max-w-1/2">
             <div className="flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">

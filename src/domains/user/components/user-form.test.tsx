@@ -1,5 +1,5 @@
-import { Result } from "@effect-atom/atom";
 import { Cause } from "effect";
+import { AsyncResult } from "effect/unstable/reactivity";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render } from "vitest-browser-react";
 
@@ -11,9 +11,8 @@ import EffectForm from "./user-form";
 const mockUseAtomValue = vi.fn();
 const mockUseAtomSet = vi.fn(() => vi.fn());
 
-vi.mock("@effect-atom/atom-react", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("@effect-atom/atom-react")>();
+vi.mock("@effect/atom-react", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@effect/atom-react")>();
   return {
     ...actual,
     useAtomValue: (atom: unknown) => mockUseAtomValue(atom),
@@ -25,7 +24,7 @@ describe("UserForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default: form enabled (users loaded successfully)
-    mockUseAtomValue.mockReturnValue(Result.success([]));
+    mockUseAtomValue.mockReturnValue(AsyncResult.success([]));
     mockUseAtomSet.mockReturnValue(vi.fn());
   });
 
@@ -56,7 +55,7 @@ describe("UserForm", () => {
     });
 
     it("disables fieldset when users atom is initial", async () => {
-      mockUseAtomValue.mockReturnValue(Result.initial());
+      mockUseAtomValue.mockReturnValue(AsyncResult.initial());
 
       const screen = await render(<EffectForm />);
 
@@ -67,7 +66,9 @@ describe("UserForm", () => {
     });
 
     it("disables fieldset when users atom is waiting", async () => {
-      mockUseAtomValue.mockReturnValue(Result.success([], { waiting: true }));
+      mockUseAtomValue.mockReturnValue(
+        AsyncResult.success([], { waiting: true }),
+      );
 
       const screen = await render(<EffectForm />);
 
@@ -79,7 +80,7 @@ describe("UserForm", () => {
 
     it("disables fieldset when users atom is failure", async () => {
       mockUseAtomValue.mockReturnValue(
-        Result.failure(Cause.fail(new NetworkError({ traceId: "t-1" }))),
+        AsyncResult.failure(Cause.fail(new NetworkError({ traceId: "t-1" }))),
       );
 
       const screen = await render(<EffectForm />);
@@ -91,7 +92,7 @@ describe("UserForm", () => {
     });
 
     it("enables fieldset when users atom is success", async () => {
-      mockUseAtomValue.mockReturnValue(Result.success([]));
+      mockUseAtomValue.mockReturnValue(AsyncResult.success([]));
 
       const screen = await render(<EffectForm />);
 
@@ -121,6 +122,7 @@ describe("UserForm", () => {
 
       expect(mockCreateUser).toHaveBeenCalledOnce();
       expect(mockCreateUser).toHaveBeenCalledWith({
+        _tag: "UserForm",
         name: "Alice",
         username: "alice",
         email: "alice@test.com",
@@ -225,6 +227,54 @@ describe("UserForm", () => {
       nameInput.element().focus();
       nameInput.element().blur();
 
+      expect(
+        screen.container.querySelector('[data-testid="user-form-name-error"]'),
+      ).toBeNull();
+    });
+
+    it("re-enables submit button after correcting invalid data", async () => {
+      const screen = await render(<EffectForm />);
+
+      // Submit with all fields empty to trigger validation errors
+      await screen.getByTestId("user-form-submit").click();
+
+      // Button should be disabled after failed validation
+      await expect
+        .element(screen.getByTestId("user-form-submit"))
+        .toBeDisabled();
+
+      // Correct the data
+      await screen.getByTestId("user-form-name").fill("Alice");
+      await screen.getByTestId("user-form-username").fill("alice");
+      await screen.getByTestId("user-form-email").fill("alice@test.com");
+      await screen.getByTestId("user-form-language").click();
+      await screen.getByText("English").click();
+
+      // Button should be re-enabled now
+      await expect
+        .element(screen.getByTestId("user-form-submit"))
+        .toBeEnabled();
+    });
+
+    it("clears validation errors after correcting data", async () => {
+      const screen = await render(<EffectForm />);
+
+      // Submit with empty name
+      await screen.getByTestId("user-form-username").fill("alice");
+      await screen.getByTestId("user-form-email").fill("alice@test.com");
+      await screen.getByTestId("user-form-language").click();
+      await screen.getByText("English").click();
+      await screen.getByTestId("user-form-submit").click();
+
+      // Error should be visible
+      await expect
+        .element(screen.getByTestId("user-form-name-error"))
+        .toBeInTheDocument();
+
+      // Fix the name field
+      await screen.getByTestId("user-form-name").fill("Alice");
+
+      // Error should be cleared
       expect(
         screen.container.querySelector('[data-testid="user-form-name-error"]'),
       ).toBeNull();

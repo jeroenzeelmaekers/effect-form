@@ -1,6 +1,6 @@
-import { HttpClientResponse } from "@effect/platform";
-import type { ResponseError } from "@effect/platform/HttpClientError";
 import { Effect, Schema } from "effect";
+import { HttpClientResponse } from "effect/unstable/http";
+import type { ResponseError } from "effect/unstable/http/HttpClientError";
 
 export const ProblemDetail = Schema.Struct({
   type: Schema.optional(Schema.String),
@@ -12,7 +12,7 @@ export const ProblemDetail = Schema.Struct({
 
 export type ProblemDetail = typeof ProblemDetail.Type;
 
-export class NetworkError extends Schema.TaggedError<NetworkError>()(
+export class NetworkError extends Schema.TaggedErrorClass<NetworkError>()(
   "NetworkError",
   {
     traceId: Schema.optional(Schema.String),
@@ -20,7 +20,7 @@ export class NetworkError extends Schema.TaggedError<NetworkError>()(
   },
 ) {}
 
-export class NotFoundError extends Schema.TaggedError<NotFoundError>()(
+export class NotFoundError extends Schema.TaggedErrorClass<NotFoundError>()(
   "NotFoundError",
   {
     traceId: Schema.optional(Schema.String),
@@ -28,7 +28,7 @@ export class NotFoundError extends Schema.TaggedError<NotFoundError>()(
   },
 ) {}
 
-export class ValidationError extends Schema.TaggedError<ValidationError>()(
+export class ValidationError extends Schema.TaggedErrorClass<ValidationError>()(
   "ValidationError",
   {
     traceId: Schema.optional(Schema.String),
@@ -61,7 +61,7 @@ export function getResponseError(error: ResponseError, traceId?: string) {
     const problemDetail = yield* HttpClientResponse.schemaBodyJson(
       ProblemDetail,
     )(error.response).pipe(
-      Effect.catchAll(() => Effect.succeed({} as ProblemDetail)),
+      Effect.catch(() => Effect.succeed({} as ProblemDetail)),
     );
 
     // annotate span with problem detail

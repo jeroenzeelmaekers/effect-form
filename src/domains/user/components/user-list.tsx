@@ -1,4 +1,4 @@
-import { Result, useAtomValue } from "@effect-atom/atom-react";
+import { useAtomValue } from "@effect/atom-react";
 import {
   flexRender,
   getCoreRowModel,
@@ -8,7 +8,8 @@ import {
   type Row,
   type SortingState,
 } from "@tanstack/react-table";
-import { useState } from "react";
+import { AsyncResult } from "effect/unstable/reactivity";
+import { useMemo, useState } from "react";
 
 import { optimisticGetUsersAtom } from "@/domains/user/atoms";
 import { Error } from "@/shared/components/ui/error";
@@ -152,7 +153,7 @@ function Loading<TData, TValue>({
 export default function UserList() {
   const result = useAtomValue(optimisticGetUsersAtom);
 
-  if (result.waiting && !Result.isSuccess(result)) {
+  if (result.waiting && !AsyncResult.isSuccess(result)) {
     return (
       <section aria-label="Users" className="min-w-0 flex-1">
         <Loading columns={UserColumns} />
@@ -161,8 +162,8 @@ export default function UserList() {
   }
 
   return (
-    <section aria-label="Users" className="min-w-0 flex-1">
-      {Result.builder(result)
+    <section className="min-w-0 flex-1">
+      {AsyncResult.builder(result)
         .onInitial(() => <Loading columns={UserColumns} />)
         .onErrorTag("NotFoundError", (error) => (
           <Error.Root>

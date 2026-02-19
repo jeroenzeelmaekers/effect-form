@@ -1,16 +1,29 @@
-import { Atom, Result } from "@effect-atom/atom";
+import { Effect, Schema } from "effect";
+import { Atom, AsyncResult } from "effect/unstable/reactivity";
 
 import { User, UserForm, UserId } from "@/domains/user/model";
 import { UserService } from "@/domains/user/service";
 import { runtimeAtom } from "@/infrastructure/runtime";
 
 export const getUsersAtom = runtimeAtom
-  .atom(UserService.getUsers())
+  .atom(
+    Effect.gen(function* () {
+      const svc = yield* UserService;
+      return yield* svc.getUsers();
+    }),
+  )
   .pipe(Atom.withReactivity({ users: ["users"] }));
 
-export const createUserAtom = runtimeAtom.fn(UserService.createUser, {
-  reactivityKeys: { users: ["users"] },
-});
+export const createUserAtom = runtimeAtom.fn(
+  (formValues: Schema.Schema.Type<typeof UserForm>) =>
+    Effect.gen(function* () {
+      const svc = yield* UserService;
+      return yield* svc.createUser(formValues);
+    }),
+  {
+    reactivityKeys: { users: ["users"] },
+  },
+);
 
 // Optimistic updates
 
@@ -29,7 +42,7 @@ export const createUserOptimisticAtom = Atom.optimisticFn(
   optimisticGetUsersAtom,
   {
     reducer: (currentResult, formValues) =>
-      Result.map(currentResult, (currentUsers) => [
+      AsyncResult.map(currentResult, (currentUsers) => [
         ...currentUsers,
         createTempUser(formValues),
       ]),

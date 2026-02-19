@@ -1,6 +1,7 @@
-import { Result, useAtomSet, useAtomValue } from "@effect-atom/atom-react";
-import { useForm } from "@tanstack/react-form";
+import { useAtomSet, useAtomValue } from "@effect/atom-react";
+import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { Schema } from "effect";
+import { AsyncResult } from "effect/unstable/reactivity";
 import { HelpCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -45,9 +46,9 @@ export default function EffectForm() {
   const createUser = useAtomSet(createUserOptimisticAtom);
   const usersResult = useAtomValue(optimisticGetUsersAtom);
   const isDisabled =
-    Result.isFailure(usersResult) ||
-    Result.isWaiting(usersResult) ||
-    Result.isInitial(usersResult);
+    AsyncResult.isFailure(usersResult) ||
+    AsyncResult.isWaiting(usersResult) ||
+    AsyncResult.isInitial(usersResult);
 
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "success" | "error"
@@ -60,11 +61,15 @@ export default function EffectForm() {
       email: "",
       language: "",
     },
+    validationLogic: revalidateLogic({
+      mode: "submit",
+      modeAfterSubmission: "change",
+    }),
     validators: {
-      onSubmit: Schema.standardSchemaV1(UserForm),
+      onDynamic: Schema.toStandardSchemaV1(UserForm),
     },
     onSubmit: ({ formApi }) => {
-      createUser(formApi.state.values);
+      createUser({ _tag: "UserForm", ...formApi.state.values });
       formApi.reset();
       setSubmitStatus("success");
     },

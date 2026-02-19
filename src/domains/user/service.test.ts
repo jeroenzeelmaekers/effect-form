@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "@effect/vitest";
-import { Duration, Effect, Exit, Fiber, Layer, TestClock } from "effect";
+import { Cause, Duration, Effect, Exit, Fiber, Layer } from "effect";
+import { TestClock } from "effect/testing";
 
 import { UserService } from "@/domains/user/service";
 import { NetworkError, ValidationError } from "@/shared/api/errors";
@@ -11,56 +12,63 @@ beforeEach(() => {
 });
 
 const createTestLayer = (handler: Parameters<typeof createMockApiClient>[0]) =>
-  UserService.Default.pipe(Layer.provide(createMockApiClient(handler)));
+  UserService.layer.pipe(Layer.provide(createMockApiClient(handler)));
 
 describe("UserService", () => {
   describe("Get users", () => {
-    it.scoped("should return users on successful response", () =>
+    it.effect("should return users on successful response", () =>
       Effect.gen(function* () {
-        const mockUsers = [
+        const svc = yield* UserService;
+        const fiber = yield* svc.getUsers().pipe(Effect.forkChild);
+
+        // Fast-forward through the 3 second sleep
+        yield* TestClock.adjust(Duration.seconds(3));
+
+        const result = yield* Fiber.join(fiber);
+        expect(result).toEqual([
           {
+            _tag: "User",
             id: 1,
             name: "John Doe",
             username: "johndoe",
             email: "john@example.com",
           },
           {
+            _tag: "User",
             id: 2,
             name: "Jane Doe",
             username: "janedoe",
             email: "jane@example.com",
           },
-        ];
-
-        const fiber = yield* UserService.getUsers().pipe(
-          Effect.provide(
-            createTestLayer(() =>
-              Effect.succeed(createMockResponse(200, mockUsers)),
+        ]);
+      }).pipe(
+        Effect.provide(
+          createTestLayer(() =>
+            Effect.succeed(
+              createMockResponse(200, [
+                {
+                  id: 1,
+                  name: "John Doe",
+                  username: "johndoe",
+                  email: "john@example.com",
+                },
+                {
+                  id: 2,
+                  name: "Jane Doe",
+                  username: "janedoe",
+                  email: "jane@example.com",
+                },
+              ]),
             ),
           ),
-          Effect.fork,
-        );
-
-        // Fast-forward through the 3 second sleep
-        yield* TestClock.adjust(Duration.seconds(3));
-
-        const result = yield* Fiber.join(fiber);
-        expect(result).toEqual(mockUsers);
-      }),
+        ),
+      ),
     );
 
-    it.scoped("should fail with ValidationError on invalid response body", () =>
+    it.effect("should fail with ValidationError on invalid response body", () =>
       Effect.gen(function* () {
-        const invalidBody = [{ invalid: "data" }];
-
-        const fiber = yield* UserService.getUsers().pipe(
-          Effect.provide(
-            createTestLayer(() =>
-              Effect.succeed(createMockResponse(200, invalidBody)),
-            ),
-          ),
-          Effect.fork,
-        );
+        const svc = yield* UserService;
+        const fiber = yield* svc.getUsers().pipe(Effect.forkChild);
 
         // Fast-forward through the 3 second sleep
         yield* TestClock.adjust(Duration.seconds(3));
@@ -69,28 +77,26 @@ describe("UserService", () => {
 
         expect(Exit.isFailure(exit)).toBe(true);
         if (Exit.isFailure(exit)) {
-          const error = exit.cause;
-          expect(error._tag).toBe("Fail");
-          if (error._tag === "Fail") {
-            expect(error.error).toBeInstanceOf(ValidationError);
+          const cause = exit.cause;
+          const failReason = cause.reasons.find(Cause.isFailReason);
+          expect(failReason).toBeDefined();
+          if (failReason && Cause.isFailReason(failReason)) {
+            expect(failReason.error).toBeInstanceOf(ValidationError);
           }
         }
-      }),
+      }).pipe(
+        Effect.provide(
+          createTestLayer(() =>
+            Effect.succeed(createMockResponse(200, [{ invalid: "data" }])),
+          ),
+        ),
+      ),
     );
 
-    it.scoped("should fail with NetworkError on request timeout", () =>
+    it.effect("should fail with NetworkError on request timeout", () =>
       Effect.gen(function* () {
-        const fiber = yield* UserService.getUsers().pipe(
-          Effect.provide(
-            createTestLayer(() =>
-              // Simulate a slow response that exceeds the 10 second timeout
-              Effect.sleep("15 seconds").pipe(
-                Effect.map(() => createMockResponse(200, [])),
-              ),
-            ),
-          ),
-          Effect.fork,
-        );
+        const svc = yield* UserService;
+        const fiber = yield* svc.getUsers().pipe(Effect.forkChild);
 
         // Fast-forward past the 10 second timeout
         yield* TestClock.adjust(Duration.seconds(15));
@@ -99,60 +105,77 @@ describe("UserService", () => {
 
         expect(Exit.isFailure(exit)).toBe(true);
         if (Exit.isFailure(exit)) {
-          const error = exit.cause;
-          expect(error._tag).toBe("Fail");
-          if (error._tag === "Fail") {
-            expect(error.error).toBeInstanceOf(NetworkError);
+          const cause = exit.cause;
+          const failReason = cause.reasons.find(Cause.isFailReason);
+          expect(failReason).toBeDefined();
+          if (failReason && Cause.isFailReason(failReason)) {
+            expect(failReason.error).toBeInstanceOf(NetworkError);
           }
         }
-      }),
+      }).pipe(
+        Effect.provide(
+          createTestLayer(() =>
+            // Simulate a slow response that exceeds the 10 second timeout
+            Effect.sleep("15 seconds").pipe(
+              Effect.map(() => createMockResponse(200, [])),
+            ),
+          ),
+        ),
+      ),
     );
   });
 
   describe("Create user", () => {
     const validFormData = {
+      _tag: "UserForm" as const,
       name: "Test User",
       username: "testuser",
       email: "test@example.com",
       language: "en",
     };
 
-    it.scoped("should create user on successful response", () =>
+    it.effect("should create user on successful response", () =>
       Effect.gen(function* () {
-        const createdUser = {
-          id: 1,
-          ...validFormData,
-        };
-
-        const fiber = yield* UserService.createUser(validFormData).pipe(
-          Effect.provide(
-            createTestLayer(() =>
-              Effect.succeed(createMockResponse(201, createdUser)),
-            ),
-          ),
-          Effect.fork,
-        );
+        const svc = yield* UserService;
+        const fiber = yield* svc
+          .createUser(validFormData)
+          .pipe(Effect.forkChild);
 
         // Fast-forward through the 5 second sleep
         yield* TestClock.adjust(Duration.seconds(5));
 
         const result = yield* Fiber.join(fiber);
-        expect(result).toEqual(createdUser);
-      }),
-    );
-
-    it.scoped("should fail with ValidationError on invalid response body", () =>
-      Effect.gen(function* () {
-        const invalidResponse = { invalid: "data" };
-
-        const fiber = yield* UserService.createUser(validFormData).pipe(
-          Effect.provide(
-            createTestLayer(() =>
-              Effect.succeed(createMockResponse(201, invalidResponse)),
+        expect(result).toEqual({
+          _tag: "User",
+          id: 1,
+          name: "Test User",
+          username: "testuser",
+          email: "test@example.com",
+          language: "en",
+        });
+      }).pipe(
+        Effect.provide(
+          createTestLayer(() =>
+            Effect.succeed(
+              createMockResponse(201, {
+                id: 1,
+                name: "Test User",
+                username: "testuser",
+                email: "test@example.com",
+                language: "en",
+              }),
             ),
           ),
-          Effect.fork,
-        );
+        ),
+      ),
+    );
+
+    it.effect("should fail with ValidationError on invalid response body", () =>
+      Effect.gen(function* () {
+        const svc = yield* UserService;
+        const fiber = yield* svc
+          .createUser(validFormData)
+          .pipe(Effect.forkChild);
 
         // Fast-forward through the 5 second sleep
         yield* TestClock.adjust(Duration.seconds(5));
@@ -161,13 +184,20 @@ describe("UserService", () => {
 
         expect(Exit.isFailure(exit)).toBe(true);
         if (Exit.isFailure(exit)) {
-          const error = exit.cause;
-          expect(error._tag).toBe("Fail");
-          if (error._tag === "Fail") {
-            expect(error.error).toBeInstanceOf(ValidationError);
+          const cause = exit.cause;
+          const failReason = cause.reasons.find(Cause.isFailReason);
+          expect(failReason).toBeDefined();
+          if (failReason && Cause.isFailReason(failReason)) {
+            expect(failReason.error).toBeInstanceOf(ValidationError);
           }
         }
-      }),
+      }).pipe(
+        Effect.provide(
+          createTestLayer(() =>
+            Effect.succeed(createMockResponse(201, { invalid: "data" })),
+          ),
+        ),
+      ),
     );
   });
 });
