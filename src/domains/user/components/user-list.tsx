@@ -9,7 +9,7 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import { AsyncResult } from "effect/unstable/reactivity";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { optimisticGetUsersAtom } from "@/domains/user/atoms";
 import { Error } from "@/shared/components/ui/error";

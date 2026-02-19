@@ -45,7 +45,7 @@ export default function DebugPanel() {
             Configure development and debugging options.
           </SheetDescription>
         </SheetHeader>
-        {isLoading ? null : AsyncResult.isSuccess(settingsResult) ? (
+        {isLoading ? (
           <div className="flex flex-col gap-6 px-6 pb-6 lg:mx-auto lg:w-full lg:max-w-1/2">
             <div className="flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
@@ -62,7 +62,7 @@ export default function DebugPanel() {
               <Skeleton className="h-5 w-9 rounded-full" />
             </div>
           </div>
-        ) : Result.isSuccess(settingsResult) ? (
+        ) : AsyncResult.isSuccess(settingsResult) ? (
           <div className="flex flex-col gap-6 px-6 pb-6 lg:mx-auto lg:w-full lg:max-w-1/2">
             <div className="flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
