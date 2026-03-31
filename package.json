@@ -51,7 +51,7 @@
     "@vitest/coverage-v8": "4.1.2",
     "babel-plugin-react-compiler": "^1.0.0",
     "babel-plugin-react-remove-properties": "^0.3.1",
-    "oxfmt": "^0.42.0",
+    "oxfmt": "^0.43.0",
     "oxlint": "^1.57.0",
     "shadcn": "^4.1.1",
     "typescript": "~6.0.2",
