@@ -33,6 +33,35 @@ export default defineConfig({
     }),
     tailwindcss(),
   ],
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://jsonplaceholder.typicode.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+      "/otlp": {
+        target: "http://localhost:4318",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/otlp/, ""),
+      },
+      "/ingest/static": {
+        target: "https://eu-assets.i.posthog.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ingest/, ""),
+      },
+      "/ingest/array": {
+        target: "https://eu-assets.i.posthog.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ingest/, ""),
+      },
+      "/ingest": {
+        target: "https://eu.i.posthog.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ingest/, ""),
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

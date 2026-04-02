@@ -4,10 +4,10 @@ import * as OtlpLogger from "effect/unstable/observability/OtlpLogger";
 import * as OtlpSerialization from "effect/unstable/observability/OtlpSerialization";
 import * as OtlpTracer from "effect/unstable/observability/OtlpTracer";
 
-const baseUrl = import.meta.env.VITE_OTLP_BASE_URL ?? "http://localhost:4318";
+const baseUrl = import.meta.env.VITE_OTLP_BASE_URL ?? "/otlp";
 const resource = {
   serviceName: "effect-form",
-  serviceVersion: "0.0.0",
+  serviceVersion: "0.0.1",
 };
 
 const TracerLive = OtlpTracer.layer({

@@ -10,6 +10,7 @@ export const Route = createFileRoute("/")({
 
 export default function Index() {
   const userCreationFlag = useFeatureFlagEnabled("allow-user-creation");
+
   return (
     <main
       id="main"

@@ -40,7 +40,7 @@ const UserColumns: ColumnDef<User>[] = [
       <Button
         data-testid="sort-name"
         variant="ghost"
-        className="h-full w-full justify-between rounded-none"
+        className="h-full w-full justify-start rounded-none"
         aria-label={sortLabel(column, "name")}
         onClick={() => handleSortToggle(column)}>
         Name
@@ -54,7 +54,7 @@ const UserColumns: ColumnDef<User>[] = [
       <Button
         data-testid="sort-username"
         variant="ghost"
-        className="h-full w-full justify-between rounded-none"
+        className="h-full w-full justify-start rounded-none"
         aria-label={sortLabel(column, "username")}
         onClick={() => handleSortToggle(column)}>
         Username
@@ -68,7 +68,7 @@ const UserColumns: ColumnDef<User>[] = [
       <Button
         data-testid="sort-email"
         variant="ghost"
-        className="h-full w-full justify-between rounded-none"
+        className="h-full w-full justify-start rounded-none"
         aria-label={sortLabel(column, "email")}
         onClick={() => handleSortToggle(column)}>
         Email
