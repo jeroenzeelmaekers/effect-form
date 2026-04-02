@@ -8,7 +8,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-export default function Index() {
+function Index() {
   const userCreationFlag = useFeatureFlagEnabled("allow-user-creation");
 
   return (
