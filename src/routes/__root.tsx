@@ -1,8 +1,7 @@
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 
-import DebugPanel from "@/debug-panel";
+import AccountMenu from "@/domains/account/components/account-menu";
 import CookieBanner from "@/shared/components/ui/cookie-banner";
-import { ModeToggle } from "@/shared/components/ui/mode-toggle";
 import Providers from "@/shared/providers/providers";
 
 const RootLayout = () => (
@@ -32,10 +31,7 @@ const RootLayout = () => (
           </li>
         </ul>
       </nav>
-      <div className="space-x-2">
-        <DebugPanel />
-        <ModeToggle />
-      </div>
+      <AccountMenu />
     </header>
     <Outlet />
   </Providers>
