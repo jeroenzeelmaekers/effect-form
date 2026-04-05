@@ -2,12 +2,12 @@ import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { AsyncResult } from "effect/unstable/reactivity";
 import { BugIcon, Moon, Sun } from "lucide-react";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   debugSettingsAtom,
   setOtelEnabledAtom,
   setSimulationEnabledAtom,
 } from "@/domains/debug/atoms";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
@@ -70,9 +70,13 @@ export default function AccountMenu() {
                 onValueChange={(value) =>
                   setTheme(value as "light" | "dark" | "system")
                 }>
-                <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="light">
+                  Light
+                </DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="system">
+                  System
+                </DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
@@ -86,9 +90,7 @@ export default function AccountMenu() {
               <DropdownMenuCheckboxItem
                 disabled={!isDebugLoaded}
                 checked={
-                  isDebugLoaded
-                    ? settingsResult.value.simulationEnabled
-                    : false
+                  isDebugLoaded ? settingsResult.value.simulationEnabled : false
                 }
                 onCheckedChange={setSimulationEnabled}>
                 Simulation Mode
