@@ -27,14 +27,6 @@ import {
 import { useTheme } from "@/shared/providers/theme-provider";
 
 export default function AccountMenu() {
-  const { theme, setTheme } = useTheme();
-
-  const settingsResult = useAtomValue(debugSettingsAtom);
-  const setSimulationEnabled = useAtomSet(setSimulationEnabledAtom);
-  const setOtelEnabled = useAtomSet(setOtelEnabledAtom);
-
-  const isDebugLoaded = AsyncResult.isSuccess(settingsResult);
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -52,59 +44,8 @@ export default function AccountMenu() {
       />
       <DropdownMenuContent className="w-48" align="end">
         <DropdownMenuGroup>
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Billing</DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <Sun className="scale-100 dark:scale-0" />
-              <Moon className="absolute scale-0 dark:scale-100" />
-              Theme
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              <DropdownMenuRadioGroup
-                value={theme}
-                onValueChange={(value) =>
-                  setTheme(value as "light" | "dark" | "system")
-                }>
-                <DropdownMenuRadioItem value="light">
-                  Light
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="system">
-                  System
-                </DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <BugIcon />
-              Debug
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              <DropdownMenuLabel>Debug Settings</DropdownMenuLabel>
-              <DropdownMenuCheckboxItem
-                disabled={!isDebugLoaded}
-                checked={
-                  isDebugLoaded ? settingsResult.value.simulationEnabled : false
-                }
-                onCheckedChange={setSimulationEnabled}>
-                Simulation Mode
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                disabled={!isDebugLoaded}
-                checked={
-                  isDebugLoaded ? settingsResult.value.otelEnabled : false
-                }
-                onCheckedChange={setOtelEnabled}>
-                OpenTelemetry
-              </DropdownMenuCheckboxItem>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
+          <ThemeMenu />
+          <DebugMenu />
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
@@ -112,5 +53,64 @@ export default function AccountMenu() {
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function ThemeMenu() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger>
+        <Sun className="scale-100 dark:scale-0" />
+        <Moon className="absolute scale-0 dark:scale-100" />
+        Theme
+      </DropdownMenuSubTrigger>
+      <DropdownMenuSubContent>
+        <DropdownMenuRadioGroup
+          value={theme}
+          onValueChange={(value) =>
+            setTheme(value as "light" | "dark" | "system")
+          }>
+          <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+      </DropdownMenuSubContent>
+    </DropdownMenuSub>
+  );
+}
+
+function DebugMenu() {
+  const settingsResult = useAtomValue(debugSettingsAtom);
+  const setSimulationEnabled = useAtomSet(setSimulationEnabledAtom);
+  const setOtelEnabled = useAtomSet(setOtelEnabledAtom);
+
+  const isDebugLoaded = AsyncResult.isSuccess(settingsResult);
+
+  return (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger>
+        <BugIcon />
+        Debug
+      </DropdownMenuSubTrigger>
+      <DropdownMenuSubContent>
+        <DropdownMenuLabel>Debug Settings</DropdownMenuLabel>
+        <DropdownMenuCheckboxItem
+          disabled={!isDebugLoaded}
+          checked={
+            isDebugLoaded ? settingsResult.value.simulationEnabled : false
+          }
+          onCheckedChange={setSimulationEnabled}>
+          Simulation Mode
+        </DropdownMenuCheckboxItem>
+        <DropdownMenuCheckboxItem
+          disabled={!isDebugLoaded}
+          checked={isDebugLoaded ? settingsResult.value.otelEnabled : false}
+          onCheckedChange={setOtelEnabled}>
+          OpenTelemetry
+        </DropdownMenuCheckboxItem>
+      </DropdownMenuSubContent>
+    </DropdownMenuSub>
   );
 }
