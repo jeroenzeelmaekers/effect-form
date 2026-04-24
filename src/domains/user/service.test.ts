@@ -199,5 +199,37 @@ describe("UserService", () => {
         ),
       ),
     );
+
+    it.effect("should fail with NetworkError on request timeout", () =>
+      Effect.gen(function* () {
+        const svc = yield* UserService;
+        const fiber = yield* svc
+          .createUser(validFormData)
+          .pipe(Effect.forkChild);
+
+        // Fast-forward past the 15 second timeout
+        yield* TestClock.adjust(Duration.seconds(20));
+
+        const exit = yield* Fiber.join(fiber).pipe(Effect.exit);
+
+        expect(Exit.isFailure(exit)).toBe(true);
+        if (Exit.isFailure(exit)) {
+          const cause = exit.cause;
+          const failReason = cause.reasons.find(Cause.isFailReason);
+          expect(failReason).toBeDefined();
+          if (failReason && Cause.isFailReason(failReason)) {
+            expect(failReason.error).toBeInstanceOf(NetworkError);
+          }
+        }
+      }).pipe(
+        Effect.provide(
+          createTestLayer(() =>
+            Effect.sleep("20 seconds").pipe(
+              Effect.map(() => createMockResponse(201, {})),
+            ),
+          ),
+        ),
+      ),
+    );
   });
 });
