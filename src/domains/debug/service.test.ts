@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { DebugService, getDebugSettingsSync } from "./service";
 
 // ---- localStorage mock ----
