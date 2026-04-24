@@ -34,12 +34,36 @@ const make = Effect.gen(function* () {
   };
 });
 
+/**
+ * Effect service providing a resilient HTTP client pre-configured for the
+ * JSONPlaceholder API base URL (read from `VITE_API_BASE_URL`).
+ *
+ * The underlying client retries transient failures up to 3 times with
+ * exponential back-off starting at 100 ms. When the `simulationEnabled` debug
+ * flag is active, requests are routed through `withSimulation` which injects
+ * random errors and artificial latency.
+ *
+ * Depends on: `HttpClient.HttpClient`, `DebugService`.
+ *
+ * @example
+ * const response = yield* ApiClient.pipe(
+ *   Effect.flatMap(client => client.execute(HttpClientRequest.get("/users")))
+ * );
+ */
 export class ApiClient extends ServiceMap.Service<ApiClient>()("ApiClient", {
   make,
 }) {
+  /** Live `Layer` that constructs `ApiClient`. */
   static layer = Layer.effect(this, this.make);
 }
 
+/**
+ * Fully-wired live `Layer` for `ApiClient`.
+ *
+ * Provides `ApiClient` together with its transitive dependencies
+ * (`FetchHttpClient` and `DebugService`) so consumers only need to provide
+ * this single layer to the runtime.
+ */
 export const ApiLive = ApiClient.layer.pipe(
   Layer.provide(FetchHttpClient.layer),
   Layer.provide(DebugService.layer),

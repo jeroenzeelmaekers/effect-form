@@ -2,8 +2,17 @@ import { Schema } from "effect";
 
 import { languageValues } from "@/domains/language/model";
 
-// Branded UserId type for type safety
+/**
+ * Branded numeric schema for user identifiers.
+ * Encodes a plain `number` and brands it as `"UserId"` to prevent accidental
+ * mix-ups with other numeric IDs at the type level.
+ *
+ * @example
+ * const id = Schema.decodeSync(UserId)(42); // UserId (branded number)
+ */
 export const UserId = Schema.Number.pipe(Schema.brand("UserId"));
+
+/** TypeScript type for a branded user ID value. */
 export type UserId = typeof UserId.Type;
 
 const Name = Schema.String.check(
@@ -35,7 +44,20 @@ const Language = Schema.String.check(
   ),
 );
 
-// Using Schema.Class with tagDefaultOmit for external API decode compatibility
+/**
+ * Effect Schema class representing a user as returned by the API.
+ *
+ * Decodes JSON objects from the JSONPlaceholder `/users` endpoint into
+ * strongly-typed, validated `User` instances. The `_tag` field is omitted
+ * from the encoded form so the class is compatible with the external API shape.
+ *
+ * Fields:
+ * - `id` — branded `UserId` number.
+ * - `name` — 1–50 character display name.
+ * - `username` — 1–50 character username.
+ * - `email` — RFC-compliant e-mail address.
+ * - `language` — optional language code validated against `languageValues`.
+ */
 class User extends Schema.Class<User>("User")({
   _tag: Schema.tagDefaultOmit("User"),
   id: UserId,
@@ -45,6 +67,19 @@ class User extends Schema.Class<User>("User")({
   language: Schema.optional(Language),
 }) {}
 
+/**
+ * Effect Schema class representing the user creation / edit form payload.
+ *
+ * Similar to `User` but without an `id` field, and with `language` as a
+ * required (non-optional) field. Used to validate form values before they
+ * are submitted to the API.
+ *
+ * Fields:
+ * - `name` — 1–50 character display name.
+ * - `username` — 1–50 character username.
+ * - `email` — RFC-compliant e-mail address.
+ * - `language` — required language code validated against `languageValues`.
+ */
 class UserForm extends Schema.Class<UserForm>("UserForm")({
   _tag: Schema.tagDefaultOmit("UserForm"),
   name: Name,

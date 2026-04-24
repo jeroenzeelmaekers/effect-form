@@ -7,7 +7,7 @@ import * as OtlpTracer from "effect/unstable/observability/OtlpTracer";
 const baseUrl = import.meta.env.VITE_OTLP_BASE_URL ?? "/otlp";
 const resource = {
   serviceName: "effect-form",
-  serviceVersion: "0.0.1",
+  serviceVersion: import.meta.env.VITE_APP_VERSION ?? "0.0.0",
 };
 
 const TracerLive = OtlpTracer.layer({
@@ -20,6 +20,21 @@ const LoggerLive = OtlpLogger.layer({
   resource,
 });
 
+/**
+ * Live `Layer` that enables OpenTelemetry tracing and structured logging via
+ * the OTLP HTTP exporter.
+ *
+ * Traces are sent to `VITE_OTLP_BASE_URL/v1/traces` and logs to
+ * `VITE_OTLP_BASE_URL/v1/logs` (defaults to `/otlp` when the env variable is
+ * not set). Payloads are serialised as JSON using `OtlpSerialization.layerJson`
+ * and transported over `fetch` via `FetchHttpClient`.
+ *
+ * The service name is `"effect-form"` and the version is read from
+ * `VITE_APP_VERSION` (falls back to `"0.0.0"`).
+ *
+ * This layer is conditionally included in the runtime by `infrastructure/runtime.ts`
+ * when the `otelEnabled` debug flag is active.
+ */
 export const TelemetryLive = Layer.mergeAll(TracerLive, LoggerLive).pipe(
   Layer.provide(FetchHttpClient.layer),
   Layer.provide(OtlpSerialization.layerJson),

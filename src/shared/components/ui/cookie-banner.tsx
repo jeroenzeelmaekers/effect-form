@@ -1,5 +1,5 @@
 import { usePostHog } from "posthog-js/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "./button";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "./card";
@@ -9,6 +9,13 @@ export default function CookieBanner() {
   const [consentGiven, setConsentGiven] = useState(() =>
     posthog.get_explicit_consent_status(),
   );
+  const declineRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (consentGiven === "pending") {
+      declineRef.current?.focus();
+    }
+  }, [consentGiven]);
 
   function handleAcceptCookies() {
     posthog.opt_in_capturing();
@@ -26,6 +33,7 @@ export default function CookieBanner() {
     <Card
       className="fixed bottom-0 left-0 z-40 m-3 md:w-1/2 lg:w-1/3"
       role="dialog"
+      aria-modal="true"
       aria-label="Cookie consent"
       aria-describedby="cookie-banner-description">
       <CardHeader>
@@ -36,7 +44,10 @@ export default function CookieBanner() {
         us improve it. Please accept cookies to help us improve.
       </CardContent>
       <CardFooter className="justify-end space-x-2">
-        <Button variant="outline" onClick={handleDeclineCookies}>
+        <Button
+          ref={declineRef}
+          variant="outline"
+          onClick={handleDeclineCookies}>
           Decline
         </Button>
         <Button variant="default" onClick={handleAcceptCookies}>

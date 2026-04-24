@@ -8,7 +8,7 @@ const RootLayout = () => (
   <Providers>
     <a
       href="#main"
-      className="bg-background text-foreground focus-visible:ring-ring/30 fixed top-0 left-1/2 z-50 -translate-x-1/2 -translate-y-full rounded-b-md px-4 py-2 text-sm font-medium transition-transform focus-visible:translate-y-0 focus-visible:ring-2 focus-visible:outline-none">
+      className="bg-background text-foreground focus-visible:ring-ring/30 fixed top-0 left-1/2 z-50 -translate-x-1/2 -translate-y-full rounded-b-md px-4 py-2 text-sm font-medium focus-visible:translate-y-0 focus-visible:ring-2 focus-visible:outline-none motion-safe:transition-transform">
       Skip to content
     </a>
     <CookieBanner />
@@ -33,7 +33,9 @@ const RootLayout = () => (
       </nav>
       <AccountMenu />
     </header>
-    <Outlet />
+    <main id="main">
+      <Outlet />
+    </main>
   </Providers>
 );
 

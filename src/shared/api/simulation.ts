@@ -44,7 +44,21 @@ const createMockResponse = (
     }),
   );
 
-// Simulate random errors at the HTTP client level
+/**
+ * Simulates randomised HTTP failures for a single request, then adds a 3-second
+ * artificial delay to mimic realistic network latency.
+ *
+ * Probability breakdown:
+ * - **20 %** — transport-level `TransportError` (connection timeout).
+ * - **15 %** — `404 Not Found` response with a Problem Detail body.
+ * - **10 %** — `422 Validation Error` response with a Problem Detail body.
+ * - **55 %** — delegates to the real `execute` function (happy path).
+ *
+ * @param request - The outgoing HTTP request to simulate.
+ * @param execute - The real execute function to call on the happy path.
+ * @returns An `Effect` that resolves to an `HttpClientResponse` or fails with
+ *   an `HttpClientError`, always after a 3-second delay.
+ */
 export const simulateRequest = (
   request: HttpClientRequest.HttpClientRequest,
   execute: (
@@ -86,7 +100,17 @@ export const simulateRequest = (
     return yield* execute(request);
   }).pipe(Effect.delay("3 seconds"));
 
-// Wrap an HttpClient with simulation behavior
+/**
+ * Wraps an `HttpClient` with simulation behavior by delegating every request
+ * through `simulateRequest`.
+ *
+ * The returned client also applies `HttpClient.filterStatusOk` so non-2xx
+ * simulated responses are surfaced as `StatusCodeError` instances, consistent
+ * with how the production client handles bad status codes.
+ *
+ * @param client - The real `HttpClient` to wrap.
+ * @returns A new `HttpClient` that randomly injects errors and latency.
+ */
 export const withSimulation = (
   client: HttpClient.HttpClient,
 ): HttpClient.HttpClient =>

@@ -19,11 +19,18 @@ function ErrorContent({ children }: { children: ReactNode }) {
 }
 
 // Error title
-function ErrorTitle({ children }: { children: ReactNode }) {
+function ErrorTitle({
+  children,
+  level = 2,
+}: {
+  children: ReactNode;
+  level?: 2 | 3 | 4;
+}) {
+  const Tag = `h${level}` as const;
   return (
-    <h1 data-testid="error-title" className="text-xl font-bold">
+    <Tag data-testid="error-title" className="text-xl font-bold">
       {children}
-    </h1>
+    </Tag>
   );
 }
 

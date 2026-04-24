@@ -27,8 +27,8 @@ function sortIcon(column: Column<User>) {
   const sorted = column.getIsSorted();
   return (
     <span className="ml-2 inline-flex size-4 items-center justify-center">
-      {sorted === "asc" && <ArrowDown className="text-muted-foreground" />}
-      {sorted === "desc" && <ArrowUp className="text-muted-foreground" />}
+      {sorted === "asc" && <ArrowUp className="text-muted-foreground" />}
+      {sorted === "desc" && <ArrowDown className="text-muted-foreground" />}
     </span>
   );
 }

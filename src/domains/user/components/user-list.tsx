@@ -17,6 +17,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -50,19 +51,32 @@ function DataTable<TData extends { id: number }, TValue>({
   return (
     <div className="w-full overflow-x-auto rounded-md border">
       <Table>
+        <TableCaption>List of registered users</TableCaption>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="p-0">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </TableHead>
-              ))}
+              {headerGroup.headers.map((header) => {
+                const sorted = header.column.getIsSorted();
+                return (
+                  <TableHead
+                    key={header.id}
+                    className="p-0"
+                    aria-sort={
+                      sorted === "asc"
+                        ? "ascending"
+                        : sorted === "desc"
+                          ? "descending"
+                          : "none"
+                    }>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                );
+              })}
             </TableRow>
           ))}
         </TableHeader>
@@ -80,7 +94,9 @@ function DataTable<TData extends { id: number }, TValue>({
   );
 }
 
-// Data row
+/**
+ * Single row for the data table containing a user
+ */
 function DataTableRow<TData extends { id: number }>({
   row,
 }: {
@@ -102,7 +118,9 @@ function DataTableRow<TData extends { id: number }>({
   );
 }
 
-// Empty state row
+/**
+ * Displays a empty table with a message for the user.
+ */
 function EmptyDataTableRow({ colSpan }: { colSpan: number }) {
   return (
     <TableRow data-testid="empty-row">
@@ -113,18 +131,27 @@ function EmptyDataTableRow({ colSpan }: { colSpan: number }) {
   );
 }
 
+/**
+ * Predefined skeleton cell for the data table
+ */
 const skeletonCell = <Skeleton className="h-4 w-24" />;
 
-// Skeleton loading
+/**
+ * Empty table with a number of table rows containing Skeleton cells
+ */
 function Loading<TData, TValue>({
   columns,
+  tableSize = 10,
 }: {
   columns: ColumnDef<TData, TValue>[];
+  tableSize?: number;
 }) {
   return (
     <div
       className="overflow-hidden rounded-md border"
-      data-testid="user-list-loading">
+      data-testid="user-list-loading"
+      aria-busy="true"
+      aria-label="Loading users">
       <Table>
         <TableHeader>
           <TableRow>
@@ -136,7 +163,7 @@ function Loading<TData, TValue>({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Array.from({ length: 10 }).map((_, index) => (
+          {Array.from({ length: tableSize }).map((_, index) => (
             <TableRow key={index}>
               {columns.map((_, colIndex) => (
                 <TableCell key={colIndex}>{skeletonCell}</TableCell>
@@ -153,7 +180,7 @@ function Loading<TData, TValue>({
 export default function UserList() {
   const result = useAtomValue(optimisticGetUsersAtom);
 
-  if (result.waiting && !AsyncResult.isSuccess(result)) {
+  if (AsyncResult.isWaiting(result) && !AsyncResult.isSuccess(result)) {
     return (
       <section aria-label="Users" className="min-w-0 flex-1">
         <Loading columns={UserColumns} />
@@ -162,7 +189,7 @@ export default function UserList() {
   }
 
   return (
-    <section className="min-w-0 flex-1">
+    <section aria-label="Users" className="min-w-0 flex-1">
       {AsyncResult.builder(result)
         .onInitial(() => <Loading columns={UserColumns} />)
         .onErrorTag("NotFoundError", (error) => (

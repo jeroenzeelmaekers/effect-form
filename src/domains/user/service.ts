@@ -8,8 +8,8 @@ import {
 import { User, UserForm } from "@/domains/user/model";
 import { ApiClient } from "@/shared/api/client";
 import {
+  catchHttpClientError,
   getCurrentTraceId,
-  getResponseError,
   NetworkError,
   ValidationError,
 } from "@/shared/api/errors";
@@ -22,17 +22,7 @@ const make = Effect.gen(function* () {
     const request = HttpClientRequest.get("/users");
     const response = yield* client.execute(request).pipe(
       Effect.timeout("10 seconds"),
-      Effect.catchTag("HttpClientError", (error) => {
-        const reason = error.reason;
-        switch (reason._tag) {
-          case "StatusCodeError":
-          case "DecodeError":
-          case "EmptyBodyError":
-            return getResponseError(reason, traceId);
-          default:
-            return Effect.fail(new NetworkError({ traceId }));
-        }
-      }),
+      Effect.catchTag("HttpClientError", catchHttpClientError(traceId)),
       Effect.catchTag("TimeoutError", () =>
         Effect.fail(new NetworkError({ traceId })),
       ),
@@ -53,7 +43,7 @@ const make = Effect.gen(function* () {
     );
   });
 
-  const createUser = Effect.fn("Create Users")(function* (
+  const createUser = Effect.fn("Create User")(function* (
     formValues: Schema.Schema.Type<typeof UserForm>,
   ) {
     const traceId = yield* getCurrentTraceId;
@@ -66,17 +56,11 @@ const make = Effect.gen(function* () {
       HttpClientRequest.setBody(body),
     );
     const response = yield* client.execute(request).pipe(
-      Effect.catchTag("HttpClientError", (error) => {
-        const reason = error.reason;
-        switch (reason._tag) {
-          case "StatusCodeError":
-          case "DecodeError":
-          case "EmptyBodyError":
-            return getResponseError(reason, traceId);
-          default:
-            return Effect.fail(new NetworkError({ traceId }));
-        }
-      }),
+      Effect.timeout("15 seconds"),
+      Effect.catchTag("HttpClientError", catchHttpClientError(traceId)),
+      Effect.catchTag("TimeoutError", () =>
+        Effect.fail(new NetworkError({ traceId })),
+      ),
     );
     return yield* HttpClientResponse.schemaBodyJson(User)(response).pipe(
       Effect.tap((data) =>
@@ -95,11 +79,30 @@ const make = Effect.gen(function* () {
   return { getUsers, createUser } as const;
 });
 
+/**
+ * Effect service that provides user-related API operations.
+ *
+ * Depends on `ApiClient` for HTTP execution. All operations are traced via
+ * OpenTelemetry spans and map low-level HTTP/schema failures to typed domain
+ * errors (`NetworkError`, `ValidationError`).
+ *
+ * Available methods (injected via `make`):
+ * - `getUsers` — fetches all users from `GET /users`, returns `User[]`.
+ *   Fails with `NetworkError | ValidationError`. Times out after 10 seconds.
+ * - `createUser` — posts a new user to `POST /users`, returns the created `User`.
+ *   Fails with `NetworkError | ValidationError`. Times out after 15 seconds.
+ *
+ * @example
+ * const users = yield* UserService.pipe(
+ *   Effect.flatMap(svc => svc.getUsers())
+ * );
+ */
 export class UserService extends ServiceMap.Service<UserService>()(
   "UserService",
   {
     make,
   },
 ) {
+  /** Live `Layer` that constructs `UserService` using `ApiClient`. */
   static layer = Layer.effect(this, this.make);
 }

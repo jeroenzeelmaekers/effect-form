@@ -8,7 +8,8 @@ posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
   api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
   ui_host: "https://eu.posthog.com",
   defaults: "2025-11-30",
-  cookieless_mode: "on_reject",
+  // Do not capture any events until the user explicitly opts in via the cookie banner
+  opt_out_capturing_by_default: true,
   opt_in_site_apps: true,
 });
 

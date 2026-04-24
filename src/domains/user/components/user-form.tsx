@@ -3,7 +3,7 @@ import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { Schema } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
 import { HelpCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { getLanguageLabel, languages } from "@/domains/language/model";
 import {
@@ -28,7 +28,6 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/shared/components/ui/input-group";
-import { Label } from "@/shared/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -51,7 +50,7 @@ export default function EffectForm() {
     AsyncResult.isInitial(usersResult);
 
   const [submitStatus, setSubmitStatus] = useState<
-    "idle" | "success" | "error"
+    "idle" | "pending" | "success" | "error"
   >("idle");
 
   const form = useForm({
@@ -69,16 +68,34 @@ export default function EffectForm() {
       onDynamic: Schema.toStandardSchemaV1(UserForm),
     },
     onSubmit: ({ formApi }) => {
+      setSubmitStatus("pending");
       createUser({ _tag: "UserForm", ...formApi.state.values });
       formApi.reset();
-      setSubmitStatus("success");
     },
   });
 
-  // Clear success message after delay
+  // Detect when the optimistic update settles: waiting -> success means the
+  // server confirmed the create, so we can show a success message.
+  // waiting -> failure means the optimistic update was rolled back.
+  const prevWaiting = useRef(false);
   useEffect(() => {
-    if (submitStatus !== "success") return;
-    const timer = setTimeout(() => setSubmitStatus("idle"), 1000);
+    const isWaiting = AsyncResult.isWaiting(usersResult);
+    if (submitStatus === "pending") {
+      if (prevWaiting.current && !isWaiting) {
+        if (AsyncResult.isSuccess(usersResult)) {
+          setSubmitStatus("success");
+        } else if (AsyncResult.isFailure(usersResult)) {
+          setSubmitStatus("error");
+        }
+      }
+    }
+    prevWaiting.current = isWaiting;
+  }, [usersResult, submitStatus]);
+
+  // Clear success/error message after delay
+  useEffect(() => {
+    if (submitStatus !== "success" && submitStatus !== "error") return;
+    const timer = setTimeout(() => setSubmitStatus("idle"), 3000);
     return () => clearTimeout(timer);
   }, [submitStatus]);
 
@@ -132,6 +149,8 @@ export default function EffectForm() {
                       data-testid="user-form-name"
                       autoComplete="name"
                       placeholder="Jane Doe…"
+                      required
+                      aria-invalid={isInvalid || undefined}
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
@@ -162,12 +181,14 @@ export default function EffectForm() {
                         autoComplete="off"
                         spellCheck={false}
                         placeholder="janedoe…"
+                        required
+                        aria-invalid={isInvalid || undefined}
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
                       />
                       <InputGroupAddon>
-                        <Label htmlFor={field.name}>@</Label>
+                        <span aria-hidden="true">@</span>
                       </InputGroupAddon>
                     </InputGroup>
                     {isInvalid && (
@@ -197,6 +218,9 @@ export default function EffectForm() {
                         autoComplete="email"
                         spellCheck={false}
                         placeholder="jane@example.com…"
+                        required
+                        aria-invalid={isInvalid || undefined}
+                        aria-describedby="email-help-text"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
@@ -212,7 +236,7 @@ export default function EffectForm() {
                                 <HelpCircle />
                               </InputGroupButton>
                             }></TooltipTrigger>
-                          <TooltipContent>
+                          <TooltipContent id="email-help-text">
                             <p>We&apos;ll use this to send you notifications</p>
                           </TooltipContent>
                         </Tooltip>
@@ -246,7 +270,9 @@ export default function EffectForm() {
                       }>
                       <SelectTrigger
                         id="effect-form-select-language"
-                        data-testid="user-form-language">
+                        data-testid="user-form-language"
+                        aria-required="true"
+                        aria-invalid={isInvalid || undefined}>
                         <SelectValue>
                           {getLanguageLabel(field.state.value) ?? "Select"}
                         </SelectValue>
@@ -277,6 +303,14 @@ export default function EffectForm() {
                 aria-live="polite"
                 className="text-xs text-green-600 dark:text-green-400">
                 User created successfully
+              </p>
+            )}
+            {submitStatus === "error" && (
+              <p
+                role="alert"
+                aria-live="assertive"
+                className="text-destructive text-xs">
+                Failed to create user. Please try again.
               </p>
             )}
             <form.Subscribe

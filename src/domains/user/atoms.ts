@@ -5,6 +5,13 @@ import { User, UserForm, UserId } from "@/domains/user/model";
 import { UserService } from "@/domains/user/service";
 import { runtimeAtom } from "@/infrastructure/runtime";
 
+/**
+ * Reactive atom that fetches the full list of users from the API.
+ *
+ * Subscribed components automatically re-render whenever the `"users"`
+ * reactivity key is invalidated (e.g. after a successful create). The atom
+ * runs `UserService.getUsers` inside the shared application runtime.
+ */
 export const getUsersAtom = runtimeAtom
   .atom(
     Effect.gen(function* () {
@@ -14,6 +21,16 @@ export const getUsersAtom = runtimeAtom
   )
   .pipe(Atom.withReactivity({ users: ["users"] }));
 
+/**
+ * Reactive atom factory that creates a new user via the API.
+ *
+ * Call the returned function with a `UserForm` value to trigger a `POST /users`
+ * request. On success the `"users"` reactivity key is invalidated, causing
+ * `getUsersAtom` (and any other atoms keyed on `"users"`) to refresh.
+ *
+ * @param formValues - Validated form payload conforming to the `UserForm` schema.
+ * @returns An `Effect` that resolves to the newly created `User`.
+ */
 export const createUserAtom = runtimeAtom.fn(
   (formValues: Schema.Schema.Type<typeof UserForm>) =>
     Effect.gen(function* () {
@@ -27,6 +44,12 @@ export const createUserAtom = runtimeAtom.fn(
 
 // Optimistic updates
 
+/**
+ * Optimistic wrapper around `getUsersAtom`.
+ *
+ * Holds a locally patched copy of the users list while an async mutation is
+ * in flight. Use this atom in place of `getUsersAtom` to display optimistic UI.
+ */
 export const optimisticGetUsersAtom = Atom.optimistic(getUsersAtom);
 
 const createTempUser = (formValues: UserForm): User =>
@@ -38,6 +61,19 @@ const createTempUser = (formValues: UserForm): User =>
     language: formValues.language,
   });
 
+/**
+ * Optimistic atom that immediately appends a temporary user to the list and
+ * then fires the real `createUserAtom` mutation in the background.
+ *
+ * The temporary user receives a negative timestamp-based `id` so it can be
+ * distinguished from server-assigned IDs. Once the mutation settles the
+ * optimistic result is replaced with the authoritative server response.
+ *
+ * @example
+ * // Inside a React component:
+ * const [run] = useAtom(createUserOptimisticAtom);
+ * run({ name: "Jane", username: "jane", email: "jane@example.com", language: "en" });
+ */
 export const createUserOptimisticAtom = Atom.optimisticFn(
   optimisticGetUsersAtom,
   {

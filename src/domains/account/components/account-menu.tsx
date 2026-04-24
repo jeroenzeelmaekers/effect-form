@@ -2,12 +2,16 @@ import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { AsyncResult } from "effect/unstable/reactivity";
 import { BugIcon, Moon, Sun } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   debugSettingsAtom,
   setOtelEnabledAtom,
   setSimulationEnabledAtom,
 } from "@/domains/debug/atoms";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
@@ -31,13 +35,17 @@ export default function AccountMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="ghost" size="icon" className="rounded-full">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            aria-label="Open account menu">
             <Avatar size="sm">
               <AvatarImage
                 src="https://github.com/jeroenzeelmaekers.png"
-                alt="jeroenzeelmaekers"
+                alt=""
               />
-              <AvatarFallback>JZ</AvatarFallback>
+              <AvatarFallback aria-hidden="true">JZ</AvatarFallback>
             </Avatar>
           </Button>
         }
@@ -62,8 +70,8 @@ function ThemeMenu() {
   return (
     <DropdownMenuSub>
       <DropdownMenuSubTrigger>
-        <Sun className="scale-100 dark:scale-0" />
-        <Moon className="absolute scale-0 dark:scale-100" />
+        <Sun aria-hidden="true" className="scale-100 dark:scale-0" />
+        <Moon aria-hidden="true" className="absolute scale-0 dark:scale-100" />
         Theme
       </DropdownMenuSubTrigger>
       <DropdownMenuSubContent>
