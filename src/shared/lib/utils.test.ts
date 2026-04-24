@@ -17,11 +17,11 @@ describe("cn", () => {
   });
 
   it("should handle conditional classes (truthy)", () => {
-    expect(cn("base", true && "active")).toBe("base active");
+    expect(cn("base", "active")).toBe("base active");
   });
 
   it("should omit falsy conditional classes", () => {
-    expect(cn("base", false && "inactive")).toBe("base");
+    expect(cn("base", false)).toBe("base");
     expect(cn("base", undefined)).toBe("base");
     expect(cn("base", null)).toBe("base");
   });
