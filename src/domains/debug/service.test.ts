@@ -1,11 +1,7 @@
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  DebugService,
-  DebugSettings,
-  getDebugSettingsSync,
-} from "./service";
+import { DebugService, DebugSettings, getDebugSettingsSync } from "./service";
 
 // ---- localStorage mock ----
 
@@ -40,7 +36,10 @@ afterEach(() => {
 describe("DebugSettings schema", () => {
   it("should decode valid settings", () => {
     const settings = { simulationEnabled: true, otelEnabled: false };
-    expect(settings).toMatchObject({ simulationEnabled: true, otelEnabled: false });
+    expect(settings).toMatchObject({
+      simulationEnabled: true,
+      otelEnabled: false,
+    });
   });
 });
 
@@ -92,7 +91,10 @@ describe("DebugService", () => {
           return yield* svc.get;
         }),
       );
-      expect(settings).toEqual({ simulationEnabled: false, otelEnabled: false });
+      expect(settings).toEqual({
+        simulationEnabled: false,
+        otelEnabled: false,
+      });
     });
 
     it("should reflect values stored in localStorage", async () => {

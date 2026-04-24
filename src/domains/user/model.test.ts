@@ -10,7 +10,9 @@ describe("UserId", () => {
   });
 
   it("should fail to decode a non-number", () => {
-    expect(() => Schema.decodeSync(UserId)("not-a-number" as unknown as number)).toThrow();
+    expect(() =>
+      Schema.decodeSync(UserId)("not-a-number" as unknown as number),
+    ).toThrow();
   });
 });
 
@@ -78,7 +80,10 @@ describe("UserForm schema", () => {
 
   it("should accept all valid language values", () => {
     for (const lang of ["auto", "en", "nl", "fr"]) {
-      const form = Schema.decodeSync(UserForm)({ ...validForm, language: lang });
+      const form = Schema.decodeSync(UserForm)({
+        ...validForm,
+        language: lang,
+      });
       expect(form.language).toBe(lang);
     }
   });
