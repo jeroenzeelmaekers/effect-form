@@ -18,7 +18,7 @@ describe("UserService", () => {
   describe("Get users", () => {
     it.effect("should return users on successful response", () =>
       Effect.gen(function* () {
-        const svc = yield* UserService;
+        const svc = yield* Effect.service(UserService);
         const fiber = yield* svc.getUsers().pipe(Effect.forkChild);
 
         // Fast-forward through the 3 second sleep
@@ -67,7 +67,7 @@ describe("UserService", () => {
 
     it.effect("should fail with ValidationError on invalid response body", () =>
       Effect.gen(function* () {
-        const svc = yield* UserService;
+        const svc = yield* Effect.service(UserService);
         const fiber = yield* svc.getUsers().pipe(Effect.forkChild);
 
         // Fast-forward through the 3 second sleep
@@ -95,7 +95,7 @@ describe("UserService", () => {
 
     it.effect("should fail with NetworkError on request timeout", () =>
       Effect.gen(function* () {
-        const svc = yield* UserService;
+        const svc = yield* Effect.service(UserService);
         const fiber = yield* svc.getUsers().pipe(Effect.forkChild);
 
         // Fast-forward past the 10 second timeout
@@ -136,7 +136,7 @@ describe("UserService", () => {
 
     it.effect("should create user on successful response", () =>
       Effect.gen(function* () {
-        const svc = yield* UserService;
+        const svc = yield* Effect.service(UserService);
         const fiber = yield* svc
           .createUser(validFormData)
           .pipe(Effect.forkChild);
@@ -172,7 +172,7 @@ describe("UserService", () => {
 
     it.effect("should fail with ValidationError on invalid response body", () =>
       Effect.gen(function* () {
-        const svc = yield* UserService;
+        const svc = yield* Effect.service(UserService);
         const fiber = yield* svc
           .createUser(validFormData)
           .pipe(Effect.forkChild);
@@ -202,7 +202,7 @@ describe("UserService", () => {
 
     it.effect("should fail with NetworkError on request timeout", () =>
       Effect.gen(function* () {
-        const svc = yield* UserService;
+        const svc = yield* Effect.service(UserService);
         const fiber = yield* svc
           .createUser(validFormData)
           .pipe(Effect.forkChild);

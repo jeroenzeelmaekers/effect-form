@@ -1,7 +1,8 @@
-import { Effect, Schema } from "effect";
+import { Effect, Schema, Stream, SubscriptionRef } from "effect";
 import { Atom, AsyncResult } from "effect/unstable/reactivity";
 
 import { User, UserForm, UserId } from "@/domains/user/model";
+import { FilterRef } from "@/domains/user/filter-ref";
 import { UserService } from "@/domains/user/service";
 import { runtimeAtom } from "@/infrastructure/runtime";
 
@@ -15,7 +16,7 @@ import { runtimeAtom } from "@/infrastructure/runtime";
 export const getUsersAtom = runtimeAtom
   .atom(
     Effect.gen(function* () {
-      const svc = yield* UserService;
+      const svc = yield* Effect.service(UserService);
       return yield* svc.getUsers();
     }),
   )
@@ -34,7 +35,7 @@ export const getUsersAtom = runtimeAtom
 export const createUserAtom = runtimeAtom.fn(
   (formValues: Schema.Schema.Type<typeof UserForm>) =>
     Effect.gen(function* () {
-      const svc = yield* UserService;
+      const svc = yield* Effect.service(UserService);
       return yield* svc.createUser(formValues);
     }),
   {
@@ -84,4 +85,26 @@ export const createUserOptimisticAtom = Atom.optimisticFn(
       ]),
     fn: createUserAtom,
   },
+);
+
+/**
+ * Reactive atom backed by the `FilterRef` `SubscriptionRef`.
+ *
+ * This atom streams the current filter query value held in `FilterRef`.
+ * It automatically re-renders subscribed components whenever the ref is
+ * updated — whether by the user typing in `UserFilter` or by the AI
+ * `CommandService` `show_users` tool handler.
+ *
+ * `UserFilter` reads this atom and syncs its value into the `nuqs` URL
+ * query param to keep the URL in sync with any AI-driven filter changes.
+ */
+export const filterRefAtom = runtimeAtom.atom(
+  (_get) =>
+    Stream.unwrap(
+      Effect.gen(function* () {
+        const ref = yield* Effect.service(FilterRef);
+        return SubscriptionRef.changes(ref);
+      }),
+    ),
+  { initialValue: "" },
 );

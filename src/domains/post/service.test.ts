@@ -32,7 +32,7 @@ describe("PostService", () => {
   describe("Get posts", () => {
     it.effect("should return posts on successful response", () =>
       Effect.gen(function* () {
-        const postService = yield* PostService;
+        const postService = yield* Effect.service(PostService);
 
         const fiber = yield* postService.getPosts().pipe(Effect.forkChild);
 
@@ -52,7 +52,7 @@ describe("PostService", () => {
 
     it.effect("should fail with ValidationError on invalid response body", () =>
       Effect.gen(function* () {
-        const postService = yield* PostService;
+        const postService = yield* Effect.service(PostService);
         const fiber = yield* postService.getPosts().pipe(Effect.forkChild);
 
         yield* TestClock.adjust(Duration.seconds(2));
@@ -78,7 +78,7 @@ describe("PostService", () => {
 
     it.effect("should fail with NetworkError on request timeout", () =>
       Effect.gen(function* () {
-        const postService = yield* PostService;
+        const postService = yield* Effect.service(PostService);
         const fiber = yield* postService.getPosts().pipe(Effect.forkChild);
 
         // Fast-forward past the 10 second timeout

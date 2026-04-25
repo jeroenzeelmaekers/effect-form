@@ -1,4 +1,4 @@
-import { Effect, Layer, Schema, ServiceMap } from "effect";
+import { Context, Effect, Layer, Schema } from "effect";
 
 const STORAGE_KEYS = {
   simulation: "debug:simulation:v1",
@@ -81,7 +81,7 @@ export interface DebugServiceShape {
  * @example
  * const settings = yield* DebugService.pipe(Effect.flatMap(svc => svc.get));
  */
-export class DebugService extends ServiceMap.Service<
+export class DebugService extends Context.Service<
   DebugService,
   DebugServiceShape
 >()("DebugService", {
@@ -108,5 +108,5 @@ export class DebugService extends ServiceMap.Service<
   }),
 }) {
   /** Live `Layer` that constructs `DebugService` (no external dependencies). */
-  static layer = Layer.effect(this, this.make);
+  static layer = Layer.effect(this)(this.make);
 }

@@ -1,4 +1,4 @@
-import { Effect, Layer, Schema, ServiceMap } from "effect";
+import { Context, Effect, Layer, Schema } from "effect";
 import { HttpClientRequest, HttpClientResponse } from "effect/unstable/http";
 
 import { Post } from "@/domains/post/model";
@@ -11,7 +11,7 @@ import {
 } from "@/shared/api/errors";
 
 const make = Effect.gen(function* () {
-  const client = yield* ApiClient;
+  const client = yield* Effect.service(ApiClient);
 
   const getPosts = Effect.fn("Get Posts")(function* () {
     const traceId = yield* getCurrentTraceId;
@@ -54,12 +54,12 @@ const make = Effect.gen(function* () {
  *   Effect.flatMap(svc => svc.getPosts())
  * );
  */
-export class PostService extends ServiceMap.Service<PostService>()(
+export class PostService extends Context.Service<PostService>()(
   "PostService",
   {
     make,
   },
 ) {
   /** Live `Layer` that constructs `PostService` using `ApiClient`. */
-  static layer = Layer.effect(this, this.make);
+  static layer = Layer.effect(this)(this.make);
 }

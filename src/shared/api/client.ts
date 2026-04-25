@@ -1,4 +1,4 @@
-import { Effect, Layer, Schedule, ServiceMap } from "effect";
+import { Context, Effect, Layer, Schedule } from "effect";
 import {
   FetchHttpClient,
   HttpClient,
@@ -12,7 +12,7 @@ import { withSimulation } from "./simulation";
 const make = Effect.gen(function* () {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const httpClient = yield* HttpClient.HttpClient;
-  const debugService = yield* DebugService;
+  const debugService = yield* Effect.service(DebugService);
 
   const resilientClient = httpClient.pipe(
     HttpClient.retryTransient({
@@ -50,11 +50,11 @@ const make = Effect.gen(function* () {
  *   Effect.flatMap(client => client.execute(HttpClientRequest.get("/users")))
  * );
  */
-export class ApiClient extends ServiceMap.Service<ApiClient>()("ApiClient", {
+export class ApiClient extends Context.Service<ApiClient>()("ApiClient", {
   make,
 }) {
   /** Live `Layer` that constructs `ApiClient`. */
-  static layer = Layer.effect(this, this.make);
+  static layer = Layer.effect(this)(this.make);
 }
 
 /**

@@ -87,7 +87,7 @@ describe("DebugService", () => {
     it("should return default settings when localStorage is empty", async () => {
       const settings = await run(
         Effect.gen(function* () {
-          const svc = yield* DebugService;
+          const svc = yield* Effect.service(DebugService);
           return yield* svc.get;
         }),
       );
@@ -102,7 +102,7 @@ describe("DebugService", () => {
       localStorage.setItem("debug:otel:v1", "true");
       const settings = await run(
         Effect.gen(function* () {
-          const svc = yield* DebugService;
+          const svc = yield* Effect.service(DebugService);
           return yield* svc.get;
         }),
       );
@@ -114,7 +114,7 @@ describe("DebugService", () => {
     it("should write the value to localStorage and reload", async () => {
       await run(
         Effect.gen(function* () {
-          const svc = yield* DebugService;
+          const svc = yield* Effect.service(DebugService);
           yield* svc.setSimulationEnabled(true);
         }),
       );
@@ -125,7 +125,7 @@ describe("DebugService", () => {
     it("should persist false and reload", async () => {
       await run(
         Effect.gen(function* () {
-          const svc = yield* DebugService;
+          const svc = yield* Effect.service(DebugService);
           yield* svc.setSimulationEnabled(false);
         }),
       );
@@ -138,7 +138,7 @@ describe("DebugService", () => {
     it("should write the value to localStorage and reload", async () => {
       await run(
         Effect.gen(function* () {
-          const svc = yield* DebugService;
+          const svc = yield* Effect.service(DebugService);
           yield* svc.setOtelEnabled(true);
         }),
       );

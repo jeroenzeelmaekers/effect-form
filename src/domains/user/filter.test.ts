@@ -7,15 +7,17 @@ import {
   tokenize,
 } from "@/domains/user/filter";
 import type { User } from "@/domains/user/model";
+import type { UserId } from "@/domains/user/model";
 
 const makeUser = (
-  overrides: Partial<Omit<User, "_tag">> & { id: number },
+  overrides: Omit<Partial<Omit<User, "_tag">>, "id"> & { id: number },
 ): User => ({
   _tag: "User",
-  name: "Test User",
-  username: "testuser",
-  email: "test@example.com",
-  ...overrides,
+  id: overrides.id as UserId,
+  name: overrides.name ?? "Test User",
+  username: overrides.username ?? "testuser",
+  email: overrides.email ?? "test@example.com",
+  language: overrides.language ?? "en",
 });
 
 const john = makeUser({

@@ -1,4 +1,4 @@
-import { Effect, Layer, Schema, ServiceMap } from "effect";
+import { Context, Effect, Layer, Schema } from "effect";
 import {
   HttpBody,
   HttpClientRequest,
@@ -15,7 +15,7 @@ import {
 } from "@/shared/api/errors";
 
 const make = Effect.gen(function* () {
-  const client = yield* ApiClient;
+  const client = yield* Effect.service(ApiClient);
 
   const getUsers = Effect.fn("Get Users")(function* () {
     const traceId = yield* getCurrentTraceId;
@@ -97,12 +97,12 @@ const make = Effect.gen(function* () {
  *   Effect.flatMap(svc => svc.getUsers())
  * );
  */
-export class UserService extends ServiceMap.Service<UserService>()(
+export class UserService extends Context.Service<UserService>()(
   "UserService",
   {
     make,
   },
 ) {
   /** Live `Layer` that constructs `UserService` using `ApiClient`. */
-  static layer = Layer.effect(this, this.make);
+  static layer = Layer.effect(this)(this.make);
 }

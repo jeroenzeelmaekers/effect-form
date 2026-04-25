@@ -1,7 +1,10 @@
+import { useAtomValue } from "@effect/atom-react";
+import { AsyncResult } from "effect/unstable/reactivity";
 import { X } from "lucide-react";
 import { parseAsString, useQueryState } from "nuqs";
 import React, { useEffect, useId, useRef, useState } from "react";
 
+import { filterRefAtom } from "@/domains/user/atoms";
 import {
   FILTER_FIELD_PREFIXES,
   queryToSegments,
@@ -176,7 +179,9 @@ function EditingChip({
 }) {
   const [value, setValue] = useState(initialValue);
   const valueRef = useRef(value);
-  const blurTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const blurTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     valueRef.current = value;
@@ -198,7 +203,7 @@ function EditingChip({
   return (
     <Badge
       variant="secondary"
-      className="border-ring ring-ring/40 border-border h-5 gap-0.5 rounded-sm border px-1.5 py-0 font-mono text-[0.65rem] ring-2">
+      className="border-ring ring-ring/40 h-5 gap-0.5 rounded-sm border px-1.5 py-0 font-mono text-[0.65rem] ring-2">
       <input
         autoFocus
         type="text"
@@ -307,6 +312,23 @@ export function UserFilter() {
     parseAsString.withDefault(""),
   );
 
+  // Sync AI-driven filter updates (from CommandService show_users tool) into nuqs.
+  // filterRefAtom streams every value written to FilterRef by the AI service.
+  // When the value differs from what is already in the URL we push it through
+  // the nuqs setter so the URL and UserList stay in sync.
+  const aiFilterResult = useAtomValue(filterRefAtom);
+  const aiFilter = AsyncResult.isSuccess(aiFilterResult)
+    ? aiFilterResult.value
+    : null;
+  useEffect(() => {
+    if (typeof aiFilter === "string" && aiFilter !== filterQuery) {
+      void setFilterQuery(aiFilter || null);
+    }
+    // We intentionally exclude filterQuery from the dep array: we only want to
+    // react to changes coming from the AI, not to echo back user-typed values.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aiFilter, setFilterQuery]);
+
   const segments = queryToSegments(filterQuery);
 
   const [inputValue, setInputValue] = useState("");
@@ -321,7 +343,9 @@ export function UserFilter() {
   const inputRef = useRef<HTMLInputElement>(null);
   const chipRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const inputValueRef = useRef(inputValue);
-  const blurTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const blurTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
   const listboxId = useId();
   const hintId = useId();
 
