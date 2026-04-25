@@ -33,6 +33,15 @@ function sortIcon(column: Column<User>) {
   );
 }
 
+/**
+ * TanStack Table column definitions for the {@link User} data model.
+ *
+ * Defines three sortable columns — `name`, `username`, and `email` — each
+ * rendered as a ghost button that cycles through ascending → descending →
+ * unsorted states via {@link handleSortToggle}. The active sort direction is
+ * communicated visually (arrow icon) and to assistive technology via the
+ * `aria-label` on the header button.
+ */
 const UserColumns: ColumnDef<User>[] = [
   {
     accessorKey: "name",

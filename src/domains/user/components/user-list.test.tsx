@@ -1,5 +1,6 @@
 import { Cause } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
+import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render } from "vitest-browser-react";
 
@@ -11,6 +12,14 @@ import {
 } from "@/shared/api/errors";
 
 import UserList from "./user-list";
+
+function renderUserList() {
+  return render(
+    <NuqsTestingAdapter>
+      <UserList />
+    </NuqsTestingAdapter>,
+  );
+}
 
 // Mocks
 const mockUseAtomValue = vi.fn();
@@ -56,7 +65,7 @@ describe("UserList", () => {
     it("shows skeleton on initial load", async () => {
       mockUseAtomValue.mockReturnValue(AsyncResult.initial(true));
 
-      const screen = await render(<UserList />);
+      const screen = await renderUserList();
 
       await expect
         .element(screen.getByTestId("user-list-loading"))
@@ -68,7 +77,7 @@ describe("UserList", () => {
         AsyncResult.success([alice], { waiting: true }),
       );
 
-      const screen = await render(<UserList />);
+      const screen = await renderUserList();
 
       await expect
         .element(screen.getByTestId("user-row-1"))
@@ -80,7 +89,7 @@ describe("UserList", () => {
     it("renders user rows", async () => {
       mockUseAtomValue.mockReturnValue(AsyncResult.success([alice, bob]));
 
-      const screen = await render(<UserList />);
+      const screen = await renderUserList();
 
       await expect
         .element(screen.getByTestId("user-row-1"))
@@ -93,7 +102,7 @@ describe("UserList", () => {
     it("shows empty state when no users", async () => {
       mockUseAtomValue.mockReturnValue(AsyncResult.success([]));
 
-      const screen = await render(<UserList />);
+      const screen = await renderUserList();
 
       await expect.element(screen.getByTestId("empty-row")).toBeInTheDocument();
     });
@@ -103,7 +112,7 @@ describe("UserList", () => {
         AsyncResult.success([alice, optimisticUser]),
       );
 
-      const screen = await render(<UserList />);
+      const screen = await renderUserList();
 
       // The optimistic row (id < 0) should have muted styling
       const optimisticRow = screen.getByTestId("user-row--1");
@@ -124,7 +133,7 @@ describe("UserList", () => {
     it("sorts ascending on first click", async () => {
       mockUseAtomValue.mockReturnValue(AsyncResult.success([bob, alice]));
 
-      const screen = await render(<UserList />);
+      const screen = await renderUserList();
 
       await screen.getByTestId("sort-name").click();
 
@@ -136,7 +145,7 @@ describe("UserList", () => {
     it("sorts descending on second click", async () => {
       mockUseAtomValue.mockReturnValue(AsyncResult.success([alice, bob]));
 
-      const screen = await render(<UserList />);
+      const screen = await renderUserList();
 
       const nameHeader = screen.getByTestId("sort-name");
 
@@ -151,7 +160,7 @@ describe("UserList", () => {
     it("clears sort on third click", async () => {
       mockUseAtomValue.mockReturnValue(AsyncResult.success([bob, alice]));
 
-      const screen = await render(<UserList />);
+      const screen = await renderUserList();
 
       const nameHeader = screen.getByTestId("sort-name");
 
@@ -171,7 +180,7 @@ describe("UserList", () => {
         AsyncResult.fail(new NotFoundError({ traceId: "trace-1" })),
       );
 
-      const screen = await render(<UserList />);
+      const screen = await renderUserList();
 
       await expect.element(screen.getByTestId("error")).toBeInTheDocument();
       await expect
@@ -189,7 +198,7 @@ describe("UserList", () => {
         AsyncResult.fail(new NotFoundError({ traceId: "trace-1" })),
       );
 
-      const screen = await render(<UserList />);
+      const screen = await renderUserList();
 
       await screen.getByTestId("error-refresh").click();
 
@@ -201,7 +210,7 @@ describe("UserList", () => {
         AsyncResult.fail(new NetworkError({ traceId: "trace-2" })),
       );
 
-      const screen = await render(<UserList />);
+      const screen = await renderUserList();
 
       await expect
         .element(screen.getByTestId("error-title"))
@@ -216,7 +225,7 @@ describe("UserList", () => {
         AsyncResult.fail(new ValidationError({ traceId: "trace-3" })),
       );
 
-      const screen = await render(<UserList />);
+      const screen = await renderUserList();
 
       await expect
         .element(screen.getByTestId("error-title"))
@@ -231,7 +240,7 @@ describe("UserList", () => {
         AsyncResult.failure(Cause.fail({ _tag: "UnexpectedError" })),
       );
 
-      const screen = await render(<UserList />);
+      const screen = await renderUserList();
 
       await expect
         .element(screen.getByTestId("error-title"))

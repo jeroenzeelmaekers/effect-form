@@ -13,6 +13,20 @@ posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
   opt_in_site_apps: true,
 });
 
+/**
+ * Root provider wrapper for the application.
+ *
+ * Composes:
+ * - **PostHogProvider** — initializes PostHog analytics (opt-out by default;
+ *   the user must accept cookies via {@link CookieBanner} before any events
+ *   are captured).
+ * - **ThemeProvider** — provides the `"light" | "dark" | "system"` theme
+ *   context with `"system"` as the default, persisted under the
+ *   `"theme-preference"` `localStorage` key.
+ *
+ * PostHog is initialized as a module side-effect when this file is first
+ * imported, so it is available before the first render.
+ */
 export default function Providers({
   children,
 }: Readonly<{ children: ReactNode }>) {

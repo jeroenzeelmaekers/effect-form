@@ -1,4 +1,5 @@
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 
 import AccountMenu from "@/domains/account/components/account-menu";
 import CookieBanner from "@/shared/components/ui/cookie-banner";
@@ -34,9 +35,23 @@ const RootLayout = () => (
       <AccountMenu />
     </header>
     <main id="main">
-      <Outlet />
+      <NuqsAdapter>
+        <Outlet />
+      </NuqsAdapter>
     </main>
   </Providers>
 );
 
+/**
+ * Root TanStack Router route.
+ *
+ * Renders the shared application shell:
+ * - A visually-hidden skip-to-content link for keyboard / screen-reader users.
+ * - A {@link CookieBanner} for analytics opt-in.
+ * - A top `<header>` with main navigation links and the {@link AccountMenu}.
+ * - A `<main id="main">` area wrapping a {@link NuqsAdapter} and the child
+ *   {@link Outlet} so that URL query parameters are available to all routes.
+ *
+ * All providers (PostHog, ThemeProvider) are mounted here via {@link Providers}.
+ */
 export const Route = createRootRoute({ component: RootLayout });

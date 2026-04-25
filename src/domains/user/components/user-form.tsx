@@ -41,6 +41,23 @@ import {
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
 
+/**
+ * Form for creating a new user with optimistic UI updates.
+ *
+ * Submitting the form immediately appends a temporary user entry to the list
+ * (via {@link createUserOptimisticAtom}) while the POST request is in flight.
+ * Once the server responds the optimistic entry is replaced with real data on
+ * success, or silently rolled back on failure.
+ *
+ * The entire fieldset is disabled while the user list is loading, waiting, or
+ * in an error state — preventing submissions when the backing data is unavailable.
+ *
+ * Validation is performed by `@tanstack/react-form` using the `UserForm`
+ * Effect Schema as a Standard Schema validator: errors are shown inline on blur
+ * and re-validated on every change after the first submission attempt.
+ *
+ * A `beforeunload` warning is shown when the form has unsaved changes.
+ */
 export default function EffectForm() {
   const createUser = useAtomSet(createUserOptimisticAtom);
   const usersResult = useAtomValue(optimisticGetUsersAtom);

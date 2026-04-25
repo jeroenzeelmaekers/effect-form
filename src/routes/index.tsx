@@ -4,6 +4,13 @@ import { useFeatureFlagEnabled } from "posthog-js/react";
 import EffectForm from "@/domains/user/components/user-form";
 import UserList from "@/domains/user/components/user-list";
 
+/**
+ * The home route (`/`).
+ *
+ * Conditionally renders {@link EffectForm} only when the PostHog feature flag
+ * `allow-user-creation` is enabled, allowing the user creation form to be
+ * toggled remotely without a code deploy. {@link UserList} is always rendered.
+ */
 export const Route = createFileRoute("/")({
   component: Index,
 });

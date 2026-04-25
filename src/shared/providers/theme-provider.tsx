@@ -7,14 +7,19 @@ import {
   useState,
 } from "react";
 
+/** The three supported color scheme options. */
 type Theme = "dark" | "light" | "system";
 
+/** Props accepted by {@link ThemeProvider}. */
 type ThemeProviderProps = {
   children: React.ReactNode;
+  /** Theme applied before the user makes an explicit choice. Defaults to `"system"`. */
   defaultTheme?: Theme;
+  /** `localStorage` key used to persist the selected theme. Defaults to `"theme-preference"`. */
   storageKey?: string;
 };
 
+/** Shape of the value exposed by `ThemeProviderContext`. */
 type ThemeProviderState = {
   theme: Theme;
   setTheme: (theme: Theme) => void;
@@ -45,6 +50,20 @@ const setStoredTheme = (storageKey: string, theme: Theme): void => {
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
+/**
+ * Provides a `theme` value and `setTheme` setter to all descendant components.
+ *
+ * - Reads the initial theme from `localStorage` (falling back to `defaultTheme`).
+ * - Applies `"light"` or `"dark"` class to `<html>` on every theme change.
+ * - When `theme === "system"`, listens for OS-level `prefers-color-scheme`
+ *   changes and updates the class automatically.
+ * - Persists the selected theme to `localStorage` on every explicit change.
+ *
+ * @example
+ * <ThemeProvider defaultTheme="system" storageKey="app-theme">
+ *   <App />
+ * </ThemeProvider>
+ */
 export function ThemeProvider({
   children,
   defaultTheme = "system",
@@ -103,6 +122,13 @@ export function ThemeProvider({
   );
 }
 
+/**
+ * Consumes the nearest {@link ThemeProvider} context.
+ *
+ * @returns `{ theme, setTheme }` — the active theme value and a setter that
+ *   persists the change to `localStorage`.
+ * @throws {Error} When called outside of a `ThemeProvider` tree.
+ */
 export const useTheme = () => {
   const context = useContext(ThemeProviderContext);
 

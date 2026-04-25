@@ -96,7 +96,11 @@ describe("UserForm schema", () => {
 
   it("should fail when required language field is missing", () => {
     const { language: _, ...withoutLanguage } = validForm;
-    expect(() => Schema.decodeSync(UserForm)(withoutLanguage)).toThrow();
+    expect(() =>
+      Schema.decodeSync(UserForm)(
+        withoutLanguage as unknown as typeof validForm,
+      ),
+    ).toThrow();
   });
 
   it.each([

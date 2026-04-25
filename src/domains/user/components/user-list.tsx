@@ -9,9 +9,13 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import { AsyncResult } from "effect/unstable/reactivity";
+import { parseAsString, useQueryState } from "nuqs";
 import { useState } from "react";
 
 import { optimisticGetUsersAtom } from "@/domains/user/atoms";
+import { UserFilter } from "@/domains/user/components/user-filter";
+import { applyFilter, parseFilterQuery } from "@/domains/user/filter";
+import type { User } from "@/domains/user/model";
 import { Error } from "@/shared/components/ui/error";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
@@ -29,12 +33,13 @@ import { UserColumns } from "./table-columns";
 interface DataTableProps<TData extends { id: number }, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isFiltered?: boolean;
 }
 
-// DataTable
 function DataTable<TData extends { id: number }, TValue>({
   columns,
   data,
+  isFiltered = false,
 }: DataTableProps<TData, TValue>) {
   "use no memo";
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -86,7 +91,10 @@ function DataTable<TData extends { id: number }, TValue>({
               .getRowModel()
               .rows.map((row) => <DataTableRow key={row.id} row={row} />)
           ) : (
-            <EmptyDataTableRow colSpan={columns.length} />
+            <EmptyDataTableRow
+              colSpan={columns.length}
+              isFiltered={isFiltered}
+            />
           )}
         </TableBody>
       </Table>
@@ -118,27 +126,26 @@ function DataTableRow<TData extends { id: number }>({
   );
 }
 
-/**
- * Displays a empty table with a message for the user.
- */
-function EmptyDataTableRow({ colSpan }: { colSpan: number }) {
+function EmptyDataTableRow({
+  colSpan,
+  isFiltered = false,
+}: {
+  colSpan: number;
+  isFiltered?: boolean;
+}) {
   return (
     <TableRow data-testid="empty-row">
       <TableCell colSpan={colSpan} className="h-24 text-center">
-        No users yet. Create one to get started.
+        {isFiltered
+          ? "No users match your filter."
+          : "No users yet. Create one to get started."}
       </TableCell>
     </TableRow>
   );
 }
 
-/**
- * Predefined skeleton cell for the data table
- */
 const skeletonCell = <Skeleton className="h-4 w-24" />;
 
-/**
- * Empty table with a number of table rows containing Skeleton cells
- */
 function Loading<TData, TValue>({
   columns,
   tableSize = 10,
@@ -176,14 +183,31 @@ function Loading<TData, TValue>({
   );
 }
 
-// User list
+/**
+ * Displays the list of users fetched via {@link optimisticGetUsersAtom}.
+ *
+ * Renders a skeleton loading table while the initial fetch is in progress.
+ * Once data is available the list is filtered client-side using the `filter`
+ * URL query parameter (parsed via `nuqs`) and rendered in a sortable
+ * {@link DataTable}.
+ *
+ * Typed error states — `NotFoundError`, `NetworkError`, `ValidationError`, and
+ * a generic fallback — each render a distinct {@link Error} UI block with a
+ * contextual mailto link that pre-populates the OTel trace ID for support.
+ */
 export default function UserList() {
   const result = useAtomValue(optimisticGetUsersAtom);
+  const [filterQuery] = useQueryState("filter", parseAsString.withDefault(""));
+  const ast = parseFilterQuery(filterQuery);
+  const filtered = ast !== null;
 
   if (AsyncResult.isWaiting(result) && !AsyncResult.isSuccess(result)) {
     return (
       <section aria-label="Users" className="min-w-0 flex-1">
-        <Loading columns={UserColumns} />
+        <div className="flex flex-col gap-2">
+          <UserFilter />
+          <Loading columns={UserColumns} />
+        </div>
       </section>
     );
   }
@@ -191,7 +215,12 @@ export default function UserList() {
   return (
     <section aria-label="Users" className="min-w-0 flex-1">
       {AsyncResult.builder(result)
-        .onInitial(() => <Loading columns={UserColumns} />)
+        .onInitial(() => (
+          <>
+            <UserFilter />
+            <Loading columns={UserColumns} />
+          </>
+        ))
         .onErrorTag("NotFoundError", (error) => (
           <Error.Root>
             <Error.Content>
@@ -286,7 +315,14 @@ Trace ID: ${error.traceId}`)}`}>
           </Error.Root>
         ))
         .onSuccess((users) => (
-          <DataTable columns={UserColumns} data={Array.from(users)} />
+          <div className="flex flex-col gap-2">
+            <UserFilter />
+            <DataTable
+              columns={UserColumns}
+              data={applyFilter(Array.from(users) as User[], ast)}
+              isFiltered={filtered}
+            />
+          </div>
         ))
         .render()}
     </section>

@@ -30,6 +30,18 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { useTheme } from "@/shared/providers/theme-provider";
 
+/**
+ * Avatar dropdown menu for account-level actions.
+ *
+ * Contains two sub-menus:
+ * - **Theme** — radio group to switch between `light`, `dark`, and `system`
+ *   themes via {@link useTheme}.
+ * - **Debug** — checkboxes to toggle simulation mode and OpenTelemetry tracing
+ *   via the debug atoms. Both checkboxes are disabled until the debug settings
+ *   atom resolves successfully.
+ *
+ * Also exposes a (currently no-op) "Log out" destructive menu item.
+ */
 export default function AccountMenu() {
   return (
     <DropdownMenu>

@@ -16,6 +16,9 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
+  optimizeDeps: {
+    include: ["nuqs/adapters/testing"],
+  },
   test: {
     coverage: {
       provider: "v8",

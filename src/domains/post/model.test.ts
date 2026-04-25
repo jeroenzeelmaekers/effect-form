@@ -23,19 +23,27 @@ describe("Post schema", () => {
     "should fail when required field '%s' is missing",
     (field) => {
       const { [field]: _, ...rest } = validPost;
-      expect(() => Schema.decodeSync(Post)(rest)).toThrow();
+      expect(() =>
+        Schema.decodeSync(Post)(rest as unknown as typeof validPost),
+      ).toThrow();
     },
   );
 
   it("should fail when id is not a number", () => {
     expect(() =>
-      Schema.decodeSync(Post)({ ...validPost, id: "not-a-number" }),
+      Schema.decodeSync(Post)({
+        ...validPost,
+        id: "not-a-number",
+      } as unknown as typeof validPost),
     ).toThrow();
   });
 
   it("should fail when title is not a string", () => {
     expect(() =>
-      Schema.decodeSync(Post)({ ...validPost, title: 123 }),
+      Schema.decodeSync(Post)({
+        ...validPost,
+        title: 123,
+      } as unknown as typeof validPost),
     ).toThrow();
   });
 });
