@@ -3,14 +3,18 @@ import type { User } from "@/domains/user/model";
 /**
  * A single token produced by the query tokenizer.
  *
- * - `field` — a `key:value` pair targeting a specific user field (e.g. `name:john`)
- * - `text`  — a free-text term matched against all searchable fields
- * - `op`    — a boolean operator (`AND` / `OR`) used to combine terms
+ * - `field`  — a `key:value` pair targeting a specific user field (e.g. `name:john`)
+ * - `text`   — a free-text term matched against all searchable fields
+ * - `op`     — a boolean operator (`AND` / `OR`) used to combine terms
+ * - `lparen` — an opening parenthesis `(` for grouping sub-expressions
+ * - `rparen` — a closing parenthesis `)` for grouping sub-expressions
  */
 export type RawToken =
   | { kind: "field"; field: FieldKey; value: string }
   | { kind: "text"; value: string }
-  | { kind: "op"; op: "AND" | "OR" };
+  | { kind: "op"; op: "AND" | "OR" }
+  | { kind: "lparen" }
+  | { kind: "rparen" };
 
 /** The set of user fields that can be targeted by a `field:value` filter token. */
 export type FieldKey = "name" | "username" | "email";
@@ -39,40 +43,69 @@ export const FILTER_FIELD_PREFIXES: ReadonlyArray<`${FieldKey}:`> = [
  * Splits a raw query string into a flat list of {@link RawToken}s.
  *
  * Tokens are whitespace-delimited. Each part is classified as:
+ * - A grouping paren (`(` or `)`)
  * - An operator (`AND` / `OR`, case-insensitive)
  * - A field filter (`name:value`, `username:value`, `email:value`)
  * - A free-text term (everything else)
+ *
+ * Parentheses that are directly attached to another token (e.g. `(name:john`)
+ * are split out automatically before classification.
  *
  * @param query - The raw filter string entered by the user.
  * @returns An ordered array of tokens.
  *
  * @example
- * tokenize("name:john AND email:*@gmail.com")
+ * tokenize("(name:john AND email:*@gmail.com) OR email:*@outlook.com")
  * // => [
+ * //   { kind: "lparen" },
  * //   { kind: "field", field: "name", value: "john" },
  * //   { kind: "op", op: "AND" },
  * //   { kind: "field", field: "email", value: "*@gmail.com" },
+ * //   { kind: "rparen" },
+ * //   { kind: "op", op: "OR" },
+ * //   { kind: "field", field: "email", value: "*@outlook.com" },
  * // ]
  */
 export function tokenize(query: string): RawToken[] {
-  return query
+  // Split on whitespace first, then further split each part on parens
+  const parts = query
     .trim()
     .split(/\s+/)
     .filter(Boolean)
-    .map((part): RawToken => {
-      if (OP_PATTERN.test(part)) {
-        return { kind: "op", op: part.toUpperCase() as "AND" | "OR" };
+    .flatMap((part) => {
+      // Split out leading/trailing parens: e.g. "(name:john)" → ["(", "name:john", ")"]
+      const pieces: string[] = [];
+      let s = part;
+      while (s.startsWith("(")) {
+        pieces.push("(");
+        s = s.slice(1);
       }
-      const match = FIELD_PATTERN.exec(part);
-      if (match) {
-        return {
-          kind: "field",
-          field: match[1].toLowerCase() as FieldKey,
-          value: match[2],
-        };
+      const tail: string[] = [];
+      while (s.endsWith(")")) {
+        tail.unshift(")");
+        s = s.slice(0, -1);
       }
-      return { kind: "text", value: part };
-    });
+      if (s) pieces.push(s);
+      return [...pieces, ...tail];
+    })
+    .filter(Boolean);
+
+  return parts.map((part): RawToken => {
+    if (part === "(") return { kind: "lparen" };
+    if (part === ")") return { kind: "rparen" };
+    if (OP_PATTERN.test(part)) {
+      return { kind: "op", op: part.toUpperCase() as "AND" | "OR" };
+    }
+    const match = FIELD_PATTERN.exec(part);
+    if (match) {
+      return {
+        kind: "field",
+        field: match[1].toLowerCase() as FieldKey,
+        value: match[2],
+      };
+    }
+    return { kind: "text", value: part };
+  });
 }
 
 /**
@@ -91,6 +124,14 @@ export type FilterNode =
 
 const PRECEDENCE = { OR: 1, AND: 2 } as const;
 
+/**
+ * Recursively parses an operator-precedence expression from `tokens`.
+ *
+ * @internal
+ * **Destructive**: consumes tokens from the array via `shift()`. Always pass
+ * a freshly-allocated array (e.g. the result of {@link tokenize}) — never
+ * pass a cached or shared token array, as it will be emptied by this call.
+ */
 function parseExpression(
   tokens: RawToken[],
   minPrec: number,
@@ -130,7 +171,18 @@ function parseExpression(
 function parsePrimary(tokens: RawToken[]): FilterNode | null {
   if (tokens.length === 0) return null;
   const t = tokens[0];
-  if (t.kind === "op") return null; // operators are not primary nodes
+
+  // Grouped sub-expression: ( <expr> )
+  if (t.kind === "lparen") {
+    tokens.shift(); // consume "("
+    const inner = parseExpression(tokens, 0);
+    if (tokens.length > 0 && tokens[0].kind === "rparen") {
+      tokens.shift(); // consume ")"
+    }
+    return inner;
+  }
+
+  if (t.kind === "op" || t.kind === "rparen") return null; // not a primary node
   tokens.shift();
   return t.kind === "field"
     ? { kind: "field", field: t.field, value: t.value }
@@ -234,7 +286,11 @@ export function serializeTokens(tokens: RawToken[]): string {
         ? t.op
         : t.kind === "field"
           ? `${t.field}:${t.value}`
-          : t.value,
+          : t.kind === "lparen"
+            ? "("
+            : t.kind === "rparen"
+              ? ")"
+              : t.value,
     )
     .join(" ");
 }
@@ -243,7 +299,9 @@ export function serializeTokens(tokens: RawToken[]): string {
  * Alias for {@link tokenize}.
  *
  * Splits a query string into its constituent {@link RawToken} segments.
- * Intended for use in UI components that need to render individual filter chips.
+ * Exposed under a semantically distinct name so UI components can import
+ * the "render segments" concept without depending on the `tokenize` function
+ * name, making it easier to evolve the two use-cases independently in future.
  *
  * @param query - The raw filter string.
  * @returns An ordered array of tokens.
