@@ -49,7 +49,7 @@
     "@effect/language-service": "0.84.2",
     "@effect/vitest": "4.0.0-beta.57",
     "@rolldown/plugin-babel": "^0.2.2",
-    "@tanstack/router-plugin": "^1.167.9",
+    "@tanstack/router-plugin": "^1.167.27",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
