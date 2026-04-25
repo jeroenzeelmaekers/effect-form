@@ -2,6 +2,7 @@ import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 
 import AccountMenu from "@/domains/account/components/account-menu";
+import CommandCenter from "@/domains/search/command-center";
 import CookieBanner from "@/shared/components/ui/cookie-banner";
 import Providers from "@/shared/providers/providers";
 
@@ -33,6 +34,7 @@ const RootLayout = () => (
             </li>
           </ul>
         </nav>
+        <CommandCenter />
         <AccountMenu />
       </header>
       <main id="main">

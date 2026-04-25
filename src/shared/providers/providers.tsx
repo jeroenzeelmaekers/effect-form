@@ -1,3 +1,4 @@
+import { HotkeysProvider } from "@tanstack/react-hotkeys";
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
 import type { ReactNode } from "react";
@@ -33,7 +34,7 @@ export default function Providers({
   return (
     <PostHogProvider client={posthog}>
       <ThemeProvider defaultTheme="system" storageKey="theme-preference">
-        {children}
+        <HotkeysProvider>{children}</HotkeysProvider>
       </ThemeProvider>
     </PostHogProvider>
   );
