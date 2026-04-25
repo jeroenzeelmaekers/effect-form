@@ -97,12 +97,9 @@ const make = Effect.gen(function* () {
  *   Effect.flatMap(svc => svc.getUsers())
  * );
  */
-export class UserService extends Context.Service<UserService>()(
-  "UserService",
-  {
-    make,
-  },
-) {
+export class UserService extends Context.Service<UserService>()("UserService", {
+  make,
+}) {
   /** Live `Layer` that constructs `UserService` using `ApiClient`. */
   static layer = Layer.effect(this)(this.make);
 }

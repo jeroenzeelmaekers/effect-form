@@ -54,12 +54,9 @@ const make = Effect.gen(function* () {
  *   Effect.flatMap(svc => svc.getPosts())
  * );
  */
-export class PostService extends Context.Service<PostService>()(
-  "PostService",
-  {
-    make,
-  },
-) {
+export class PostService extends Context.Service<PostService>()("PostService", {
+  make,
+}) {
   /** Live `Layer` that constructs `PostService` using `ApiClient`. */
   static layer = Layer.effect(this)(this.make);
 }

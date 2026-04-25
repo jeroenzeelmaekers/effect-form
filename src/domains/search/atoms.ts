@@ -19,10 +19,9 @@ import { runtimeAtom } from "@/infrastructure/runtime";
  * run("show me users with email ending in @acme.com");
  * ```
  */
-export const processPromptAtom = runtimeAtom.fn(
-  (prompt: string) =>
-    Effect.gen(function* () {
-      const svc = yield* Effect.service(CommandService);
-      yield* svc.processPrompt(prompt);
-    }),
+export const processPromptAtom = runtimeAtom.fn((prompt: string) =>
+  Effect.gen(function* () {
+    const svc = yield* Effect.service(CommandService);
+    yield* svc.processPrompt(prompt);
+  }),
 );

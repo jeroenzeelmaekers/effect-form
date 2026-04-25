@@ -28,7 +28,9 @@ export class NavigationService extends Context.Service<
       navigate: (to: string) =>
         Effect.promise(async () => {
           const { router } = await import("@/router");
-          await router.navigate({ to } as Parameters<typeof router.navigate>[0]);
+          await router.navigate({ to } as Parameters<
+            typeof router.navigate
+          >[0]);
         }),
     }),
   );

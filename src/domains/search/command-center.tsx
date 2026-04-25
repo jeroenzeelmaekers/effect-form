@@ -25,9 +25,11 @@ export default function CommandCenter() {
 
   function handleSubmit(value: string) {
     if (!value.trim() || isPending) return;
-    run(value).then(() => setOpen(false)).catch(() => {
-      // error is surfaced via AsyncResult.isFailure above
-    });
+    run(value)
+      .then(() => setOpen(false))
+      .catch(() => {
+        // error is surfaced via AsyncResult.isFailure above
+      });
   }
 
   return (

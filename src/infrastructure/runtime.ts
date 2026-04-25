@@ -1,10 +1,10 @@
 import { Layer } from "effect";
 import { Atom } from "effect/unstable/reactivity";
 
-import { CommandService } from "@/domains/search/command-service";
-import { NavigationService } from "@/domains/search/navigation-service";
 import { getDebugSettingsSync } from "@/domains/debug/service";
 import { PostService } from "@/domains/post/service";
+import { CommandService } from "@/domains/search/command-service";
+import { NavigationService } from "@/domains/search/navigation-service";
 import { FilterRef } from "@/domains/user/filter-ref";
 import { UserService } from "@/domains/user/service";
 import { TelemetryLive } from "@/infrastructure/telemetry";

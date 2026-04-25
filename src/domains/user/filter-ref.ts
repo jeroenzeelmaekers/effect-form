@@ -16,7 +16,5 @@ export class FilterRef extends Context.Service<
   FilterRef,
   SubscriptionRef.SubscriptionRef<string>
 >()("FilterRef") {
-  static readonly layer = Layer.effect(FilterRef)(
-    SubscriptionRef.make(""),
-  );
+  static readonly layer = Layer.effect(FilterRef)(SubscriptionRef.make(""));
 }
