@@ -146,7 +146,7 @@ const FilterChip = React.forwardRef<
           }
           onChipKeyDown?.(e);
         }}
-        className="cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+        className="focus-visible:ring-primary cursor-pointer rounded-sm focus-visible:ring-2 focus-visible:outline-none">
         {label}
       </button>
       <button
@@ -206,7 +206,10 @@ function EditingChip({
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={() => {
-          blurTimerRef.current = setTimeout(() => onCommit(valueRef.current), 150);
+          blurTimerRef.current = setTimeout(
+            () => onCommit(valueRef.current),
+            150,
+          );
         }}
         aria-label={`Edit filter: ${originalLabel}`}
         className="min-w-0 bg-transparent outline-none"
@@ -226,7 +229,7 @@ function ParenChip({
   return (
     <Badge
       variant="outline"
-      className="border-border h-5 gap-0.5 rounded-sm border px-1.5 py-0 font-mono text-[0.65rem] text-muted-foreground">
+      className="border-border text-muted-foreground h-5 gap-0.5 rounded-sm border px-1.5 py-0 font-mono text-[0.65rem]">
       <span aria-hidden="true">{paren}</span>
       <button
         type="button"
@@ -271,7 +274,7 @@ function WrapButton({ onClick }: { onClick: () => void }) {
         "absolute -top-7 left-1/2 z-10 -translate-x-1/2",
         "flex items-center gap-0.5 rounded border px-1.5 py-0.5",
         "cursor-pointer font-mono text-[0.65rem] transition-colors",
-        "shadow-sm whitespace-nowrap",
+        "whitespace-nowrap shadow-sm",
       )}>
       ( ) wrap
     </button>
@@ -633,9 +636,7 @@ export function UserFilter() {
         {announcement}
       </span>
 
-      {selectedRange && (
-        <WrapButton onClick={wrapSelection} />
-      )}
+      {selectedRange && <WrapButton onClick={wrapSelection} />}
       <div
         onClick={(e) => {
           // Don't steal focus on shift+click (used for chip range selection)
@@ -670,9 +671,7 @@ export function UserFilter() {
               <EditingChip
                 key={segKey}
                 initialValue={
-                  seg.kind === "field"
-                    ? `${seg.field}:${seg.value}`
-                    : seg.value
+                  seg.kind === "field" ? `${seg.field}:${seg.value}` : seg.value
                 }
                 originalLabel={segmentLabel(i)}
                 onCommit={(val) => commitEdit(i, val)}
@@ -681,7 +680,9 @@ export function UserFilter() {
             ) : (
               <FilterChip
                 key={segKey}
-                ref={(el) => { chipRefs.current[i] = el; }}
+                ref={(el) => {
+                  chipRefs.current[i] = el;
+                }}
                 label={segmentLabel(i)}
                 selected={
                   selectedRange !== null &&
