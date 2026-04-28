@@ -7,7 +7,7 @@
       "dependencies": {
         "@base-ui/react": "^1.4.1",
         "@effect/ai-anthropic": "4.0.0-beta.57",
-        "@effect/atom-react": "4.0.0-beta.57",
+        "@effect/atom-react": "4.0.0-beta.58",
         "@effect/experimental": "^0.60.0",
         "@effect/opentelemetry": "4.0.0-beta.57",
         "@effect/platform": "^0.96.1",
@@ -131,7 +131,7 @@
 
     "@effect/ai-anthropic": ["@effect/ai-anthropic@4.0.0-beta.57", "", { "peerDependencies": { "effect": "^4.0.0-beta.57" } }, "sha512-IVPgnWaNRm1pyrpJXKTifoR6RrSN5pkB7Qk0yiHRcZGbXJ4hAxrG70PTdEpGJ+VZyOUW3G9hXN65D+Vr51QoVA=="],
 
-    "@effect/atom-react": ["@effect/atom-react@4.0.0-beta.57", "", { "peerDependencies": { "effect": "^4.0.0-beta.57", "react": "^19.2.4", "scheduler": "*" } }, "sha512-4QNSAW3HUh2x541Q2AFixOoWvVKegz/c7FzmRqpIDB7mntX/qG1fbN0qkNZ7CT9XuaadKe0yYNA9ck+0tB5ySQ=="],
+    "@effect/atom-react": ["@effect/atom-react@4.0.0-beta.58", "", { "peerDependencies": { "effect": "^4.0.0-beta.58", "react": "^19.2.4", "scheduler": "*" } }, "sha512-hsOLjUKlBgzAVtaOugqBfXMDdSFJ9B+oPpTVtz5bp9WFoJrRPHzznYPUquzeMsbUA5qm3qGf/mUJClXVj/5HOw=="],
 
     "@effect/experimental": ["@effect/experimental@0.60.0", "", { "dependencies": { "uuid": "^11.0.3" }, "peerDependencies": { "@effect/platform": "^0.96.0", "effect": "^3.21.0", "ioredis": "^5", "lmdb": "^3" }, "optionalPeers": ["ioredis", "lmdb"] }, "sha512-i5zIg7Xup2KgHyqHlYtkgqSE1bNzCL0GbbTQxrpIzKF0q/ebknOk/ox8B/gIq2vImjoEE81h/oxU+6i1NH210g=="],
 
