@@ -6,7 +6,7 @@
       "name": "effect-form",
       "dependencies": {
         "@base-ui/react": "^1.4.1",
-        "@effect/ai-anthropic": "4.0.0-beta.57",
+        "@effect/ai-anthropic": "4.0.0-beta.58",
         "@effect/atom-react": "4.0.0-beta.57",
         "@effect/experimental": "^0.60.0",
         "@effect/opentelemetry": "4.0.0-beta.57",
@@ -129,7 +129,7 @@
 
     "@ecies/ciphers": ["@ecies/ciphers@0.2.5", "", { "peerDependencies": { "@noble/ciphers": "^1.0.0" } }, "sha512-GalEZH4JgOMHYYcYmVqnFirFsjZHeoGMDt9IxEnM9F7GRUUyUksJ7Ou53L83WHJq3RWKD3AcBpo0iQh0oMpf8A=="],
 
-    "@effect/ai-anthropic": ["@effect/ai-anthropic@4.0.0-beta.57", "", { "peerDependencies": { "effect": "^4.0.0-beta.57" } }, "sha512-IVPgnWaNRm1pyrpJXKTifoR6RrSN5pkB7Qk0yiHRcZGbXJ4hAxrG70PTdEpGJ+VZyOUW3G9hXN65D+Vr51QoVA=="],
+    "@effect/ai-anthropic": ["@effect/ai-anthropic@4.0.0-beta.58", "", { "peerDependencies": { "effect": "^4.0.0-beta.58" } }, "sha512-ET6cNJcLQoo2l9he4IYH2ANlRFDv9VCmN5DPTligyIpekAm4wsqj10s4E3Of+kXEO6UCKrbzH6mgAGDcP/zA/A=="],
 
     "@effect/atom-react": ["@effect/atom-react@4.0.0-beta.57", "", { "peerDependencies": { "effect": "^4.0.0-beta.57", "react": "^19.2.4", "scheduler": "*" } }, "sha512-4QNSAW3HUh2x541Q2AFixOoWvVKegz/c7FzmRqpIDB7mntX/qG1fbN0qkNZ7CT9XuaadKe0yYNA9ck+0tB5ySQ=="],
 
