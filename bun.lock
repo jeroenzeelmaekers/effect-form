@@ -11,7 +11,7 @@
         "@effect/experimental": "^0.60.0",
         "@effect/opentelemetry": "4.0.0-beta.57",
         "@effect/platform": "^0.96.1",
-        "@effect/platform-browser": "4.0.0-beta.57",
+        "@effect/platform-browser": "4.0.0-beta.58",
         "@opentelemetry/exporter-trace-otlp-http": "^0.215.0",
         "@opentelemetry/resources": "^2.7.0",
         "@opentelemetry/sdk-trace-base": "^2.7.0",
@@ -141,7 +141,7 @@
 
     "@effect/platform": ["@effect/platform@0.96.1", "", { "dependencies": { "find-my-way-ts": "^0.1.6", "msgpackr": "^1.11.10", "multipasta": "^0.2.7" }, "peerDependencies": { "effect": "^3.21.2" } }, "sha512-cjB1QZZYEP8JXCFNGvBLVi0T6YUBQTmOVEUA3SDbiQ6RUO+p6CE3eyD2vMWmrz5nE8yY5QSAuOV9v0boEcUv+A=="],
 
-    "@effect/platform-browser": ["@effect/platform-browser@4.0.0-beta.57", "", { "dependencies": { "multipasta": "^0.2.7" }, "peerDependencies": { "effect": "^4.0.0-beta.57" } }, "sha512-bB/6ekUTc+fAympM36hiSROg6jjHLU5zNEpf07oXSqAnZnJL+wGix/8cmY/KPTTIobMXteq0suslrOY1cWZL8Q=="],
+    "@effect/platform-browser": ["@effect/platform-browser@4.0.0-beta.58", "", { "dependencies": { "multipasta": "^0.2.7" }, "peerDependencies": { "effect": "^4.0.0-beta.58" } }, "sha512-dhKkkZyzDXbhNygMW+I6o3O7FCPDLYIcVjjU2H2M+QNBw5SAzRCfxso4whUhyBrw5isiUdjWFBh+8/pa6kEMng=="],
 
     "@effect/vitest": ["@effect/vitest@4.0.0-beta.57", "", { "peerDependencies": { "effect": "^4.0.0-beta.57", "vitest": "^3.0.0 || ^4.0.0" } }, "sha512-XyGYv1zisrdP/N8+r4qaegyHZK4WS/1xBGlLPWqEoggBhgW7rD48cGUXDLEP7TlHcIJQiIlHtJlQUIwgVx3zWg=="],
 
