@@ -36,7 +36,7 @@ export default function CommandCenter() {
     <div className="flex max-w-md flex-1 flex-col gap-4">
       <Button
         onClick={() => setOpen(true)}
-        className="bg-input/20 dark:bg-input/30 border-input text-muted-foreground h-8.5 w-full min-w-0 justify-between rounded-md border px-2 py-0.5 text-sm font-normal shadow-none transition-colors md:text-xs/relaxed">
+        className="bg-input/20 hover:bg-input/30 dark:bg-input/30 dark:hover:bg-input/40 border-input hover:border-input/80 text-muted-foreground hover:text-foreground h-8.5 w-full min-w-0 justify-between rounded-md border px-2 py-0.5 text-sm font-normal shadow-none transition-colors md:text-xs/relaxed">
         Ready at your next command...
         <div className="space-x-1.5">
           <Kbd>⌘</Kbd>
