@@ -320,8 +320,26 @@ export function UserFilter() {
   const aiFilter = AsyncResult.isSuccess(aiFilterResult)
     ? aiFilterResult.value
     : null;
+  const previousAiFilterRef = useRef<string | null>(null);
   useEffect(() => {
-    if (typeof aiFilter === "string" && aiFilter !== filterQuery) {
+    if (typeof aiFilter !== "string") return;
+
+    const previousAiFilter = previousAiFilterRef.current;
+    previousAiFilterRef.current = aiFilter;
+
+    // Ignore duplicate emissions from FilterRef; they are not meaningful
+    // updates and can otherwise overwrite URL-provided deep links.
+    if (previousAiFilter === aiFilter) {
+      return;
+    }
+
+    // Ignore the initial empty FilterRef value when a URL filter is already
+    // present, otherwise deep links like `?filter=...` are cleared on mount.
+    if (previousAiFilter === null && aiFilter === "" && filterQuery !== "") {
+      return;
+    }
+
+    if (aiFilter !== filterQuery) {
       void setFilterQuery(aiFilter || null);
     }
     // We intentionally exclude filterQuery from the dep array: we only want to
