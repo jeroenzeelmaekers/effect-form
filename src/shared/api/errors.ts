@@ -38,7 +38,7 @@ export class NetworkError extends Schema.TaggedErrorClass<NetworkError>()(
   "NetworkError",
   {
     traceId: Schema.optional(Schema.String),
-    cause: Schema.optional(Schema.Defect),
+    cause: Schema.optional(Schema.Defect()),
   },
 ) {}
 
