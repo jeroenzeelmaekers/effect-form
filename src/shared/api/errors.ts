@@ -18,7 +18,7 @@ import type { ResponseError } from "effect/unstable/http/HttpClientError";
 export const ProblemDetail = Schema.Struct({
   type: Schema.optional(Schema.String),
   title: Schema.optional(Schema.String),
-  status: Schema.optional(Schema.Number),
+  status: Schema.optional(Schema.Finite),
   detail: Schema.optional(Schema.String),
   instance: Schema.optional(Schema.String),
 });
@@ -131,9 +131,7 @@ export function getResponseError(error: ResponseError, traceId?: string) {
     // extract problem detail from server error
     const problemDetail = yield* HttpClientResponse.schemaBodyJson(
       ProblemDetail,
-    )(error.response).pipe(
-      Effect.catch(() => Effect.succeed({} as ProblemDetail)),
-    );
+    )(error.response).pipe(Effect.orElseSucceed(() => ({}) as ProblemDetail));
 
     // annotate span with problem detail
     if (Object.keys(problemDetail).length > 0) {
@@ -147,15 +145,11 @@ export function getResponseError(error: ResponseError, traceId?: string) {
     // could also map on problem detail type
     switch (error.response.status) {
       case 404:
-        return yield* Effect.fail(
-          new NotFoundError({ traceId, problemDetail }),
-        );
+        return yield* new NotFoundError({ traceId, problemDetail });
       case 422:
-        return yield* Effect.fail(
-          new ValidationError({ traceId, problemDetail }),
-        );
+        return yield* new ValidationError({ traceId, problemDetail });
       default:
-        return yield* Effect.fail(new NetworkError({ traceId }));
+        return yield* new NetworkError({ traceId });
     }
   });
 }

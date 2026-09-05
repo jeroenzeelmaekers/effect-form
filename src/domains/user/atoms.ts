@@ -17,7 +17,7 @@ export const getUsersAtom = runtimeAtom
   .atom(
     Effect.gen(function* () {
       const service = yield* UserService;
-      return yield* service.getUsers();
+      return yield* service.getUsers;
     }),
   )
   .pipe(Atom.withReactivity({ users: ["users"] }));
@@ -55,6 +55,7 @@ export const optimisticGetUsersAtom = Atom.optimistic(getUsersAtom);
 
 const createTempUser = (formValues: UserForm): User =>
   new User({
+    // oxlint-disable-next-line effecttsgo/global-date
     id: -Date.now() as UserId,
     name: formValues.name,
     username: formValues.username,

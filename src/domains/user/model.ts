@@ -10,7 +10,7 @@ import { languageValues } from "@/domains/language/model";
  * @example
  * const id = Schema.decodeSync(UserId)(42); // UserId (branded number)
  */
-export const UserId = Schema.Number.pipe(Schema.brand("UserId"));
+export const UserId = Schema.Finite.pipe(Schema.brand("UserId"));
 
 /** TypeScript type for a branded user ID value. */
 export type UserId = typeof UserId.Type;

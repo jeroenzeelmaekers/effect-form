@@ -6,8 +6,11 @@ import { DebugService, getDebugSettingsSync } from "./service";
 // ---- localStorage mock ----
 
 const storage: Record<string, string> = {};
+const reload = vi.fn();
 
 beforeEach(() => {
+  reload.mockReset();
+
   vi.stubGlobal("localStorage", {
     getItem: (key: string) => storage[key] ?? null,
     setItem: (key: string, value: string) => {
@@ -22,7 +25,7 @@ beforeEach(() => {
   });
 
   vi.stubGlobal("window", {
-    location: { reload: vi.fn() },
+    location: { reload },
   });
 });
 
@@ -119,7 +122,7 @@ describe("DebugService", () => {
         }),
       );
       expect(localStorage.getItem("debug:simulation:v1")).toBe("true");
-      expect(window.location.reload).toHaveBeenCalledOnce();
+      expect(reload).toHaveBeenCalledOnce();
     });
 
     it("should persist false and reload", async () => {
@@ -130,7 +133,7 @@ describe("DebugService", () => {
         }),
       );
       expect(localStorage.getItem("debug:simulation:v1")).toBe("false");
-      expect(window.location.reload).toHaveBeenCalledOnce();
+      expect(reload).toHaveBeenCalledOnce();
     });
   });
 
@@ -143,7 +146,7 @@ describe("DebugService", () => {
         }),
       );
       expect(localStorage.getItem("debug:otel:v1")).toBe("true");
-      expect(window.location.reload).toHaveBeenCalledOnce();
+      expect(reload).toHaveBeenCalledOnce();
     });
   });
 });

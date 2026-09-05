@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Effect, Random } from "effect";
 import {
   HttpClient,
   HttpClientError,
@@ -72,18 +72,16 @@ export const simulateRequest = (
   HttpClientError.HttpClientError
 > =>
   Effect.gen(function* () {
-    const random = Math.random();
+    const random = yield* Random.next;
 
     // 20% chance of request error (connection level)
     if (random < 0.2) {
-      return yield* Effect.fail(
-        new HttpClientError.HttpClientError({
-          reason: new HttpClientError.TransportError({
-            request,
-            description: "Connection timed out - server unreachable",
-          }),
+      return yield* new HttpClientError.HttpClientError({
+        reason: new HttpClientError.TransportError({
+          request,
+          description: "Connection timed out - server unreachable",
         }),
-      );
+      });
     }
 
     // 15% chance of 404 Not Found

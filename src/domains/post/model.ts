@@ -11,10 +11,10 @@ import { Schema } from "effect";
  * - `userId` — numeric identifier of the author.
  */
 const Post = Schema.Struct({
-  id: Schema.Number,
+  id: Schema.Finite,
   title: Schema.String,
   body: Schema.String,
-  userId: Schema.Number,
+  userId: Schema.Finite,
 });
 
 export { Post };

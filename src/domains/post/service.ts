@@ -12,7 +12,7 @@ import {
 } from "@/shared/api/errors";
 
 interface PostServiceShape {
-  readonly getPosts: () => Effect.Effect<
+  readonly getPosts: Effect.Effect<
     ReadonlyArray<typeof Post.Type>,
     NetworkError | NotFoundError | ValidationError
   >;
@@ -30,7 +30,7 @@ interface PostServiceShape {
  *
  * @example
  * const posts = yield* PostService.pipe(
- *   Effect.flatMap(service => service.getPosts())
+ *   Effect.flatMap(service => service.getPosts)
  * );
  */
 export class PostService extends Context.Service<
@@ -43,29 +43,25 @@ export class PostService extends Context.Service<
     Effect.gen(function* () {
       const client = yield* ApiClient;
 
-      const getPosts = Effect.fn("Get Posts")(function* () {
+      const getPosts = Effect.gen(function* () {
         const traceId = yield* getCurrentTraceId;
         const request = HttpClientRequest.get("/posts");
         const response = yield* client.execute(request).pipe(
           Effect.timeout("10 seconds"),
-          Effect.catchTag("HttpClientError", catchHttpClientError(traceId)),
-          Effect.catchTag("TimeoutError", () =>
-            Effect.fail(new NetworkError({ traceId })),
-          ),
+          Effect.catchTags({
+            HttpClientError: catchHttpClientError(traceId),
+            TimeoutError: () => Effect.fail(new NetworkError({ traceId })),
+          }),
         );
         return yield* HttpClientResponse.schemaBodyJson(Schema.Array(Post))(
           response,
         ).pipe(
-          Effect.catchTag("HttpClientError", catchHttpClientError(traceId)),
-          Effect.catchTag("SchemaError", () =>
-            Effect.fail(
-              new ValidationError({
-                traceId,
-              }),
-            ),
-          ),
+          Effect.catchTags({
+            HttpClientError: catchHttpClientError(traceId),
+            SchemaError: () => Effect.fail(new ValidationError({ traceId })),
+          }),
         );
-      });
+      }).pipe(Effect.withSpan("Get Posts"));
 
       return PostService.of({ getPosts });
     }),

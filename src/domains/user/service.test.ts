@@ -19,7 +19,7 @@ describe("UserService", () => {
     it.effect("should return users on successful response", () =>
       Effect.gen(function* () {
         const service = yield* UserService;
-        const fiber = yield* service.getUsers().pipe(Effect.forkChild);
+        const fiber = yield* service.getUsers.pipe(Effect.forkChild);
 
         // Fast-forward through the 3 second sleep
         yield* TestClock.adjust(Duration.seconds(3));
@@ -68,7 +68,7 @@ describe("UserService", () => {
     it.effect("should fail with ValidationError on invalid response body", () =>
       Effect.gen(function* () {
         const service = yield* UserService;
-        const fiber = yield* service.getUsers().pipe(Effect.forkChild);
+        const fiber = yield* service.getUsers.pipe(Effect.forkChild);
 
         // Fast-forward through the 3 second sleep
         yield* TestClock.adjust(Duration.seconds(3));
@@ -96,7 +96,7 @@ describe("UserService", () => {
     it.effect("should fail with NetworkError on request timeout", () =>
       Effect.gen(function* () {
         const service = yield* UserService;
-        const fiber = yield* service.getUsers().pipe(Effect.forkChild);
+        const fiber = yield* service.getUsers.pipe(Effect.forkChild);
 
         // Fast-forward past the 10 second timeout
         yield* TestClock.adjust(Duration.seconds(15));

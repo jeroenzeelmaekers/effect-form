@@ -96,15 +96,14 @@ export class CommandService extends Context.Service<
       const toolkit = yield* CommandToolkit;
 
       const processPrompt = (prompt: string) =>
-        Effect.gen(function* () {
-          yield* LanguageModel.generateText({
-            prompt: [
-              { role: "system", content: SYSTEM_PROMPT },
-              { role: "user", content: prompt },
-            ],
-            toolkit,
-          });
+        LanguageModel.generateText({
+          prompt: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: prompt },
+          ],
+          toolkit,
         }).pipe(
+          Effect.asVoid,
           // The tool handler (filter + navigation) runs before generateText
           // resolves. If the library fails to decode the response metadata
           // (a known @effect/ai-anthropic bug with the `caller.toolId`

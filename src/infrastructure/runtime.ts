@@ -43,7 +43,7 @@ const MainLive = getDebugSettingsSync().otelEnabled
  * export const myAtom = runtimeAtom.atom(
  *   Effect.gen(function* () {
  *     const service = yield* UserService;
- *     return yield* service.getUsers();
+ *     return yield* service.getUsers;
  *   })
  * );
  */
