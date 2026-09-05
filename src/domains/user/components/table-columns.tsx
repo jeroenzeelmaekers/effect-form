@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 
 import type { User } from "../model";
+
 import type { UserTableFeatures } from "./user-list";
 
 function handleSortToggle(column: Column<UserTableFeatures, User>) {

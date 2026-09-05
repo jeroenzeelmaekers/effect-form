@@ -26,8 +26,7 @@ export class NavigationService extends Context.Service<
 >()("NavigationService") {
   static readonly layer = Layer.effect(NavigationService)(
     Effect.succeed({
-      navigate: (to: string) =>
-        Effect.promise(() => navigate(to)),
+      navigate: (to: string) => Effect.promise(() => navigate(to)),
     }),
   );
 }

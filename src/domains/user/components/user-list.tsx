@@ -48,11 +48,7 @@ interface DataTableProps {
   isFiltered?: boolean;
 }
 
-function DataTable({
-  columns,
-  data,
-  isFiltered = false,
-}: DataTableProps) {
+function DataTable({ columns, data, isFiltered = false }: DataTableProps) {
   "use no memo";
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -116,11 +112,7 @@ function DataTable({
 /**
  * Single row for the data table containing a user
  */
-function DataTableRow({
-  row,
-}: {
-  row: Row<UserTableFeatures, User>;
-}) {
+function DataTableRow({ row }: { row: Row<UserTableFeatures, User> }) {
   const isOptimistic = row.original.id < 0;
   return (
     <TableRow
