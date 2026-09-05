@@ -1,9 +1,12 @@
 import { useAtomValue } from "@effect/atom-react";
 import {
   flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
+  columnVisibilityFeature,
+  createCoreRowModel,
+  createSortedRowModel,
+  rowSortingFeature,
+  tableFeatures,
+  useTable,
   type ColumnDef,
   type Row,
   type SortingState,
@@ -30,26 +33,34 @@ import {
 
 import { UserColumns } from "./table-columns";
 
-interface DataTableProps<TData extends { id: number }, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+const userTableFeatures = tableFeatures({
+  columnVisibilityFeature,
+  rowSortingFeature,
+  coreRowModel: createCoreRowModel(),
+  sortedRowModel: createSortedRowModel(),
+});
+
+export type UserTableFeatures = typeof userTableFeatures;
+
+interface DataTableProps {
+  columns: ColumnDef<UserTableFeatures, User>[];
+  data: User[];
   isFiltered?: boolean;
 }
 
-function DataTable<TData extends { id: number }, TValue>({
+function DataTable({
   columns,
   data,
   isFiltered = false,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps) {
   "use no memo";
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const table = useReactTable({
+  const table = useTable({
+    features: userTableFeatures,
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
     state: { sorting },
   });
 
@@ -105,17 +116,16 @@ function DataTable<TData extends { id: number }, TValue>({
 /**
  * Single row for the data table containing a user
  */
-function DataTableRow<TData extends { id: number }>({
+function DataTableRow({
   row,
 }: {
-  row: Row<TData>;
+  row: Row<UserTableFeatures, User>;
 }) {
   const isOptimistic = row.original.id < 0;
   return (
     <TableRow
       key={row.id}
       data-testid={`user-row-${row.original.id}`}
-      data-state={row.getIsSelected() && "selected"}
       className={isOptimistic ? "text-muted-foreground" : ""}>
       {row.getVisibleCells().map((cell) => (
         <TableCell key={cell.id}>
@@ -146,11 +156,11 @@ function EmptyDataTableRow({
 
 const skeletonCell = <Skeleton className="h-4 w-24" />;
 
-function Loading<TData, TValue>({
+function Loading({
   columns,
   tableSize = 10,
 }: {
-  columns: ColumnDef<TData, TValue>[];
+  columns: ColumnDef<UserTableFeatures, User>[];
   tableSize?: number;
 }) {
   return (
@@ -319,7 +329,7 @@ Trace ID: ${error.traceId}`)}`}>
             <UserFilter />
             <DataTable
               columns={UserColumns}
-              data={applyFilter(Array.from(users) as User[], ast)}
+              data={applyFilter(Array.from(users), ast)}
               isFiltered={filtered}
             />
           </div>

@@ -1,5 +1,7 @@
 import { Context, Effect, Layer } from "effect";
 
+import { navigate } from "@/infrastructure/navigation";
+
 /**
  * Effect service that bridges TanStack Router navigation into the Effect world.
  *
@@ -14,10 +16,9 @@ import { Context, Effect, Layer } from "effect";
  * no-op for the route transition itself — only the search params / state
  * supplied by callers will change.
  *
- * The router is imported lazily (inside the `navigate` call) to avoid a
- * circular module-initialisation cycle:
- *   runtime.ts → navigation-service.ts → router.ts → routeTree.gen.ts
- *     → __root.tsx → command-center.tsx → search/atoms.ts → runtime.ts
+ * The router navigation function is registered by app startup code so this
+ * service can navigate without importing the router module and creating a
+ * circular module-initialisation cycle.
  */
 export class NavigationService extends Context.Service<
   NavigationService,
@@ -26,12 +27,7 @@ export class NavigationService extends Context.Service<
   static readonly layer = Layer.effect(NavigationService)(
     Effect.succeed({
       navigate: (to: string) =>
-        Effect.promise(async () => {
-          const { router } = await import("@/router");
-          await router.navigate({ to } as Parameters<
-            typeof router.navigate
-          >[0]);
-        }),
+        Effect.promise(() => navigate(to)),
     }),
   );
 }

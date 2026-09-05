@@ -34,7 +34,7 @@ export type ProblemDetail = typeof ProblemDetail.Type;
  * - `traceId` — optional OpenTelemetry trace ID for correlation.
  * - `cause` — optional underlying defect that triggered the error.
  */
-export class NetworkError extends Schema.TaggedErrorClass<NetworkError>()(
+export class NetworkError extends Schema.TaggedError<NetworkError>()(
   "NetworkError",
   {
     traceId: Schema.optional(Schema.String),
@@ -49,7 +49,7 @@ export class NetworkError extends Schema.TaggedErrorClass<NetworkError>()(
  * - `traceId` — optional OpenTelemetry trace ID for correlation.
  * - `problemDetail` — optional RFC 7807 problem detail decoded from the response body.
  */
-export class NotFoundError extends Schema.TaggedErrorClass<NotFoundError>()(
+export class NotFoundError extends Schema.TaggedError<NotFoundError>()(
   "NotFoundError",
   {
     traceId: Schema.optional(Schema.String),
@@ -65,7 +65,7 @@ export class NotFoundError extends Schema.TaggedErrorClass<NotFoundError>()(
  * - `traceId` — optional OpenTelemetry trace ID for correlation.
  * - `problemDetail` — optional RFC 7807 problem detail decoded from the response body.
  */
-export class ValidationError extends Schema.TaggedErrorClass<ValidationError>()(
+export class ValidationError extends Schema.TaggedError<ValidationError>()(
   "ValidationError",
   {
     traceId: Schema.optional(Schema.String),
