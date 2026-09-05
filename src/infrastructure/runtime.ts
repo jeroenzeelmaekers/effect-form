@@ -10,21 +10,17 @@ import { UserService } from "@/domains/user/service";
 import { TelemetryLive } from "@/infrastructure/telemetry";
 import { ApiLive } from "@/shared/api/client";
 
-const SharedServicesLive = Layer.mergeAll(
+const DomainLive = Layer.mergeAll(
   UserService.layer,
   PostService.layer,
   FilterRef.layer,
   NavigationService.layer,
 );
 
-// Provide the shared services to CommandService, then merge the result back
-// with SharedServicesLive using provideMerge so shared instances are
-// constructed exactly once and reused everywhere.
-const ServicesLive = CommandService.layer.pipe(
-  Layer.provide(SharedServicesLive),
-  Layer.provideMerge(SharedServicesLive),
-  Layer.provide(ApiLive),
-);
+const ServicesLive = Layer.mergeAll(
+  DomainLive,
+  CommandService.layer.pipe(Layer.provide(DomainLive)),
+).pipe(Layer.provide(ApiLive));
 
 const MainLive = getDebugSettingsSync().otelEnabled
   ? ServicesLive.pipe(Layer.provideMerge(TelemetryLive))
@@ -46,9 +42,12 @@ const MainLive = getDebugSettingsSync().otelEnabled
  * // Create a reactive atom that runs inside the shared runtime:
  * export const myAtom = runtimeAtom.atom(
  *   Effect.gen(function* () {
- *     const svc = yield* UserService;
- *     return yield* svc.getUsers();
+ *     const service = yield* UserService;
+ *     return yield* service.getUsers();
  *   })
  * );
  */
-export const runtimeAtom = Atom.runtime(MainLive);
+const runtimeMemoMap = Layer.makeMemoMapUnsafe();
+const runtimeFactory = Atom.context({ memoMap: runtimeMemoMap });
+
+export const runtimeAtom = runtimeFactory(MainLive);

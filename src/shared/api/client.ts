@@ -1,38 +1,24 @@
-import { Context, Effect, Layer, Schedule } from "effect";
+import { Context, Effect, flow, Layer, Schedule } from "effect";
 import {
   FetchHttpClient,
   HttpClient,
+  HttpClientError,
   HttpClientRequest,
+  HttpClientResponse,
 } from "effect/unstable/http";
 
 import { DebugService } from "@/domains/debug/service";
 
 import { withSimulation } from "./simulation";
 
-const make = Effect.gen(function* () {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
-  const httpClient = yield* HttpClient.HttpClient;
-  const debugService = yield* Effect.service(DebugService);
-
-  const resilientClient = httpClient.pipe(
-    HttpClient.retryTransient({
-      times: 3,
-      schedule: Schedule.exponential("100 millis"),
-    }),
-    HttpClient.mapRequest(HttpClientRequest.prependUrl(baseUrl)),
-  );
-
-  return {
-    execute: (request: HttpClientRequest.HttpClientRequest) =>
-      Effect.gen(function* () {
-        const settings = yield* debugService.get;
-        const client = settings.simulationEnabled
-          ? withSimulation(resilientClient)
-          : resilientClient;
-        return yield* client.execute(request);
-      }),
-  };
-});
+interface ApiClientShape {
+  readonly execute: (
+    request: HttpClientRequest.HttpClientRequest,
+  ) => Effect.Effect<
+    HttpClientResponse.HttpClientResponse,
+    HttpClientError.HttpClientError
+  >;
+}
 
 /**
  * Effect service providing a resilient HTTP client pre-configured for the
@@ -50,11 +36,42 @@ const make = Effect.gen(function* () {
  *   Effect.flatMap(client => client.execute(HttpClientRequest.get("/users")))
  * );
  */
-export class ApiClient extends Context.Service<ApiClient>()("ApiClient", {
-  make,
-}) {
+export class ApiClient extends Context.Service<ApiClient, ApiClientShape>()(
+  "effect-form/shared/api/ApiClient",
+) {
   /** Live `Layer` that constructs `ApiClient`. */
-  static layer = Layer.effect(this)(this.make);
+  static readonly layer = Layer.effect(
+    this,
+    Effect.gen(function* () {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL;
+      const httpClient = yield* HttpClient.HttpClient;
+      const debugService = yield* DebugService;
+
+      const resilientClient = httpClient.pipe(
+        HttpClient.retryTransient({
+          times: 3,
+          schedule: Schedule.exponential("100 millis"),
+        }),
+        HttpClient.mapRequest(
+          flow(
+            HttpClientRequest.prependUrl(baseUrl),
+            HttpClientRequest.acceptJson,
+          ),
+        ),
+      );
+
+      return ApiClient.of({
+        execute: (request) =>
+          Effect.gen(function* () {
+            const settings = yield* debugService.get;
+            const client = settings.simulationEnabled
+              ? withSimulation(resilientClient)
+              : resilientClient;
+            return yield* client.execute(request);
+          }),
+      });
+    }),
+  );
 }
 
 /**

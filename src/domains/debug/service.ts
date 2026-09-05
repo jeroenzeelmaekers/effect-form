@@ -79,12 +79,12 @@ export interface DebugServiceShape {
  * application runtime is reconstructed with the updated settings.
  *
  * @example
- * const settings = yield* DebugService.pipe(Effect.flatMap(svc => svc.get));
+ * const settings = yield* DebugService.pipe(Effect.flatMap(service => service.get));
  */
 export class DebugService extends Context.Service<
   DebugService,
   DebugServiceShape
->()("DebugService", {
+>()("effect-form/domains/debug/DebugService", {
   make: Effect.sync(() => {
     const get = Effect.sync(getDebugSettingsSync);
 
@@ -108,5 +108,5 @@ export class DebugService extends Context.Service<
   }),
 }) {
   /** Live `Layer` that constructs `DebugService` (no external dependencies). */
-  static layer = Layer.effect(this)(this.make);
+  static readonly layer = Layer.effect(this)(this.make);
 }

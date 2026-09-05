@@ -23,10 +23,12 @@ import { navigate } from "@/infrastructure/navigation";
 export class NavigationService extends Context.Service<
   NavigationService,
   { navigate: (to: string) => Effect.Effect<void> }
->()("NavigationService") {
+>()("effect-form/domains/search/NavigationService") {
   static readonly layer = Layer.effect(NavigationService)(
-    Effect.succeed({
-      navigate: (to: string) => Effect.promise(() => navigate(to)),
-    }),
+    Effect.succeed(
+      NavigationService.of({
+        navigate: (to: string) => Effect.promise(() => navigate(to)),
+      }),
+    ),
   );
 }

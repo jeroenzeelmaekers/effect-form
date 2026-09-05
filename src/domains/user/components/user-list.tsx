@@ -297,7 +297,7 @@ Trace ID: ${error.traceId}`)}`}>
             </Error.Actions>
           </Error.Root>
         ))
-        .onError(() => (
+        .onFailure(() => (
           <Error.Root>
             <Error.Content>
               <Error.Title>Something went wrong</Error.Title>

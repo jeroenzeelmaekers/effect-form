@@ -1,8 +1,10 @@
 import { Layer } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
-import * as OtlpLogger from "effect/unstable/observability/OtlpLogger";
-import * as OtlpSerialization from "effect/unstable/observability/OtlpSerialization";
-import * as OtlpTracer from "effect/unstable/observability/OtlpTracer";
+import {
+  OtlpLogger,
+  OtlpSerialization,
+  OtlpTracer,
+} from "effect/unstable/observability";
 
 const baseUrl = import.meta.env.VITE_OTLP_BASE_URL ?? "/otlp";
 const resource = {

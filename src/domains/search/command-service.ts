@@ -35,6 +35,26 @@ const ShowUsersTool = Tool.make("show_users", {
 
 const CommandToolkit = Toolkit.make(ShowUsersTool);
 
+const CommandToolkitLayer = CommandToolkit.toLayer(
+  Effect.gen(function* () {
+    const filterRef = yield* FilterRef;
+    const nav = yield* NavigationService;
+
+    return CommandToolkit.of({
+      show_users: Effect.fn("CommandToolkit.show_users")(function* (params: {
+        readonly filterQuery: string;
+      }) {
+        // Navigate first so UserFilter mounts and subscribes to FilterRef
+        // *before* we write the new value. SubscriptionRef.changes only
+        // emits subsequent updates, so if we set before navigation the
+        // freshly-mounted component would miss the emission.
+        yield* nav.navigate("/");
+        yield* SubscriptionRef.set(filterRef, params.filterQuery);
+      }),
+    });
+  }),
+);
+
 const SYSTEM_PROMPT = `You are a navigation assistant for a user management application.
 
 When the user asks to find, show, filter, or search for users, call the show_users tool with the appropriate filterQuery.
@@ -50,51 +70,9 @@ If the user asks for something unrelated to users or navigation, still call show
 
 Always call the show_users tool — do not respond with plain text.`;
 
-const make = Effect.gen(function* () {
-  const filterRef = yield* FilterRef;
-  const nav = yield* NavigationService;
-
-  // Build a handlers Context with the closed-over shared service instances.
-  const handlersCtx = yield* CommandToolkit.toHandlers({
-    show_users: (params: { readonly filterQuery: string }) =>
-      Effect.gen(function* () {
-        // Navigate first so UserFilter mounts and subscribes to FilterRef
-        // *before* we write the new value. SubscriptionRef.changes only
-        // emits subsequent updates, so if we set before navigation the
-        // freshly-mounted component would miss the emission.
-        yield* nav.navigate("/");
-        yield* SubscriptionRef.set(filterRef, params.filterQuery);
-      }),
-  });
-
-  const processPrompt = (prompt: string) =>
-    // Yield CommandToolkit in the context where handlersCtx is provided,
-    // then call generateText with the resulting WithHandler.
-    Effect.gen(function* () {
-      const toolkitWithHandler = yield* CommandToolkit;
-      yield* LanguageModel.generateText({
-        prompt: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: prompt },
-        ],
-        toolkit: toolkitWithHandler,
-      });
-    }).pipe(
-      // The tool handler (filter + navigation) runs before generateText
-      // resolves. If the library fails to decode the response metadata
-      // (a known @effect/ai-anthropic bug with the `caller.toolId`
-      // field), the side-effects have already succeeded — log and ignore.
-      Effect.catchTag("AiError", (e) =>
-        Effect.logWarning(
-          `AiError suppressed (known @effect/ai-anthropic caller.toolId bug): ${e.message}`,
-        ),
-      ),
-      Effect.provide(handlersCtx),
-      Effect.provide(LanguageModelLive),
-    );
-
-  return { processPrompt } as const;
-});
+interface CommandServiceShape {
+  readonly processPrompt: (prompt: string) => Effect.Effect<void>;
+}
 
 /**
  * Service that processes a natural-language prompt from the command center
@@ -108,9 +86,38 @@ const make = Effect.gen(function* () {
  * (i.e. via the top-level runtime layer) so they can be shared with other parts
  * of the application.
  */
-export class CommandService extends Context.Service<CommandService>()(
-  "CommandService",
-  { make },
-) {
-  static readonly layer = Layer.effect(this)(this.make);
+export class CommandService extends Context.Service<
+  CommandService,
+  CommandServiceShape
+>()("effect-form/domains/search/CommandService") {
+  static readonly layer = Layer.effect(
+    this,
+    Effect.gen(function* () {
+      const toolkit = yield* CommandToolkit;
+
+      const processPrompt = (prompt: string) =>
+        Effect.gen(function* () {
+          yield* LanguageModel.generateText({
+            prompt: [
+              { role: "system", content: SYSTEM_PROMPT },
+              { role: "user", content: prompt },
+            ],
+            toolkit,
+          });
+        }).pipe(
+          // The tool handler (filter + navigation) runs before generateText
+          // resolves. If the library fails to decode the response metadata
+          // (a known @effect/ai-anthropic bug with the `caller.toolId`
+          // field), the side-effects have already succeeded — log and ignore.
+          Effect.catchTag("AiError", (e) =>
+            Effect.logWarning(
+              `AiError suppressed (known @effect/ai-anthropic caller.toolId bug): ${e.message}`,
+            ),
+          ),
+          Effect.provide(LanguageModelLive),
+        );
+
+      return CommandService.of({ processPrompt });
+    }),
+  ).pipe(Layer.provide(CommandToolkitLayer));
 }

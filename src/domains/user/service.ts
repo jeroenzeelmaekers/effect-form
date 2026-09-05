@@ -11,73 +11,19 @@ import {
   catchHttpClientError,
   getCurrentTraceId,
   NetworkError,
+  NotFoundError,
   ValidationError,
 } from "@/shared/api/errors";
 
-const make = Effect.gen(function* () {
-  const client = yield* Effect.service(ApiClient);
-
-  const getUsers = Effect.fn("Get Users")(function* () {
-    const traceId = yield* getCurrentTraceId;
-    const request = HttpClientRequest.get("/users");
-    const response = yield* client.execute(request).pipe(
-      Effect.timeout("10 seconds"),
-      Effect.catchTag("HttpClientError", catchHttpClientError(traceId)),
-      Effect.catchTag("TimeoutError", () =>
-        Effect.fail(new NetworkError({ traceId })),
-      ),
-    );
-    return yield* HttpClientResponse.schemaBodyJson(Schema.Array(User))(
-      response,
-    ).pipe(
-      Effect.tap((data) =>
-        Effect.logInfo(`[USER] fetching ${data.length} users`),
-      ),
-      Effect.catchTag("SchemaError", () =>
-        Effect.fail(
-          new ValidationError({
-            traceId,
-          }),
-        ),
-      ),
-    );
-  });
-
-  const createUser = Effect.fn("Create User")(function* (
+interface UserServiceShape {
+  readonly getUsers: () => Effect.Effect<
+    ReadonlyArray<User>,
+    NetworkError | NotFoundError | ValidationError
+  >;
+  readonly createUser: (
     formValues: Schema.Schema.Type<typeof UserForm>,
-  ) {
-    const traceId = yield* getCurrentTraceId;
-    const body = yield* HttpBody.json(formValues).pipe(
-      Effect.catchTag("HttpBodyError", () =>
-        Effect.fail(new ValidationError({ traceId })),
-      ),
-    );
-    const request = HttpClientRequest.post("/users").pipe(
-      HttpClientRequest.setBody(body),
-    );
-    const response = yield* client.execute(request).pipe(
-      Effect.timeout("15 seconds"),
-      Effect.catchTag("HttpClientError", catchHttpClientError(traceId)),
-      Effect.catchTag("TimeoutError", () =>
-        Effect.fail(new NetworkError({ traceId })),
-      ),
-    );
-    return yield* HttpClientResponse.schemaBodyJson(User)(response).pipe(
-      Effect.tap((data) =>
-        Effect.logInfo(`[USER] Created user with id: ${data.id}`),
-      ),
-      Effect.catchTag("SchemaError", () =>
-        Effect.fail(
-          new ValidationError({
-            traceId,
-          }),
-        ),
-      ),
-    );
-  });
-
-  return { getUsers, createUser } as const;
-});
+  ) => Effect.Effect<User, NetworkError | NotFoundError | ValidationError>;
+}
 
 /**
  * Effect service that provides user-related API operations.
@@ -94,12 +40,81 @@ const make = Effect.gen(function* () {
  *
  * @example
  * const users = yield* UserService.pipe(
- *   Effect.flatMap(svc => svc.getUsers())
+ *   Effect.flatMap(service => service.getUsers())
  * );
  */
-export class UserService extends Context.Service<UserService>()("UserService", {
-  make,
-}) {
+export class UserService extends Context.Service<
+  UserService,
+  UserServiceShape
+>()("effect-form/domains/user/UserService") {
   /** Live `Layer` that constructs `UserService` using `ApiClient`. */
-  static layer = Layer.effect(this)(this.make);
+  static readonly layer = Layer.effect(
+    this,
+    Effect.gen(function* () {
+      const client = yield* ApiClient;
+
+      const getUsers = Effect.fn("Get Users")(function* () {
+        const traceId = yield* getCurrentTraceId;
+        const request = HttpClientRequest.get("/users");
+        const response = yield* client.execute(request).pipe(
+          Effect.timeout("10 seconds"),
+          Effect.catchTag("HttpClientError", catchHttpClientError(traceId)),
+          Effect.catchTag("TimeoutError", () =>
+            Effect.fail(new NetworkError({ traceId })),
+          ),
+        );
+        return yield* HttpClientResponse.schemaBodyJson(Schema.Array(User))(
+          response,
+        ).pipe(
+          Effect.tap((data) =>
+            Effect.logInfo(`[USER] fetching ${data.length} users`),
+          ),
+          Effect.catchTag("HttpClientError", catchHttpClientError(traceId)),
+          Effect.catchTag("SchemaError", () =>
+            Effect.fail(
+              new ValidationError({
+                traceId,
+              }),
+            ),
+          ),
+        );
+      });
+
+      const createUser = Effect.fn("Create User")(function* (
+        formValues: Schema.Schema.Type<typeof UserForm>,
+      ) {
+        const traceId = yield* getCurrentTraceId;
+        const body = yield* HttpBody.json(formValues).pipe(
+          Effect.catchTag("HttpBodyError", () =>
+            Effect.fail(new ValidationError({ traceId })),
+          ),
+        );
+        const request = HttpClientRequest.post("/users").pipe(
+          HttpClientRequest.setBody(body),
+        );
+        const response = yield* client.execute(request).pipe(
+          Effect.timeout("15 seconds"),
+          Effect.catchTag("HttpClientError", catchHttpClientError(traceId)),
+          Effect.catchTag("TimeoutError", () =>
+            Effect.fail(new NetworkError({ traceId })),
+          ),
+        );
+        return yield* HttpClientResponse.schemaBodyJson(User)(response).pipe(
+          Effect.tap((data) =>
+            Effect.logInfo(`[USER] Created user with id: ${data.id}`),
+          ),
+          Effect.catchTag("HttpClientError", catchHttpClientError(traceId)),
+          Effect.catchTag("SchemaError", () =>
+            Effect.fail(
+              new ValidationError({
+                traceId,
+              }),
+            ),
+          ),
+        );
+      });
+
+      return UserService.of({ getUsers, createUser });
+    }),
+  );
 }

@@ -87,8 +87,8 @@ describe("DebugService", () => {
     it("should return default settings when localStorage is empty", async () => {
       const settings = await run(
         Effect.gen(function* () {
-          const svc = yield* Effect.service(DebugService);
-          return yield* svc.get;
+          const service = yield* DebugService;
+          return yield* service.get;
         }),
       );
       expect(settings).toEqual({
@@ -102,8 +102,8 @@ describe("DebugService", () => {
       localStorage.setItem("debug:otel:v1", "true");
       const settings = await run(
         Effect.gen(function* () {
-          const svc = yield* Effect.service(DebugService);
-          return yield* svc.get;
+          const service = yield* DebugService;
+          return yield* service.get;
         }),
       );
       expect(settings).toEqual({ simulationEnabled: true, otelEnabled: true });
@@ -114,8 +114,8 @@ describe("DebugService", () => {
     it("should write the value to localStorage and reload", async () => {
       await run(
         Effect.gen(function* () {
-          const svc = yield* Effect.service(DebugService);
-          yield* svc.setSimulationEnabled(true);
+          const service = yield* DebugService;
+          yield* service.setSimulationEnabled(true);
         }),
       );
       expect(localStorage.getItem("debug:simulation:v1")).toBe("true");
@@ -125,8 +125,8 @@ describe("DebugService", () => {
     it("should persist false and reload", async () => {
       await run(
         Effect.gen(function* () {
-          const svc = yield* Effect.service(DebugService);
-          yield* svc.setSimulationEnabled(false);
+          const service = yield* DebugService;
+          yield* service.setSimulationEnabled(false);
         }),
       );
       expect(localStorage.getItem("debug:simulation:v1")).toBe("false");
@@ -138,8 +138,8 @@ describe("DebugService", () => {
     it("should write the value to localStorage and reload", async () => {
       await run(
         Effect.gen(function* () {
-          const svc = yield* Effect.service(DebugService);
-          yield* svc.setOtelEnabled(true);
+          const service = yield* DebugService;
+          yield* service.setOtelEnabled(true);
         }),
       );
       expect(localStorage.getItem("debug:otel:v1")).toBe("true");

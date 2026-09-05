@@ -21,7 +21,7 @@ import { runtimeAtom } from "@/infrastructure/runtime";
  */
 export const processPromptAtom = runtimeAtom.fn((prompt: string) =>
   Effect.gen(function* () {
-    const svc = yield* Effect.service(CommandService);
-    yield* svc.processPrompt(prompt);
+    const service = yield* CommandService;
+    yield* service.processPrompt(prompt);
   }),
 );

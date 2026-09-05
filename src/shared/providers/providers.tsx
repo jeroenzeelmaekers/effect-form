@@ -1,3 +1,4 @@
+import { RegistryProvider } from "@effect/atom-react";
 import { HotkeysProvider } from "@tanstack/react-hotkeys";
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
@@ -34,7 +35,9 @@ export default function Providers({
   return (
     <PostHogProvider client={posthog}>
       <ThemeProvider defaultTheme="system" storageKey="theme-preference">
-        <HotkeysProvider>{children}</HotkeysProvider>
+        <RegistryProvider>
+          <HotkeysProvider>{children}</HotkeysProvider>
+        </RegistryProvider>
       </ThemeProvider>
     </PostHogProvider>
   );

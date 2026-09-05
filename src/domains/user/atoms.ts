@@ -16,8 +16,8 @@ import { runtimeAtom } from "@/infrastructure/runtime";
 export const getUsersAtom = runtimeAtom
   .atom(
     Effect.gen(function* () {
-      const svc = yield* Effect.service(UserService);
-      return yield* svc.getUsers();
+      const service = yield* UserService;
+      return yield* service.getUsers();
     }),
   )
   .pipe(Atom.withReactivity({ users: ["users"] }));
@@ -35,8 +35,8 @@ export const getUsersAtom = runtimeAtom
 export const createUserAtom = runtimeAtom.fn(
   (formValues: Schema.Schema.Type<typeof UserForm>) =>
     Effect.gen(function* () {
-      const svc = yield* Effect.service(UserService);
-      return yield* svc.createUser(formValues);
+      const service = yield* UserService;
+      return yield* service.createUser(formValues);
     }),
   {
     reactivityKeys: { users: ["users"] },
@@ -102,7 +102,7 @@ export const filterRefAtom = runtimeAtom.atom(
   (_get) =>
     Stream.unwrap(
       Effect.gen(function* () {
-        const ref = yield* Effect.service(FilterRef);
+        const ref = yield* FilterRef;
         return SubscriptionRef.changes(ref);
       }),
     ),

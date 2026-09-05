@@ -15,6 +15,6 @@ import { Context, Layer, SubscriptionRef } from "effect";
 export class FilterRef extends Context.Service<
   FilterRef,
   SubscriptionRef.SubscriptionRef<string>
->()("FilterRef") {
+>()("effect-form/domains/user/FilterRef") {
   static readonly layer = Layer.effect(FilterRef)(SubscriptionRef.make(""));
 }

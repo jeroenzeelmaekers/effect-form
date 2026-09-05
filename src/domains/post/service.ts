@@ -7,37 +7,16 @@ import {
   catchHttpClientError,
   getCurrentTraceId,
   NetworkError,
+  NotFoundError,
   ValidationError,
 } from "@/shared/api/errors";
 
-const make = Effect.gen(function* () {
-  const client = yield* Effect.service(ApiClient);
-
-  const getPosts = Effect.fn("Get Posts")(function* () {
-    const traceId = yield* getCurrentTraceId;
-    const request = HttpClientRequest.get("/posts");
-    const response = yield* client.execute(request).pipe(
-      Effect.timeout("10 seconds"),
-      Effect.catchTag("HttpClientError", catchHttpClientError(traceId)),
-      Effect.catchTag("TimeoutError", () =>
-        Effect.fail(new NetworkError({ traceId })),
-      ),
-    );
-    return yield* HttpClientResponse.schemaBodyJson(Schema.Array(Post))(
-      response,
-    ).pipe(
-      Effect.catchTag("SchemaError", () =>
-        Effect.fail(
-          new ValidationError({
-            traceId,
-          }),
-        ),
-      ),
-    );
-  });
-
-  return { getPosts } as const;
-});
+interface PostServiceShape {
+  readonly getPosts: () => Effect.Effect<
+    ReadonlyArray<typeof Post.Type>,
+    NetworkError | NotFoundError | ValidationError
+  >;
+}
 
 /**
  * Effect service that provides post-related API operations.
@@ -51,12 +30,44 @@ const make = Effect.gen(function* () {
  *
  * @example
  * const posts = yield* PostService.pipe(
- *   Effect.flatMap(svc => svc.getPosts())
+ *   Effect.flatMap(service => service.getPosts())
  * );
  */
-export class PostService extends Context.Service<PostService>()("PostService", {
-  make,
-}) {
+export class PostService extends Context.Service<
+  PostService,
+  PostServiceShape
+>()("effect-form/domains/post/PostService") {
   /** Live `Layer` that constructs `PostService` using `ApiClient`. */
-  static layer = Layer.effect(this)(this.make);
+  static readonly layer = Layer.effect(
+    this,
+    Effect.gen(function* () {
+      const client = yield* ApiClient;
+
+      const getPosts = Effect.fn("Get Posts")(function* () {
+        const traceId = yield* getCurrentTraceId;
+        const request = HttpClientRequest.get("/posts");
+        const response = yield* client.execute(request).pipe(
+          Effect.timeout("10 seconds"),
+          Effect.catchTag("HttpClientError", catchHttpClientError(traceId)),
+          Effect.catchTag("TimeoutError", () =>
+            Effect.fail(new NetworkError({ traceId })),
+          ),
+        );
+        return yield* HttpClientResponse.schemaBodyJson(Schema.Array(Post))(
+          response,
+        ).pipe(
+          Effect.catchTag("HttpClientError", catchHttpClientError(traceId)),
+          Effect.catchTag("SchemaError", () =>
+            Effect.fail(
+              new ValidationError({
+                traceId,
+              }),
+            ),
+          ),
+        );
+      });
+
+      return PostService.of({ getPosts });
+    }),
+  );
 }
