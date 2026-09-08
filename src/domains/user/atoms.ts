@@ -53,15 +53,14 @@ export const createUserAtom = runtimeAtom.fn(
  */
 export const optimisticGetUsersAtom = Atom.optimistic(getUsersAtom);
 
-const createTempUser = (formValues: UserForm): User =>
-  ({
-    // oxlint-disable-next-line effecttsgo/global-date
-    id: -Date.now() as UserId,
-    name: formValues.name,
-    username: formValues.username,
-    email: formValues.email,
-    language: formValues.language,
-  });
+const createTempUser = (formValues: UserForm): User => ({
+  // oxlint-disable-next-line effecttsgo/global-date
+  id: -Date.now() as UserId,
+  name: formValues.name,
+  username: formValues.username,
+  email: formValues.email,
+  language: formValues.language,
+});
 
 /**
  * Optimistic atom that immediately appends a temporary user to the list and

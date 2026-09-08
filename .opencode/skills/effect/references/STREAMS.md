@@ -59,15 +59,15 @@ Own long-lived stream consumers in layers and fork them into the layer scope.
 ```ts
 export const layer = Layer.effectDiscard(
   Effect.gen(function* () {
-    const gateway = yield* Gateway.Service
+    const gateway = yield* Gateway.Service;
 
     yield* gateway.events.pipe(
       Stream.filter(isMessageEvent),
       Stream.runForEach(handleEvent),
       Effect.forkScoped,
-    )
+    );
   }),
-)
+);
 ```
 
 Guidance:
@@ -89,8 +89,8 @@ Good service shape:
 
 ```ts
 export interface Interface {
-  readonly events: Stream.Stream<ProviderEvent, ProviderError>
-  readonly status: Stream.Stream<ProviderStatus>
+  readonly events: Stream.Stream<ProviderEvent, ProviderError>;
+  readonly status: Stream.Stream<ProviderStatus>;
 }
 ```
 

@@ -19,10 +19,7 @@ const FeatureServicesLive = Layer.mergeAll(
   UserService.layer,
   PostService.layer,
   CommandService.layer,
-).pipe(
-  Layer.provide(DomainDependenciesLive),
-  Layer.provide(ApiLive),
-);
+).pipe(Layer.provide(DomainDependenciesLive), Layer.provide(ApiLive));
 
 const ServicesLive = Layer.merge(DomainDependenciesLive, FeatureServicesLive);
 

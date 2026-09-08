@@ -99,14 +99,14 @@ export class DebugService extends Context.Service<
       },
     );
 
-    const setOtelEnabled = Effect.fn("DebugService.setOtelEnabled")(
-      function* (enabled: boolean) {
-        yield* Effect.sync(() => {
-          writeBoolean(STORAGE_KEYS.otel, enabled);
-          window.location.reload();
-        });
-      },
-    );
+    const setOtelEnabled = Effect.fn("DebugService.setOtelEnabled")(function* (
+      enabled: boolean,
+    ) {
+      yield* Effect.sync(() => {
+        writeBoolean(STORAGE_KEYS.otel, enabled);
+        window.location.reload();
+      });
+    });
 
     return {
       get,
