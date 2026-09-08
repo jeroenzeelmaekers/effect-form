@@ -15,10 +15,34 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
+      - name: Cache Bun install cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-install-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-install-
+
       - run: bun install --frozen-lockfile
 
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(bunx playwright --version | cut -d' ' -f2)" >> $GITHUB_OUTPUT
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ steps.playwright-version.outputs.version }}
+
       - name: Install Playwright Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: bunx playwright install --with-deps chromium
+
+      - name: Install Playwright deps (cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: bunx playwright install-deps chromium
 
       - name: Run tests with coverage
         run: bun run test:coverage
