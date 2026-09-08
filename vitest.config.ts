@@ -47,6 +47,7 @@ export default defineConfig({
             headless: true,
             screenshotFailures: false,
             instances: browserInstances,
+            traceView: true,
           },
         },
       },
