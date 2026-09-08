@@ -4,13 +4,20 @@ import { defineConfig } from "vitest/config";
 
 const isCoverage = process.argv.includes("--coverage");
 
-const browserInstances = isCoverage
-  ? [{ browser: "chromium" as const, name: "blink" }]
-  : [
-      { browser: "chromium" as const, name: "blink" },
-      { browser: "firefox" as const, name: "gecko" },
-      { browser: "webkit" as const, name: "webkit" },
-    ];
+// Coverage runs Chromium only to keep CI/runtime fast and stable; cross-browser coverage adds little value here.
+function getBrowserInstances() {
+  if (isCoverage) {
+    return [{ browser: "chromium" as const, name: "blink" }];
+  }
+
+  return [
+    { browser: "chromium" as const, name: "blink" },
+    { browser: "firefox" as const, name: "gecko" },
+    { browser: "webkit" as const, name: "webkit" },
+  ];
+}
+
+const browserInstances = getBrowserInstances();
 
 export default defineConfig({
   resolve: {
