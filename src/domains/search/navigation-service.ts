@@ -27,7 +27,11 @@ export class NavigationService extends Context.Service<
   static readonly layer = Layer.effect(NavigationService)(
     Effect.succeed(
       NavigationService.of({
-        navigate: (to: string) => Effect.promise(() => navigate(to)),
+        navigate: Effect.fn("NavigationService.navigate")(function* (
+          to: string,
+        ) {
+          return yield* Effect.promise(() => navigate(to));
+        }),
       }),
     ),
   );

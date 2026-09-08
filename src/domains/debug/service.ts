@@ -79,26 +79,34 @@ export interface DebugServiceShape {
  * application runtime is reconstructed with the updated settings.
  *
  * @example
- * const settings = yield* DebugService.pipe(Effect.flatMap(service => service.get));
+ * const settings = yield* DebugService.pipe(Effect.flatMap((service) => service.get));
  */
 export class DebugService extends Context.Service<
   DebugService,
   DebugServiceShape
 >()("effect-form/domains/debug/DebugService", {
   make: Effect.sync(() => {
-    const get = Effect.sync(getDebugSettingsSync);
+    const get = Effect.sync(getDebugSettingsSync).pipe(
+      Effect.withSpan("DebugService.get"),
+    );
 
-    const setSimulationEnabled = (enabled: boolean): Effect.Effect<void> =>
-      Effect.sync(() => {
-        writeBoolean(STORAGE_KEYS.simulation, enabled);
-        window.location.reload();
-      });
+    const setSimulationEnabled = Effect.fn("DebugService.setSimulationEnabled")(
+      function* (enabled: boolean) {
+        yield* Effect.sync(() => {
+          writeBoolean(STORAGE_KEYS.simulation, enabled);
+          window.location.reload();
+        });
+      },
+    );
 
-    const setOtelEnabled = (enabled: boolean): Effect.Effect<void> =>
-      Effect.sync(() => {
-        writeBoolean(STORAGE_KEYS.otel, enabled);
-        window.location.reload();
-      });
+    const setOtelEnabled = Effect.fn("DebugService.setOtelEnabled")(
+      function* (enabled: boolean) {
+        yield* Effect.sync(() => {
+          writeBoolean(STORAGE_KEYS.otel, enabled);
+          window.location.reload();
+        });
+      },
+    );
 
     return {
       get,

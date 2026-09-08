@@ -30,7 +30,7 @@ interface PostServiceShape {
  *
  * @example
  * const posts = yield* PostService.pipe(
- *   Effect.flatMap(service => service.getPosts)
+ *   Effect.flatMap((service) => service.getPosts)
  * );
  */
 export class PostService extends Context.Service<
@@ -61,7 +61,7 @@ export class PostService extends Context.Service<
             SchemaError: () => Effect.fail(new ValidationError({ traceId })),
           }),
         );
-      }).pipe(Effect.withSpan("Get Posts"));
+      }).pipe(Effect.withSpan("PostService.getPosts"));
 
       return PostService.of({ getPosts });
     }),

@@ -122,7 +122,6 @@ describe("UserForm", () => {
 
       expect(mockCreateUser).toHaveBeenCalledOnce();
       expect(mockCreateUser).toHaveBeenCalledWith({
-        _tag: "UserForm",
         name: "Alice",
         username: "alice",
         email: "alice@test.com",

@@ -95,26 +95,29 @@ export class CommandService extends Context.Service<
     Effect.gen(function* () {
       const toolkit = yield* CommandToolkit;
 
-      const processPrompt = (prompt: string) =>
-        LanguageModel.generateText({
-          prompt: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: prompt },
-          ],
-          toolkit,
-        }).pipe(
-          Effect.asVoid,
-          // The tool handler (filter + navigation) runs before generateText
-          // resolves. If the library fails to decode the response metadata
-          // (a known @effect/ai-anthropic bug with the `caller.toolId`
-          // field), the side-effects have already succeeded — log and ignore.
-          Effect.catchTag("AiError", (e) =>
-            Effect.logWarning(
-              `AiError suppressed (known @effect/ai-anthropic caller.toolId bug): ${e.message}`,
+      const processPrompt = Effect.fn("CommandService.processPrompt")(
+        function* (prompt: string) {
+          return yield* LanguageModel.generateText({
+            prompt: [
+              { role: "system", content: SYSTEM_PROMPT },
+              { role: "user", content: prompt },
+            ],
+            toolkit,
+          }).pipe(
+            Effect.asVoid,
+            // The tool handler (filter + navigation) runs before generateText
+            // resolves. If the library fails to decode the response metadata
+            // (a known @effect/ai-anthropic bug with the `caller.toolId`
+            // field), the side-effects have already succeeded — log and ignore.
+            Effect.catchTag("AiError", (e) =>
+              Effect.logWarning(
+                `AiError suppressed (known @effect/ai-anthropic caller.toolId bug): ${e.message}`,
+              ),
             ),
-          ),
-          Effect.provide(LanguageModelLive),
-        );
+            Effect.provide(LanguageModelLive),
+          );
+        },
+      );
 
       return CommandService.of({ processPrompt });
     }),

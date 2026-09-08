@@ -1,4 +1,4 @@
-import { Layer } from "effect";
+import { Effect, Layer } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
 import {
   OtlpLogger,
@@ -6,20 +6,30 @@ import {
   OtlpTracer,
 } from "effect/unstable/observability";
 
-const baseUrl = import.meta.env.VITE_OTLP_BASE_URL ?? "/otlp";
-const resource = {
-  serviceName: "effect-form",
-  serviceVersion: import.meta.env.VITE_APP_VERSION ?? "0.0.0",
-};
+import { AppConfig } from "@/infrastructure/config";
 
-const TracerLive = OtlpTracer.layer({
-  url: `${baseUrl}/v1/traces`,
-  resource,
-});
+const TelemetryLayer = Effect.gen(function* () {
+  const appConfig = yield* AppConfig;
 
-const LoggerLive = OtlpLogger.layer({
-  url: `${baseUrl}/v1/logs`,
-  resource,
+  const resource = {
+    serviceName: "effect-form",
+    serviceVersion: appConfig.appVersion,
+  };
+
+  const tracerLive = OtlpTracer.layer({
+    url: `${appConfig.otlpBaseUrl}/v1/traces`,
+    resource,
+  });
+
+  const loggerLive = OtlpLogger.layer({
+    url: `${appConfig.otlpBaseUrl}/v1/logs`,
+    resource,
+  });
+
+  return Layer.mergeAll(tracerLive, loggerLive).pipe(
+    Layer.provide(FetchHttpClient.layer),
+    Layer.provide(OtlpSerialization.layerJson),
+  );
 });
 
 /**
@@ -37,7 +47,6 @@ const LoggerLive = OtlpLogger.layer({
  * This layer is conditionally included in the runtime by `infrastructure/runtime.ts`
  * when the `otelEnabled` debug flag is active.
  */
-export const TelemetryLive = Layer.mergeAll(TracerLive, LoggerLive).pipe(
-  Layer.provide(FetchHttpClient.layer),
-  Layer.provide(OtlpSerialization.layerJson),
+export const TelemetryLive = Layer.unwrap(TelemetryLayer).pipe(
+  Layer.provide(AppConfig.layer),
 );

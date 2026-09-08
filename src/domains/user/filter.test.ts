@@ -10,9 +10,8 @@ import type { User } from "@/domains/user/model";
 import type { UserId } from "@/domains/user/model";
 
 const makeUser = (
-  overrides: Omit<Partial<Omit<User, "_tag">>, "id"> & { id: number },
+  overrides: Omit<Partial<User>, "id"> & { id: number },
 ): User => ({
-  _tag: "User",
   id: overrides.id as UserId,
   name: overrides.name ?? "Test User",
   username: overrides.username ?? "testuser",

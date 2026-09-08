@@ -10,20 +10,24 @@ import { UserService } from "@/domains/user/service";
 import { TelemetryLive } from "@/infrastructure/telemetry";
 import { ApiLive } from "@/shared/api/client";
 
-const DomainLive = Layer.mergeAll(
-  UserService.layer,
-  PostService.layer,
+const DomainDependenciesLive = Layer.mergeAll(
   FilterRef.layer,
   NavigationService.layer,
 );
 
-const ServicesLive = Layer.mergeAll(
-  DomainLive,
-  CommandService.layer.pipe(Layer.provide(DomainLive)),
-).pipe(Layer.provide(ApiLive));
+const FeatureServicesLive = Layer.mergeAll(
+  UserService.layer,
+  PostService.layer,
+  CommandService.layer,
+).pipe(
+  Layer.provide(DomainDependenciesLive),
+  Layer.provide(ApiLive),
+);
+
+const ServicesLive = Layer.merge(DomainDependenciesLive, FeatureServicesLive);
 
 const MainLive = getDebugSettingsSync().otelEnabled
-  ? ServicesLive.pipe(Layer.provideMerge(TelemetryLive))
+  ? Layer.merge(ServicesLive, TelemetryLive)
   : ServicesLive;
 
 /**

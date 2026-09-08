@@ -45,11 +45,10 @@ const Language = Schema.String.check(
 );
 
 /**
- * Effect Schema class representing a user as returned by the API.
+ * Effect Schema struct representing a user as returned by the API.
  *
  * Decodes JSON objects from the JSONPlaceholder `/users` endpoint into
- * strongly-typed, validated `User` instances. The `_tag` field is omitted
- * from the encoded form so the class is compatible with the external API shape.
+ * strongly-typed, validated `User` values.
  *
  * Fields:
  * - `id` — branded `UserId` number.
@@ -58,17 +57,18 @@ const Language = Schema.String.check(
  * - `email` — RFC-compliant e-mail address.
  * - `language` — optional language code validated against `languageValues`.
  */
-class User extends Schema.Class<User>("User")({
-  _tag: Schema.tagDefaultOmit("User"),
+const User = Schema.Struct({
   id: UserId,
   name: Name,
   username: Username,
   email: Email,
-  language: Schema.optional(Language),
-}) {}
+  language: Schema.optionalKey(Language),
+});
+
+export interface User extends Schema.Schema.Type<typeof User> {}
 
 /**
- * Effect Schema class representing the user creation / edit form payload.
+ * Effect Schema struct representing the user creation / edit form payload.
  *
  * Similar to `User` but without an `id` field, and with `language` as a
  * required (non-optional) field. Used to validate form values before they
@@ -80,12 +80,13 @@ class User extends Schema.Class<User>("User")({
  * - `email` — RFC-compliant e-mail address.
  * - `language` — required language code validated against `languageValues`.
  */
-class UserForm extends Schema.Class<UserForm>("UserForm")({
-  _tag: Schema.tagDefaultOmit("UserForm"),
+const UserForm = Schema.Struct({
   name: Name,
   username: Username,
   email: Email,
   language: Language,
-}) {}
+});
+
+export interface UserForm extends Schema.Schema.Type<typeof UserForm> {}
 
 export { User, UserForm };

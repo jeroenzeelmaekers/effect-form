@@ -54,7 +54,7 @@ export default function AccountMenu() {
             aria-label="Open account menu">
             <Avatar size="sm">
               <AvatarImage
-                src="https://github.com/jeroenzeelmaekers.png"
+                src="https://avatars.githubusercontent.com/u/46943193?v=4"
                 alt=""
               />
               <AvatarFallback aria-hidden="true">JZ</AvatarFallback>

@@ -27,14 +27,12 @@ describe("UserService", () => {
         const result = yield* Fiber.join(fiber);
         expect(result).toEqual([
           {
-            _tag: "User",
             id: 1,
             name: "John Doe",
             username: "johndoe",
             email: "john@example.com",
           },
           {
-            _tag: "User",
             id: 2,
             name: "Jane Doe",
             username: "janedoe",
@@ -127,7 +125,6 @@ describe("UserService", () => {
 
   describe("Create user", () => {
     const validFormData = {
-      _tag: "UserForm" as const,
       name: "Test User",
       username: "testuser",
       email: "test@example.com",
@@ -146,7 +143,6 @@ describe("UserService", () => {
 
         const result = yield* Fiber.join(fiber);
         expect(result).toEqual({
-          _tag: "User",
           id: 1,
           name: "Test User",
           username: "testuser",

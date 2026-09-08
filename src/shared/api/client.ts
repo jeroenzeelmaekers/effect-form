@@ -8,6 +8,7 @@ import {
 } from "effect/unstable/http";
 
 import { DebugService } from "@/domains/debug/service";
+import { AppConfig } from "@/infrastructure/config";
 
 import { withSimulation } from "./simulation";
 
@@ -43,7 +44,7 @@ export class ApiClient extends Context.Service<ApiClient, ApiClientShape>()(
   static readonly layer = Layer.effect(
     this,
     Effect.gen(function* () {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL;
+      const appConfig = yield* AppConfig;
       const httpClient = yield* HttpClient.HttpClient;
       const debugService = yield* DebugService;
 
@@ -54,21 +55,22 @@ export class ApiClient extends Context.Service<ApiClient, ApiClientShape>()(
         }),
         HttpClient.mapRequest(
           flow(
-            HttpClientRequest.prependUrl(baseUrl),
+            HttpClientRequest.prependUrl(appConfig.apiBaseUrl),
             HttpClientRequest.acceptJson,
           ),
         ),
       );
 
       return ApiClient.of({
-        execute: (request) =>
-          Effect.gen(function* () {
-            const settings = yield* debugService.get;
-            const client = settings.simulationEnabled
-              ? withSimulation(resilientClient)
-              : resilientClient;
-            return yield* client.execute(request);
-          }),
+        execute: Effect.fn("ApiClient.execute")(function* (
+          request: HttpClientRequest.HttpClientRequest,
+        ) {
+          const settings = yield* debugService.get;
+          const client = settings.simulationEnabled
+            ? withSimulation(resilientClient)
+            : resilientClient;
+          return yield* client.execute(request);
+        }),
       });
     }),
   );
@@ -83,5 +85,6 @@ export class ApiClient extends Context.Service<ApiClient, ApiClientShape>()(
  */
 export const ApiLive = ApiClient.layer.pipe(
   Layer.provide(FetchHttpClient.layer),
+  Layer.provide(AppConfig.layer),
   Layer.provide(DebugService.layer),
 );

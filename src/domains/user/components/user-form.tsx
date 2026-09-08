@@ -86,7 +86,7 @@ export default function EffectForm() {
     },
     onSubmit: ({ formApi }) => {
       setSubmitStatus("pending");
-      createUser({ _tag: "UserForm", ...formApi.state.values });
+      createUser(formApi.state.values);
       formApi.reset();
     },
   });

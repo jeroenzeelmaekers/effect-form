@@ -26,7 +26,6 @@ describe("User schema", () => {
 
   it("should decode a valid user object", () => {
     const user = Schema.decodeSync(User)(validUser);
-    expect(user._tag).toBe("User");
     expect(user.id).toBe(1);
     expect(user.name).toBe("John Doe");
     expect(user.username).toBe("johndoe");
@@ -71,7 +70,6 @@ describe("UserForm schema", () => {
 
   it("should decode a valid user form object", () => {
     const form = Schema.decodeSync(UserForm)(validForm);
-    expect(form._tag).toBe("UserForm");
     expect(form.name).toBe("John Doe");
     expect(form.username).toBe("johndoe");
     expect(form.email).toBe("john@example.com");

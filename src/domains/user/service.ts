@@ -40,7 +40,7 @@ interface UserServiceShape {
  *
  * @example
  * const users = yield* UserService.pipe(
- *   Effect.flatMap(service => service.getUsers)
+ *   Effect.flatMap((service) => service.getUsers)
  * );
  */
 export class UserService extends Context.Service<
@@ -74,9 +74,9 @@ export class UserService extends Context.Service<
             SchemaError: () => Effect.fail(new ValidationError({ traceId })),
           }),
         );
-      }).pipe(Effect.withSpan("Get Users"));
+      }).pipe(Effect.withSpan("UserService.getUsers"));
 
-      const createUser = Effect.fn("Create User")(function* (
+      const createUser = Effect.fn("UserService.createUser")(function* (
         formValues: Schema.Schema.Type<typeof UserForm>,
       ) {
         const traceId = yield* getCurrentTraceId;

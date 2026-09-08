@@ -35,26 +35,26 @@ vi.mock("@effect/atom-react", async (importOriginal) => {
 });
 
 // Test data
-const alice = new User({
+const alice: User = {
   id: 1 as UserId,
   name: "Alice",
   username: "alice",
   email: "alice@test.com",
-});
+};
 
-const bob = new User({
+const bob: User = {
   id: 2 as UserId,
   name: "Bob",
   username: "bob",
   email: "bob@test.com",
-});
+};
 
-const optimisticUser = new User({
+const optimisticUser: User = {
   id: -1 as UserId,
   name: "Charlie",
   username: "charlie",
   email: "charlie@test.com",
-});
+};
 
 describe("UserList", () => {
   beforeEach(() => {

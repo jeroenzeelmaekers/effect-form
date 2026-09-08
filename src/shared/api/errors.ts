@@ -16,11 +16,11 @@ import type { ResponseError } from "effect/unstable/http/HttpClientError";
  * - `instance` — URI reference that identifies the specific occurrence.
  */
 export const ProblemDetail = Schema.Struct({
-  type: Schema.optional(Schema.String),
-  title: Schema.optional(Schema.String),
-  status: Schema.optional(Schema.Finite),
-  detail: Schema.optional(Schema.String),
-  instance: Schema.optional(Schema.String),
+  type: Schema.optionalKey(Schema.String),
+  title: Schema.optionalKey(Schema.String),
+  status: Schema.optionalKey(Schema.Finite),
+  detail: Schema.optionalKey(Schema.String),
+  instance: Schema.optionalKey(Schema.String),
 });
 
 /** TypeScript type inferred from the `ProblemDetail` schema. */
