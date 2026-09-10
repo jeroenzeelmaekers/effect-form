@@ -3,8 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#292524" media="(prefers-color-scheme: dark)" />
+    <meta
+      name="theme-color"
+      content="#ffffff"
+      media="(prefers-color-scheme: light)" />
+    <meta
+      name="theme-color"
+      content="#292524"
+      media="(prefers-color-scheme: dark)" />
     <meta
       name="description"
       content="Demo application of an form w/ data fetching in Effect" />
@@ -19,23 +25,23 @@
     <script>
       (function () {
         try {
-          const storageKey = 'theme-preference';
+          const storageKey = "theme-preference";
           const theme = localStorage.getItem(storageKey);
           const systemDark = window.matchMedia(
-            '(prefers-color-scheme: dark)',
+            "(prefers-color-scheme: dark)",
           ).matches;
 
           if (
-            theme === 'dark' ||
-            (theme === 'system' && systemDark) ||
+            theme === "dark" ||
+            (theme === "system" && systemDark) ||
             (!theme && systemDark)
           ) {
-            document.documentElement.classList.add('dark');
+            document.documentElement.classList.add("dark");
           } else {
-            document.documentElement.classList.add('light');
+            document.documentElement.classList.add("light");
           }
         } catch {
-          document.documentElement.classList.add('light');
+          document.documentElement.classList.add("light");
         }
       })();
     </script>

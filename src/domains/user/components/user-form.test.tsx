@@ -1,6 +1,6 @@
 import { Cause } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 
 import { NetworkError } from "@/shared/api/errors";
