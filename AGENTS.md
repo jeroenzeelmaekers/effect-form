@@ -2,15 +2,16 @@
 
 ## Commands
 
-- Use Bun for package scripts; `bun.lock`, Docker, and Dependabot all identify this repo as Bun-based.
-- Install with `bun install --frozen-lockfile` when reproducing Docker/CI-like dependency resolution.
-- Dev server: `bun run dev`.
-- Build/typecheck: `bun run build` (`tsc -b` then `vite build`).
-- Lint: `bun run lint`; GitHub annotation format: `bun run lint:github`.
-- Format: `bun run fmt` (`oxfmt --ignore-path=.oxfmtignore`), not Prettier.
-- Node tests: `bun run test` for `src/**/*.test.ts`.
-- Browser tests: `bun run test:browser` for `src/**/*.test.tsx`; uses Vitest browser mode with Playwright across Chromium, Firefox, and WebKit.
-- Coverage: `bun run test:coverage`; coverage intentionally runs only the node project plus browser Chromium.
+- Primary workflow uses Vite+ (`vp`) for project commands; use `vp run <script>` for scripts defined in `package.json`.
+- Bun remains the package manager/runtime (`bun.lock`, Docker, Dependabot, `devEngines`); `bun run <script>` is valid but prefer `vp run <script>` in docs and automation.
+- Install dependencies: `vp install` (or `bun install --frozen-lockfile` when reproducing Docker/CI dependency resolution).
+- Dev server: `vp run dev` (script currently runs `vp dev`).
+- Build/typecheck: `vp run build` (script currently runs `tsc -b && vp build`).
+- Lint: `vp run lint`; GitHub annotation format: `vp run lint:github`.
+- Format: `vp run fmt` (`vp fmt --ignore-path=.oxfmtignore` via script), not Prettier.
+- Node tests: `vp run test` (`vp test --project node`) for `src/**/*.test.ts`.
+- Browser tests: `vp run test:browser` (`vp test --project browser`) for `src/**/*.test.tsx`; uses Vitest browser mode with Playwright across Chromium, Firefox, and WebKit.
+- Coverage: `vp run test:coverage` (`vp test run --coverage`); coverage intentionally runs only the node project plus browser Chromium.
 
 ## Architecture
 
@@ -39,30 +40,24 @@
 - `oxfmt` ignores `index.html`, `src/routeTree.gen.ts`, and `observability`.
 - UI primitives live in `src/shared/components/ui`; this repo uses Base UI/shadcn-style components with Tailwind v4 tokens in `src/index.css`.
 
-<!--VITE PLUS START-->
+## Vite+ Workflow
 
-# Using Vite+, the Unified Toolchain for the Web
+- Vite+ is the unified toolchain in this repo (`vite-plus` in `devDependencies`, `vite` overridden to `@voidzero-dev/vite-plus-core`).
+- `vp <name>` runs built-in Vite+ commands; `vp run <name>` runs `package.json` scripts or `vite.config.ts` tasks.
+- Prefer `vp run <script>` when a script exists so command behavior stays repo-specific.
+- This repo configures Vite+ directly in `vite.config.ts` (`fmt`, `lint`, `staged`, and plugins), and lint enforces `vite-plus/prefer-vite-plus-imports`.
+- Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.dev/guide/.
 
-This project is using Vite+, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling in a single global CLI called `vp`. Vite+ is distinct from Vite, and it invokes Vite through `vp dev` and `vp build`. Run `vp help` to print a list of commands and `vp <command> --help` for information about a specific command.
+## Vite+ Tooling
 
-Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.dev/guide/.
-
-## Built-in Commands vs Scripts
-
-`vp <name>` runs a built-in command. `vp run <name>` runs a `package.json` script or a `vite.config.ts` task. Scripts cannot overwrite built-ins, so `vp dev` and `vp run dev` may do different things. Check `package.json` and `vite.config.ts` first, and run `vp run <name>` when the project defines a script or task with that name.
-
-## Tool Versions
-
-Run `vp toolchain` to show versions and relationships in the active Vite+
-release. Add a tool name to select part of the graph. For example, run
-`vp toolchain vite`. Use `--global` to ignore the local `vite-plus` package. Use
-`vp why <package>` to show the package-manager dependency graph.
+- `vp toolchain` shows versions and relationships in the active Vite+ release.
+- Use `vp toolchain <tool>` (for example `vp toolchain vite`) to inspect one tool.
+- Use `vp toolchain --global` to inspect the global toolchain.
+- Use `vp why <package>` for dependency graph debugging.
 
 ## Review Checklist
 
-- [ ] Run `vp install` after pulling remote changes and before getting started.
-- [ ] Run `vp check` and `vp test` to format, lint, type check and test changes.
-- [ ] Check if there are `vite.config.ts` tasks or `package.json` scripts necessary for validation, run via `vp run <script>`.
+- [ ] Run `vp install` after pulling remote changes or before first run on a fresh checkout.
+- [ ] Run `vp check` and `vp test` for full validation (format, lint, type check, and tests) when preparing a branch.
+- [ ] Run targeted scripts via `vp run <script>` for smaller changes (`dev`, `build`, `lint`, `test`, `test:browser`, `test:coverage`).
 - [ ] If setup, runtime, or package-manager behavior looks wrong, run `vp env doctor` and include its output when asking for help.
-
-<!--VITE PLUS END-->
