@@ -1,6 +1,6 @@
 import react from "@vitejs/plugin-react";
-import { playwright } from "@vitest/browser-playwright";
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite-plus";
+import { playwright } from "vite-plus/test/browser-playwright";
 
 const isCoverage = process.argv.includes("--coverage");
 
@@ -54,7 +54,6 @@ export default defineConfig({
             headless: true,
             screenshotFailures: false,
             instances: browserInstances,
-            traceView: true,
           },
         },
       },
