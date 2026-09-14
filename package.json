@@ -34,7 +34,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "effect": "4.0.0-rc.112",
-    "lucide-react": "^1.43.0",
+    "lucide-react": "^1.45.0",
     "nuqs": "^2.10.1",
     "posthog-js": "^1.428.6",
     "react": "^19.2.8",
