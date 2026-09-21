@@ -33,7 +33,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "effect": "4.0.0-rc.112",
+    "effect": "4.0.0-rc.115",
     "lucide-react": "^1.47.0",
     "nuqs": "^2.10.1",
     "posthog-js": "^1.434.2",
