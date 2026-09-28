@@ -1,0 +1,24 @@
+{
+  "printWidth": 80,
+  "singleQuote": false,
+  "bracketSameLine": true,
+  "sortTailwindcss": {
+    "attributes": ["class", "className"],
+    "functions": ["clsx", "cn", "cva"]
+  },
+  "sortPackageJson": {
+    "sortScripts": true
+  },
+  "sortImports": {
+    "groups": [
+      ["side_effect"],
+      ["builtin"],
+      ["external", "type-external"],
+      ["internal", "type-internal"],
+      ["parent", "type-parent"],
+      ["sibling", "type-sibling"],
+      ["index", "type-index"]
+    ]
+  },
+  "ignorePatterns": ["src/routeTree.gen.ts"]
+}
