@@ -1,5 +1,5 @@
 import { useAtomRefresh } from "@effect/atom-react";
-import type { Atom } from "effect/unstable/reactivity";
+import type { Atom } from "effect/reactivity";
 import type { ReactNode } from "react";
 
 import { Button } from "@/shared/components/ui/button";

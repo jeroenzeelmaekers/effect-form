@@ -1,6 +1,6 @@
 import { Effect, Schema } from "effect";
-import { HttpClientError, HttpClientResponse } from "effect/unstable/http";
-import type { ResponseError } from "effect/unstable/http/HttpClientError";
+import { HttpClientError, HttpClientResponse } from "effect/http";
+import type { ResponseError } from "effect/http/HttpClientError";
 
 /**
  * Effect Schema struct representing an RFC 7807 Problem Detail object.
@@ -109,7 +109,7 @@ export const annotateSpanWithProblemDetail = (
   });
 
 /**
- * Maps a `ResponseError` (from `effect/unstable/http`) to a typed domain error
+ * Maps a `ResponseError` (from `effect/http`) to a typed domain error
  * by inspecting the HTTP status code.
  *
  * Also attempts to decode an RFC 7807 Problem Detail from the response body

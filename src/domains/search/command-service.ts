@@ -1,5 +1,5 @@
 import { Context, Effect, Layer, Schema, SubscriptionRef } from "effect";
-import { LanguageModel, Tool, Toolkit } from "effect/unstable/ai";
+import { LanguageModel, Tool, Toolkit } from "effect/ai";
 
 import { LanguageModelLive } from "@/domains/ai/language-model";
 import { NavigationService } from "@/domains/search/navigation-service";

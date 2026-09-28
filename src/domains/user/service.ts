@@ -1,9 +1,5 @@
 import { Context, Effect, Layer, Schema } from "effect";
-import {
-  HttpBody,
-  HttpClientRequest,
-  HttpClientResponse,
-} from "effect/unstable/http";
+import { HttpBody, HttpClientRequest, HttpClientResponse } from "effect/http";
 
 import { User, UserForm } from "@/domains/user/model";
 import { ApiClient } from "@/shared/api/client";

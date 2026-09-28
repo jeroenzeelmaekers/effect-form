@@ -1,5 +1,5 @@
 import { Layer } from "effect";
-import { Atom } from "effect/unstable/reactivity";
+import { Atom } from "effect/reactivity";
 
 import { getDebugSettingsSync } from "@/domains/debug/service";
 import { PostService } from "@/domains/post/service";

@@ -24,6 +24,7 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   optimizeDeps: {
+    entries: ["src/**/*.test.tsx"],
     include: ["nuqs/adapters/testing"],
   },
   test: {

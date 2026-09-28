@@ -1,10 +1,10 @@
 import { Effect, Layer } from "effect";
-import { FetchHttpClient } from "effect/unstable/http";
+import { FetchHttpClient } from "effect/http";
 import {
   OtlpLogger,
   OtlpSerialization,
   OtlpTracer,
-} from "effect/unstable/observability";
+} from "effect/observability";
 
 import { AppConfig } from "@/infrastructure/config";
 

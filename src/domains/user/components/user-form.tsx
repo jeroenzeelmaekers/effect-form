@@ -1,7 +1,7 @@
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { Schema } from "effect";
-import { AsyncResult } from "effect/unstable/reactivity";
+import { AsyncResult } from "effect/reactivity";
 import { HelpCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 

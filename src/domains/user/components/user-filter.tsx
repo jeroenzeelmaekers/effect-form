@@ -1,5 +1,5 @@
 import { useAtomValue } from "@effect/atom-react";
-import { AsyncResult } from "effect/unstable/reactivity";
+import { AsyncResult } from "effect/reactivity";
 import { X } from "lucide-react";
 import { parseAsString, useQueryState } from "nuqs";
 import React, { useEffect, useId, useRef, useState } from "react";

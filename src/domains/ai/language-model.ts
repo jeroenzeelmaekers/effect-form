@@ -1,6 +1,6 @@
 import { AnthropicClient, AnthropicLanguageModel } from "@effect/ai-anthropic";
 import { Layer } from "effect";
-import { FetchHttpClient } from "effect/unstable/http";
+import { FetchHttpClient } from "effect/http";
 
 /**
  * Provides the `AnthropicClient` via the `/anthropic` proxy endpoint.

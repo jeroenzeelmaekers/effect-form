@@ -1,5 +1,5 @@
 import { Effect, Schema, Stream, SubscriptionRef } from "effect";
-import { Atom, AsyncResult } from "effect/unstable/reactivity";
+import { Atom, AsyncResult } from "effect/reactivity";
 
 import { FilterRef } from "@/domains/user/filter-ref";
 import { User, UserForm, UserId } from "@/domains/user/model";

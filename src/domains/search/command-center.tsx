@@ -1,6 +1,6 @@
 import { useAtom } from "@effect/atom-react";
 import { useHotkey } from "@tanstack/react-hotkeys";
-import { AsyncResult } from "effect/unstable/reactivity";
+import { AsyncResult } from "effect/reactivity";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 

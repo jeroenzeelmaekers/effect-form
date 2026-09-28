@@ -5,7 +5,7 @@ import {
   HttpClientError,
   HttpClientRequest,
   HttpClientResponse,
-} from "effect/unstable/http";
+} from "effect/http";
 
 import { DebugService } from "@/domains/debug/service";
 import { AppConfig } from "@/infrastructure/config";

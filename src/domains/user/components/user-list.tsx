@@ -11,7 +11,7 @@ import {
   type Row,
   type SortingState,
 } from "@tanstack/react-table";
-import { AsyncResult } from "effect/unstable/reactivity";
+import { AsyncResult } from "effect/reactivity";
 import { parseAsString, useQueryState } from "nuqs";
 import { useState } from "react";
 

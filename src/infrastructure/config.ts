@@ -12,11 +12,11 @@ export class AppConfig extends Context.Service<AppConfig, AppConfigShape>()(
   static readonly layer = Layer.effect(
     this,
     Effect.gen(function* () {
-      const apiBaseUrl = yield* Config.string("VITE_API_BASE_URL");
-      const otlpBaseUrl = yield* Config.string("VITE_OTLP_BASE_URL").pipe(
+      const apiBaseUrl = yield* Config.String("VITE_API_BASE_URL");
+      const otlpBaseUrl = yield* Config.String("VITE_OTLP_BASE_URL").pipe(
         Config.withDefault("/otlp"),
       );
-      const appVersion = yield* Config.string("VITE_APP_VERSION").pipe(
+      const appVersion = yield* Config.String("VITE_APP_VERSION").pipe(
         Config.withDefault("0.0.0"),
       );
 
