@@ -2,14 +2,9 @@
 
 Use this when writing outgoing HTTP calls, Effect HttpClient adapters, status classification, HTTP retries, or rate limiting.
 
-Use Effect HTTP client modules for outgoing HTTP in app/provider code:
+Use Effect HTTP client modules for outgoing HTTP in app/provider code. This repository pins a release that exports them from `effect/http`; it does not export the `effect/unstable/http/*` paths.
 
-- `effect/unstable/http/HttpClient`
-- `effect/unstable/http/HttpClientRequest`
-- `effect/unstable/http/HttpClientResponse`
-- `effect/unstable/http/HttpClientError`
-
-Prefer Effect HttpClient in Effect application and provider code when its typed errors, layers, and transforms are useful. Raw `fetch` remains reasonable for browser or edge constraints, small adapters, platform transports, and libraries that intentionally avoid unstable Effect HTTP APIs.
+Prefer Effect HttpClient in Effect application and provider code when its typed errors, layers, and transforms are useful. Raw `fetch` remains reasonable for browser or edge constraints, small adapters, platform transports, and libraries that intentionally avoid Effect HTTP APIs.
 
 ## Boundary Shape
 
@@ -27,6 +22,16 @@ Keep raw provider/network effects outside business services and database transac
 
 ## Effect HttpClient
 
+```ts
+import {
+  FetchHttpClient,
+  HttpClient,
+  HttpClientError,
+  HttpClientRequest,
+  HttpClientResponse,
+} from "effect/http";
+```
+
 Useful APIs:
 
 - `HttpClient.get(...)`, `post(...)`, `put(...)`, `patch(...)`, `del(...)`, `execute(...)` for service accessors.
@@ -37,7 +42,7 @@ Useful APIs:
 - `HttpClientRequest.bodyJson(...)` for effectful JSON body encoding.
 - `HttpClientRequest.schemaBodyJson(...)` for schema-backed JSON body encoding.
 - `HttpClient.filterStatusOk` / `HttpClientResponse.filterStatusOk` before decoding when non-2xx responses are failures.
-- `HttpClientResponse.schemaBodyJson(...)` for body-only decoding, `schemaJson(...)` for status/headers/body decoding, and `schemaNoBody(...)` for status/headers decoding.
+- `HttpClientResponse.schemaBodyJson(...)` for body-only decoding, `HttpClientResponse.schemaJson(...)` for status/headers/body decoding, and `HttpClientResponse.schemaNoBody(...)` for status/headers decoding.
 - `HttpClient.retryTransient(...)` for common transient HTTP failures.
 - `HttpClient.withRateLimiter(...)` for proactive pacing and learning from rate-limit headers. It requires a `RateLimiter` plus initial window, limit, and key options; it adds `RateLimiterError` to the error channel and retries `429` responses by default.
 
@@ -60,7 +65,7 @@ Use operation-level `Effect.retry(...)` when retry depends on domain-specific ty
 
 ## Raw Fetch Exception
 
-Use raw `fetch` deliberately when implementing a platform transport, adapting an API that cannot use Effect HttpClient, or targeting a runtime/library boundary where the unstable Effect HTTP modules are not an appropriate dependency.
+Use raw `fetch` deliberately when implementing a platform transport, adapting an API that cannot use Effect HttpClient, or targeting a runtime/library boundary where the pinned Effect HTTP modules are not an appropriate dependency.
 
 If a temporary raw `fetch` boundary is unavoidable, keep it inside an adapter service and still use Effect boundary discipline.
 

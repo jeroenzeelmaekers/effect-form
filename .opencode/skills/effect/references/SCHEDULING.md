@@ -75,11 +75,11 @@ Only do this when retrying the item later is truthful or skipping the item is th
 ## Reusable Retry Policy
 
 ```ts
-const projectionRetrySchedule: Schedule.Schedule<unknown, ProjectionError> =
-  Schedule.exponential("100 millis").pipe(
-    Schedule.jittered,
-    Schedule.upTo({ times: 5 }),
-  );
+const projectionRetrySchedule = Schedule.exponential("100 millis").pipe(
+  Schedule.jittered,
+  Schedule.upTo({ times: 5 }),
+  Schedule.setInputType<ProjectionError>(),
+);
 
 const reconcileWithRetry = (target: Target) =>
   reconcile(target).pipe(
@@ -107,20 +107,19 @@ type RateLimited = {
   readonly retryAfterMs?: number | undefined;
 };
 
-const providerRetrySchedule: Schedule.Schedule<RateLimited, RateLimited> =
-  Schedule.exponential("200 millis").pipe(
-    Schedule.jittered,
-    Schedule.upTo({ times: 5 }),
-    Schedule.setInputType<RateLimited>(),
-    Schedule.passthrough,
-    Schedule.modifyDelay(({ input, duration }) =>
-      Effect.succeed(
-        input.retryAfterMs === undefined
-          ? duration
-          : Duration.max(duration, Duration.millis(input.retryAfterMs)),
-      ),
+const providerRetrySchedule = Schedule.exponential("200 millis").pipe(
+  Schedule.jittered,
+  Schedule.upTo({ times: 5 }),
+  Schedule.setInputType<RateLimited>(),
+  Schedule.passthrough,
+  Schedule.modifyDelay(({ input, duration }) =>
+    Effect.succeed(
+      input.retryAfterMs === undefined
+        ? duration
+        : Duration.max(duration, Duration.millis(input.retryAfterMs)),
     ),
-  );
+  ),
+);
 ```
 
 Use this for operation-level retries over typed provider errors. For Effect HttpClient-level 429 handling and proactive pacing, read `HTTP_CLIENTS.md`.

@@ -4,71 +4,64 @@ Use this when defining service tags, module surfaces, layer implementations, run
 
 ## Module Surface
 
-One opinionated application-module style uses file-local role names and one canonical ES module namespace projection. Follow the existing codebase's module style when it has one; this convention is not required by Effect.
+Follow the service style already used by the application. In this repository, define a named `Context.Service` class with a static `layer`, use an explicit interface, and export the class directly. Effect does not require a namespace projection.
 
 ```ts
-export interface Interface {
-  readonly get: (
+export interface UserRepoInterface {
+  readonly get: Effect.Effect<User, NotFound | PersistenceError>;
+  readonly find: (
     id: UserId,
   ) => Effect.Effect<User, NotFound | PersistenceError>;
 }
 
-export class Service extends Context.Service<Service, Interface>()(
-  "@app/UserRepo",
-) {}
+declare const loadUser: Effect.Effect<User, NotFound | PersistenceError>;
+declare const loadUserForId: (
+  id: UserId,
+) => Effect.Effect<User, NotFound | PersistenceError>;
 
-export const layer = Layer.effect(
-  Service,
-  Effect.gen(function* () {
-    const sql = yield* SqlClient.SqlClient;
+export class UserRepo extends Context.Service<
+  UserRepo,
+  UserRepoInterface
+>()("@app/UserRepo") {
+  static readonly layer = Layer.sync(
+    this,
+    () => {
+      const get = loadUser.pipe(Effect.withSpan("UserRepo.get"));
+      const find = Effect.fn("UserRepo.find")(function* (id: UserId) {
+        return yield* loadUserForId(id);
+      });
 
-    const get = Effect.fn("UserRepo.get")(function* (id: UserId) {
-      // ...
-    });
-
-    return Service.of({ get });
-  }),
-);
+      return UserRepo.of({ get, find });
+    },
+  );
+}
 
 export class NotFound extends Schema.TaggedError<NotFound>()(
   "UserRepo.NotFound",
   { id: UserId },
 ) {}
-
-export * as UserRepo from "./user-repo.js";
 ```
 
-Consumers use the module namespace.
+Consumers yield the service and use its operations. Zero-argument operations are Effects; operations with inputs are functions that return Effects.
 
 ```ts
 import { UserRepo } from "./user-repo.js";
 
 const program = Effect.gen(function* () {
-  const repo = yield* UserRepo.Service;
-  return yield* repo.get(id);
+  const repo = yield* UserRepo;
+  return yield* repo.find(id);
 });
 ```
 
-The self-export is deliberate. It lets the file remain the module while giving every consumer the same domain-first name, without a TypeScript `namespace`, wrapper object, or repeated consumer-side aliases.
+For a zero-argument operation, expose an Effect-valued property such as `readonly get: Effect.Effect<User, NotFound | PersistenceError>`. Build it as an Effect value, and use `Effect.withSpan(...)` if it needs tracing. Use `Effect.fn("UserRepo.find")` for an operation with arguments.
 
-```ts
-// Sibling module: import the owning leaf directly.
-import { UserRepo } from "./user-repo.js";
-
-// Folder or package barrel: relay the identity established by the leaf.
-export { UserRepo } from "./user-repo.js";
-```
+Some codebases prefer a file-local role name and a canonical ES module namespace projection. Use that only if it is already the established project convention. It is not required by Effect and is not the style used by this repository.
 
 Guidance:
 
-- Do not name the tag class `UserRepo` inside `user-repo.ts`; the module namespace is the domain name.
-- In this module style, single-file modules self-export their canonical namespace at the bottom: `export * as UserRepo from "./user-repo.js"`.
-- Sibling modules import that namespace from the owning leaf; they do not import through their own aggregate barrel.
-- Folder and package barrels relay established leaf identities with `export { UserRepo } from "./user-repo.js"`.
-- The resulting `UserRepo.UserRepo === UserRepo` self-reference is unusual. Use this pattern only where the runtime and toolchain support it; otherwise use named exports or a separate barrel.
 - Export only intentional surface; keep local schemas, row codecs, helpers, and implementation details unexported.
 - Do not introduce TypeScript `namespace` declarations for organization.
-- Use a named service class such as `class UserRepo extends Context.Service...` when an external library or existing codebase does not use module namespace style.
+- This repository's lint rule rejects relative runtime imports whose named export matches `make[A-Z]`, even if the function is a pure domain constructor. Keep such helpers local or use a domain-specific name that does not match the rule. Test and spec files are exempt. This is a syntactic restriction, not a check that the function constructs a service.
 
 ## Layer Constructors
 
@@ -82,7 +75,7 @@ Layer.effect(Service, makeEffect); // effectful service acquisition
 
 Guidance:
 
-- Default real implementations to `Layer.effect(Service, Effect.gen(...))`.
+- Use `Layer.effect(Service, Effect.gen(...))` when constructing the service requires Effects or other services. Use `Layer.sync(...)` or `Layer.succeed(...)` when construction is synchronous.
 - Use `Layer.effectContext(...)` when one acquisition intentionally supplies multiple services, especially first-class test stubs or one client backing several service tags.
 - Use `Layer.unwrap(...)` when config or runtime discovery chooses/builds the layer.
 - Use `Layer.fresh(...)` or `Effect.provide(layer, { local: true })` only when a test or operation needs isolated acquisition.
