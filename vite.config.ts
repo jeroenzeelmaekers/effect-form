@@ -9,7 +9,7 @@ import { defineConfig, loadEnv, lazyPlugins } from "vite-plus";
 import fmt from "./.oxfmtrc.json";
 import lintConfig from "./.oxlintrc.json";
 
-const manualChunks: Record<string, ReadonlyArray<string>> = {
+const manualChunks = {
   react: ["react", "react-dom"],
   effect: ["effect", "@effect/atom-react"],
   form: ["@tanstack/react-form"],
@@ -17,7 +17,7 @@ const manualChunks: Record<string, ReadonlyArray<string>> = {
   icons: ["lucide-react"],
   ui: ["@base-ui/react"],
   posthog: ["posthog-js/react"],
-};
+} satisfies Record<string, ReadonlyArray<string>>;
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -30,6 +30,7 @@ export default defineConfig(({ mode }) => {
     },
     fmt,
     lint: {
+      // SAFETY: lintConfig is imported from the checked-in Vite+ configuration JSON.
       ...(lintConfig as any),
       options: {
         typeAware: true,
@@ -39,6 +40,14 @@ export default defineConfig(({ mode }) => {
         {
           name: "vite-plus",
           specifier: "vite-plus/oxlint-plugin",
+        },
+        {
+          name: "anti-slop",
+          specifier: "./tools/oxlint/anti-slop/index.ts",
+        },
+        {
+          name: "anti-slop-effect",
+          specifier: "./tools/oxlint/anti-slop/effect/index.ts",
         },
       ],
     },

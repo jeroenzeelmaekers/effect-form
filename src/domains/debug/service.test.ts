@@ -13,6 +13,7 @@ import { DebugService, getDebugSettingsSync } from "./service";
 // ---- localStorage mock ----
 
 const storage: Record<string, string> = {};
+
 const reload = vi.fn();
 
 beforeEach(() => {
@@ -98,9 +99,11 @@ describe("DebugService", () => {
       const settings = await run(
         Effect.gen(function* () {
           const service = yield* DebugService;
+
           return yield* service.get;
         }),
       );
+
       expect(settings).toEqual({
         simulationEnabled: false,
         otelEnabled: false,
@@ -110,12 +113,15 @@ describe("DebugService", () => {
     it("should reflect values stored in localStorage", async () => {
       localStorage.setItem("debug:simulation:v1", "true");
       localStorage.setItem("debug:otel:v1", "true");
+
       const settings = await run(
         Effect.gen(function* () {
           const service = yield* DebugService;
+
           return yield* service.get;
         }),
       );
+
       expect(settings).toEqual({ simulationEnabled: true, otelEnabled: true });
     });
   });

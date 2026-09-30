@@ -46,9 +46,17 @@ export const createMockApiClient = (
  * const response = createMockResponse(200, [{ id: 1, title: "Post" }]);
  * const response404 = createMockResponse(404, { title: "Not Found", status: 404 });
  */
+type JsonValue =
+  | null
+  | boolean
+  | number
+  | string
+  | ReadonlyArray<JsonValue>
+  | { readonly [key: string]: JsonValue };
+
 export const createMockResponse = (
   status: number,
-  body: unknown,
+  body: JsonValue,
 ): HttpClientResponse.HttpClientResponse =>
   HttpClientResponse.fromWeb(
     HttpClientRequest.get("http://test"),

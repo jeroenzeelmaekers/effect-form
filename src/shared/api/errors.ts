@@ -1,4 +1,4 @@
-import { Effect, Schema } from "effect";
+import { Effect, Option, Predicate, Schema } from "effect";
 import { HttpClientError, HttpClientResponse } from "effect/http";
 import type { ResponseError } from "effect/http/HttpClientError";
 
@@ -82,7 +82,8 @@ export class ValidationError extends Schema.TaggedError<ValidationError>()(
  */
 export const getCurrentTraceId = Effect.gen(function* () {
   const span = yield* Effect.currentSpan.pipe(Effect.option);
-  return span._tag === "Some" ? span.value.traceId : undefined;
+
+  return Option.isSome(span) ? span.value.traceId : undefined;
 });
 
 /**
@@ -131,7 +132,7 @@ export function getResponseError(error: ResponseError, traceId?: string) {
     // extract problem detail from server error
     const problemDetail = yield* HttpClientResponse.schemaBodyJson(
       ProblemDetail,
-    )(error.response).pipe(Effect.orElseSucceed(() => ({}) as ProblemDetail));
+    )(error.response).pipe(Effect.orElseSucceed(() => ({})));
 
     // annotate span with problem detail
     if (Object.keys(problemDetail).length > 0) {
@@ -172,12 +173,14 @@ export const catchHttpClientError =
     error: HttpClientError.HttpClientError,
   ): Effect.Effect<never, NetworkError | NotFoundError | ValidationError> => {
     const reason = error.reason;
-    switch (reason._tag) {
-      case "StatusCodeError":
-      case "DecodeError":
-      case "EmptyBodyError":
-        return getResponseError(reason, traceId);
-      default:
-        return Effect.fail(new NetworkError({ traceId }));
+
+    if (
+      Predicate.isTagged(reason, "StatusCodeError") ||
+      Predicate.isTagged(reason, "DecodeError") ||
+      Predicate.isTagged(reason, "EmptyBodyError")
+    ) {
+      return getResponseError(reason, traceId);
     }
+
+    return Effect.fail(new NetworkError({ traceId }));
   };

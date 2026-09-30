@@ -1,4 +1,4 @@
-import { Cause } from "effect";
+import { Cause, Schema } from "effect";
 import { AsyncResult } from "effect/reactivity";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
@@ -23,34 +23,38 @@ function renderUserList() {
 
 // Mocks
 const mockUseAtomValue = vi.fn();
+
 const mockUseAtomRefresh = vi.fn(() => vi.fn());
+
+type AtomInput = Parameters<typeof mockUseAtomValue>[0];
 
 vi.mock("@effect/atom-react", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@effect/atom-react")>();
+
   return {
     ...actual,
-    useAtomValue: (atom: unknown) => mockUseAtomValue(atom),
-    useAtomRefresh: (_atom: unknown) => mockUseAtomRefresh(),
+    useAtomValue: (atom: AtomInput) => mockUseAtomValue(atom),
+    useAtomRefresh: (_atom: AtomInput) => mockUseAtomRefresh(),
   };
 });
 
 // Test data
 const alice: User = {
-  id: 1 as UserId,
+  id: Schema.decodeSync(UserId)(1),
   name: "Alice",
   username: "alice",
   email: "alice@test.com",
 };
 
 const bob: User = {
-  id: 2 as UserId,
+  id: Schema.decodeSync(UserId)(2),
   name: "Bob",
   username: "bob",
   email: "bob@test.com",
 };
 
 const optimisticUser: User = {
-  id: -1 as UserId,
+  id: Schema.decodeSync(UserId)(-1),
   name: "Charlie",
   username: "charlie",
   email: "charlie@test.com",
@@ -73,9 +77,11 @@ describe("UserList", () => {
     });
 
     it("shows data table during revalidation", async () => {
+      // oxlint-disable anti-slop-effect/no-manual-tagged-construction
       mockUseAtomValue.mockReturnValue(
         AsyncResult.success([alice], { waiting: true }),
       );
+      // oxlint-enable anti-slop-effect/no-manual-tagged-construction
 
       const screen = await renderUserList();
 
@@ -237,7 +243,7 @@ describe("UserList", () => {
 
     it("shows fallback error for unmatched error tags", async () => {
       mockUseAtomValue.mockReturnValue(
-        AsyncResult.failure(Cause.fail({ _tag: "UnexpectedError" })),
+        AsyncResult.failure(Cause.fail(new Error("UnexpectedError"))),
       );
 
       const screen = await renderUserList();

@@ -1,3 +1,4 @@
+import { Schema } from "effect";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -7,12 +8,12 @@ import {
   tokenize,
 } from "@/domains/user/filter";
 import type { User } from "@/domains/user/model";
-import type { UserId } from "@/domains/user/model";
+import { UserId } from "@/domains/user/model";
 
 const makeUser = (
   overrides: Omit<Partial<User>, "id"> & { id: number },
 ): User => ({
-  id: overrides.id as UserId,
+  id: Schema.decodeSync(UserId)(overrides.id),
   name: overrides.name ?? "Test User",
   username: overrides.username ?? "testuser",
   email: overrides.email ?? "test@example.com",

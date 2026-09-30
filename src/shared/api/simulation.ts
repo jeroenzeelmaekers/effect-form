@@ -30,11 +30,13 @@ const mockProblemDetails = {
   },
 };
 
+type ProblemBody = Record<string, string | number>;
+
 // Create a mock HTTP response with the given status and body
 const createMockResponse = (
   request: HttpClientRequest.HttpClientRequest,
   status: number,
-  body: unknown,
+  body: ProblemBody,
 ) =>
   HttpClientResponse.fromWeb(
     request,

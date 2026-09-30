@@ -3,6 +3,8 @@ import { describe, expect, it } from "vite-plus/test";
 
 import { User, UserForm, UserId } from "./model";
 
+type UntrustedInput = object | string;
+
 describe("UserId", () => {
   it("should decode a valid number into a branded UserId", () => {
     const id = Schema.decodeSync(UserId)(42);
@@ -10,9 +12,9 @@ describe("UserId", () => {
   });
 
   it("should fail to decode a non-number", () => {
-    expect(() =>
-      Schema.decodeSync(UserId)("not-a-number" as unknown as number),
-    ).toThrow();
+    const invalidId: UntrustedInput = "not-a-number";
+
+    expect(() => Schema.decodeUnknownSync(UserId)(invalidId)).toThrow();
   });
 });
 
@@ -82,6 +84,7 @@ describe("UserForm schema", () => {
         ...validForm,
         language: lang,
       });
+
       expect(form.language).toBe(lang);
     }
   });
@@ -94,11 +97,9 @@ describe("UserForm schema", () => {
 
   it("should fail when required language field is missing", () => {
     const { language: _, ...withoutLanguage } = validForm;
-    expect(() =>
-      Schema.decodeSync(UserForm)(
-        withoutLanguage as unknown as typeof validForm,
-      ),
-    ).toThrow();
+    const invalidForm: UntrustedInput = withoutLanguage;
+
+    expect(() => Schema.decodeUnknownSync(UserForm)(invalidForm)).toThrow();
   });
 
   it.each([

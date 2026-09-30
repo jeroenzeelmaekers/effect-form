@@ -8,6 +8,7 @@ import { filterRefAtom } from "@/domains/user/atoms";
 import {
   FILTER_FIELD_PREFIXES,
   queryToSegments,
+  type RawToken,
   serializeTokens,
   tokenize,
 } from "@/domains/user/filter";
@@ -50,6 +51,7 @@ function fuzzyScore(candidate: string, query: string): number {
     } else {
       consecutive = 0;
     }
+
     ci++;
   }
 
@@ -60,11 +62,12 @@ function getFuzzySuggestions(
   input: string,
 ): Array<{ label: string; hint: string }> {
   if (!input.trim()) return [];
-  return BASE_SUGGESTIONS.map((s) => ({
-    ...s,
-    score: fuzzyScore(s.label, input),
-  }))
-    .filter((s) => s.score >= 0)
+
+  return BASE_SUGGESTIONS.flatMap((s) => {
+    const score = fuzzyScore(s.label, input);
+
+    return score >= 0 ? [{ ...s, score }] : [];
+  })
     .sort((a, b) => b.score - a.score)
     .map(({ label, hint }) => ({ label, hint }));
 }
@@ -81,6 +84,7 @@ function HighlightedLabel({ label, query }: { label: string; query: string }) {
 
   const matched = new Set<number>();
   let qi = 0;
+
   for (let i = 0; i < l.length && qi < q.length; i++) {
     if (l[i] === q[qi]) {
       matched.add(i);
@@ -104,6 +108,20 @@ function HighlightedLabel({ label, query }: { label: string; query: string }) {
       )}
     </span>
   );
+}
+
+function getSegmentKey(segment: RawToken, index: number): string {
+  switch (segment.kind) {
+    case "field":
+      return `field-${segment.field}:${segment.value}-${index}`;
+    case "text":
+      return `text-${segment.value}-${index}`;
+    case "op":
+      return `op-${segment.op}-${index}`;
+    case "lparen":
+    case "rparen":
+      return `${segment.kind}-${index}`;
+  }
 }
 
 const FilterChip = React.forwardRef<
@@ -145,8 +163,10 @@ const FilterChip = React.forwardRef<
           if (e.key === "Enter" || e.key === "F2") {
             e.preventDefault();
             onEdit();
+
             return;
           }
+
           onChipKeyDown?.(e);
         }}
         className="focus-visible:ring-primary cursor-pointer rounded-sm focus-visible:ring-2 focus-visible:outline-none">
@@ -179,6 +199,7 @@ function EditingChip({
 }) {
   const [value, setValue] = useState(initialValue);
   const valueRef = useRef(value);
+
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
@@ -317,12 +338,14 @@ export function UserFilter() {
   // When the value differs from what is already in the URL we push it through
   // the nuqs setter so the URL and UserList stay in sync.
   const aiFilterResult = useAtomValue(filterRefAtom);
+
   const aiFilter = AsyncResult.isSuccess(aiFilterResult)
     ? aiFilterResult.value
     : null;
+
   const previousAiFilterRef = useRef<string | null>(null);
   useEffect(() => {
-    if (typeof aiFilter !== "string") return;
+    if (aiFilter === null) return;
 
     const previousAiFilter = previousAiFilterRef.current;
     previousAiFilterRef.current = aiFilter;
@@ -352,18 +375,22 @@ export function UserFilter() {
   const [inputValue, setInputValue] = useState("");
   const [activeIndex, setActiveIndex] = useState(-1);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
   const [selectedRange, setSelectedRange] = useState<{
     start: number;
     end: number;
   } | null>(null);
+
   const [, setFocusedChipIndex] = useState<number | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const chipRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const inputValueRef = useRef(inputValue);
+
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
+
   const listboxId = useId();
   const hintId = useId();
 
@@ -380,22 +407,29 @@ export function UserFilter() {
 
   function commitToken(raw: string) {
     const token = raw.trim();
+
     if (!token) return;
 
     const newTokens = tokenize(token);
+
     if (newTokens.length === 0) return;
 
     const merged = [...segments];
+
     for (const t of newTokens) {
       const last = merged[merged.length - 1];
+
       // Skip if we'd place two operators in a row
       if (t.kind === "op" && last?.kind === "op") continue;
+
       // Skip standalone ) if there's no matching (
       if (t.kind === "rparen") {
         const openCount = merged.filter((x) => x.kind === "lparen").length;
         const closeCount = merged.filter((x) => x.kind === "rparen").length;
+
         if (closeCount >= openCount) continue;
       }
+
       merged.push(t);
     }
 
@@ -409,13 +443,16 @@ export function UserFilter() {
 
     // When removing a paren, also remove its matching counterpart
     let indicesToRemove = new Set([index]);
+
     if (token.kind === "lparen") {
       // Find the matching rparen (accounting for nesting)
       let depth = 0;
+
       for (let i = index; i < segments.length; i++) {
         if (segments[i].kind === "lparen") depth++;
         else if (segments[i].kind === "rparen") {
           depth--;
+
           if (depth === 0) {
             indicesToRemove.add(i);
             break;
@@ -425,10 +462,12 @@ export function UserFilter() {
     } else if (token.kind === "rparen") {
       // Find the matching lparen (scanning backward)
       let depth = 0;
+
       for (let i = index; i >= 0; i--) {
         if (segments[i].kind === "rparen") depth++;
         else if (segments[i].kind === "lparen") {
           depth--;
+
           if (depth === 0) {
             indicesToRemove.add(i);
             break;
@@ -443,8 +482,11 @@ export function UserFilter() {
       if (t.kind !== "op") return true;
       const prev = next[i - 1];
       const after = next[i + 1];
+
       if (!prev || !after) return false; // leading or trailing op
+
       if (prev.kind === "op") return false; // double op
+
       return true;
     });
 
@@ -460,12 +502,15 @@ export function UserFilter() {
     if (!trimmed) {
       // Empty edit → remove the token
       removeSegment(index);
+
       return;
     }
 
     const newTokens = tokenize(trimmed);
+
     if (newTokens.length === 0) {
       removeSegment(index);
+
       return;
     }
 
@@ -489,6 +534,7 @@ export function UserFilter() {
   function selectChip(index: number, shift: boolean) {
     // Only field/text tokens are selectable (not ops or parens)
     const seg = segments[index];
+
     if (seg.kind === "op" || seg.kind === "lparen" || seg.kind === "rparen")
       return;
 
@@ -507,6 +553,7 @@ export function UserFilter() {
   function wrapSelection() {
     if (!selectedRange) return;
     const { start, end } = selectedRange;
+
     const next = [
       ...segments.slice(0, start),
       { kind: "lparen" as const },
@@ -514,6 +561,7 @@ export function UserFilter() {
       { kind: "rparen" as const },
       ...segments.slice(end + 1),
     ];
+
     void setFilterQuery(serializeTokens(next) || null);
     setSelectedRange(null);
     setAnnouncement("Selection wrapped in parentheses.");
@@ -525,9 +573,13 @@ export function UserFilter() {
    */
   function segmentLabel(i: number): string {
     const seg = segments[i];
+
     if (!seg) return "";
+
     if (seg.kind === "field") return `${seg.field}:${seg.value}`;
+
     if (seg.kind === "text") return seg.value;
+
     return "";
   }
 
@@ -536,28 +588,36 @@ export function UserFilter() {
       if (e.key === "ArrowDown") {
         e.preventDefault();
         setActiveIndex((i) => Math.min(i + 1, suggestions.length - 1));
+
         return;
       }
+
       if (e.key === "ArrowUp") {
         e.preventDefault();
         setActiveIndex((i) => Math.max(i - 1, -1));
+
         return;
       }
+
       if (e.key === "Tab" || e.key === "Enter") {
         if (activeIndex >= 0) {
           e.preventDefault();
           const selected = suggestions[activeIndex];
+
           if (selected.label.endsWith(":")) {
             setInputValue(selected.label);
           } else {
             commitToken(selected.label);
           }
+
           return;
         }
       }
+
       if (e.key === "Escape") {
         e.preventDefault();
         setInputValue("");
+
         return;
       }
     }
@@ -565,12 +625,14 @@ export function UserFilter() {
     if (e.key === "Escape" && hasFilter) {
       e.preventDefault();
       clearAll();
+
       return;
     }
 
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       commitToken(inputValue);
+
       return;
     }
 
@@ -580,6 +642,7 @@ export function UserFilter() {
       const target = segments.length - 1;
       setFocusedChipIndex(target);
       chipRefs.current[target]?.focus();
+
       return;
     }
 
@@ -587,6 +650,7 @@ export function UserFilter() {
     if ((e.ctrlKey || e.metaKey) && e.key === "g" && selectedRange) {
       e.preventDefault();
       wrapSelection();
+
       return;
     }
 
@@ -603,23 +667,30 @@ export function UserFilter() {
     if (e.shiftKey && e.key === "ArrowRight") {
       e.preventDefault();
       const next = index + 1;
+
       if (next < segments.length) {
         selectChip(next, true);
         chipRefs.current[next]?.focus();
       }
+
       return;
     }
+
     if (e.shiftKey && e.key === "ArrowLeft") {
       e.preventDefault();
       const prev = index - 1;
+
       if (prev >= 0) {
         selectChip(prev, true);
         chipRefs.current[prev]?.focus();
       }
+
       return;
     }
+
     if (e.key === "ArrowRight") {
       e.preventDefault();
+
       if (index < segments.length - 1) {
         const next = index + 1;
         setFocusedChipIndex(next);
@@ -629,22 +700,29 @@ export function UserFilter() {
         setFocusedChipIndex(null);
         inputRef.current?.focus();
       }
+
       return;
     }
+
     if (e.key === "ArrowLeft") {
       e.preventDefault();
+
       if (index > 0) {
         const prev = index - 1;
         setFocusedChipIndex(prev);
         chipRefs.current[prev]?.focus();
       }
+
       return;
     }
+
     if ((e.ctrlKey || e.metaKey) && e.key === "g" && selectedRange) {
       e.preventDefault();
       wrapSelection();
+
       return;
     }
+
     if (e.key === "Escape") {
       e.preventDefault();
       setSelectedRange(null);
@@ -693,14 +771,8 @@ export function UserFilter() {
         {/* Segments: chips and operator labels */}
         <div className="flex flex-wrap items-center gap-1">
           {segments.map((seg, i) => {
-            const segKey =
-              seg.kind === "field"
-                ? `field-${seg.field}:${seg.value}-${i}`
-                : seg.kind === "text"
-                  ? `text-${seg.value}-${i}`
-                  : seg.kind === "op"
-                    ? `op-${seg.op}-${i}`
-                    : `${seg.kind}-${i}`;
+            const segKey = getSegmentKey(seg, i);
+
             return seg.kind === "op" ? (
               <OperatorLabel key={segKey} op={seg.op} />
             ) : seg.kind === "lparen" || seg.kind === "rparen" ? (
@@ -814,6 +886,7 @@ export function UserFilter() {
               aria-label={s.label}
               onMouseDown={(e) => {
                 e.preventDefault();
+
                 if (s.label.endsWith(":")) {
                   setInputValue(s.label);
                   inputRef.current?.focus();

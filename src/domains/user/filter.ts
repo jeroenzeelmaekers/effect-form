@@ -27,7 +27,12 @@ export const FIELD_KEYS: ReadonlyArray<FieldKey> = [
 ];
 
 const FIELD_PATTERN = /^(name|username|email):(.+)$/i;
+
 const OP_PATTERN = /^(AND|OR)$/i;
+
+function isFieldKey(value: string): value is FieldKey {
+  return value === "name" || value === "username" || value === "email";
+}
 
 /**
  * The set of `field:` prefix strings accepted by the filter input.
@@ -76,34 +81,50 @@ export function tokenize(query: string): RawToken[] {
       // Split out leading/trailing parens: e.g. "(name:john)" → ["(", "name:john", ")"]
       const pieces: string[] = [];
       let s = part;
+
       while (s.startsWith("(")) {
         pieces.push("(");
         s = s.slice(1);
       }
+
       const tail: string[] = [];
+
       while (s.endsWith(")")) {
         tail.unshift(")");
         s = s.slice(0, -1);
       }
+
       if (s) pieces.push(s);
+
       return [...pieces, ...tail];
     })
     .filter(Boolean);
 
   return parts.map((part): RawToken => {
     if (part === "(") return { kind: "lparen" };
+
     if (part === ")") return { kind: "rparen" };
+
     if (OP_PATTERN.test(part)) {
-      return { kind: "op", op: part.toUpperCase() as "AND" | "OR" };
+      const op = part.toUpperCase();
+
+      return { kind: "op", op: op === "AND" ? "AND" : "OR" };
     }
+
     const match = FIELD_PATTERN.exec(part);
+
     if (match) {
+      const field = match[1].toLowerCase();
+
+      if (!isFieldKey(field)) return { kind: "text", value: part };
+
       return {
         kind: "field",
-        field: match[1].toLowerCase() as FieldKey,
+        field,
         value: match[2],
       };
     }
+
     return { kind: "text", value: part };
   });
 }
@@ -137,6 +158,7 @@ function parseExpression(
   minPrec: number,
 ): FilterNode | null {
   const initial = parsePrimary(tokens);
+
   if (!initial) return null;
 
   let left: FilterNode = initial;
@@ -147,16 +169,19 @@ function parseExpression(
     if (next.kind !== "op") {
       if (PRECEDENCE.AND <= minPrec) break;
       const right = parseExpression(tokens, PRECEDENCE.AND);
+
       if (!right) break;
       left = { kind: "and", left, right };
       continue;
     }
 
     const prec = PRECEDENCE[next.op];
+
     if (prec <= minPrec) break;
 
     tokens.shift();
     const right = parseExpression(tokens, prec);
+
     if (!right) break;
     left = {
       kind: next.op === "AND" ? "and" : "or",
@@ -176,14 +201,17 @@ function parsePrimary(tokens: RawToken[]): FilterNode | null {
   if (t.kind === "lparen") {
     tokens.shift(); // consume "("
     const inner = parseExpression(tokens, 0);
+
     if (tokens.length > 0 && tokens[0].kind === "rparen") {
       tokens.shift(); // consume ")"
     }
+
     return inner;
   }
 
   if (t.kind === "op" || t.kind === "rparen") return null; // not a primary node
   tokens.shift();
+
   return t.kind === "field"
     ? { kind: "field", field: t.field, value: t.value }
     : { kind: "text", value: t.value };
@@ -202,7 +230,9 @@ function parsePrimary(tokens: RawToken[]): FilterNode | null {
  */
 export function parseFilterQuery(query: string): FilterNode | null {
   const tokens = tokenize(query);
+
   if (tokens.length === 0) return null;
+
   return parseExpression(tokens, 0);
 }
 
@@ -233,6 +263,7 @@ export function matchValue(pattern: string, haystack: string): boolean {
   const regex = new RegExp(
     "^" + p.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*") + "$",
   );
+
   return regex.test(h);
 }
 
@@ -241,6 +272,7 @@ function evaluateNode(node: FilterNode, user: User): boolean {
     case "field": {
       return matchValue(node.value, user[node.field]);
     }
+
     case "text": {
       return (
         matchValue(node.value, user.name) ||
@@ -248,6 +280,7 @@ function evaluateNode(node: FilterNode, user: User): boolean {
         matchValue(node.value, user.email)
       );
     }
+
     case "and":
       return evaluateNode(node.left, user) && evaluateNode(node.right, user);
     case "or":
@@ -266,6 +299,7 @@ function evaluateNode(node: FilterNode, user: User): boolean {
  */
 export function applyFilter(users: User[], ast: FilterNode | null): User[] {
   if (!ast) return users;
+
   return users.filter((user) => evaluateNode(ast, user));
 }
 
@@ -281,17 +315,20 @@ export function applyFilter(users: User[], ast: FilterNode | null): User[] {
  */
 export function serializeTokens(tokens: RawToken[]): string {
   return tokens
-    .map((t) =>
-      t.kind === "op"
-        ? t.op
-        : t.kind === "field"
-          ? `${t.field}:${t.value}`
-          : t.kind === "lparen"
-            ? "("
-            : t.kind === "rparen"
-              ? ")"
-              : t.value,
-    )
+    .map((token) => {
+      switch (token.kind) {
+        case "op":
+          return token.op;
+        case "field":
+          return `${token.field}:${token.value}`;
+        case "lparen":
+          return "(";
+        case "rparen":
+          return ")";
+        case "text":
+          return token.value;
+      }
+    })
     .join(" ");
 }
 

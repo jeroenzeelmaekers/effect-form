@@ -34,7 +34,13 @@ const initialState: ThemeProviderState = {
 // Helper functions to get and set theme in localStorage
 const getStoredTheme = (storageKey: string, defaultTheme: Theme): Theme => {
   try {
-    return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
+    const storedTheme = localStorage.getItem(storageKey);
+
+    return storedTheme === "light" ||
+      storedTheme === "dark" ||
+      storedTheme === "system"
+      ? storedTheme
+      : defaultTheme;
   } catch {
     return defaultTheme;
   }

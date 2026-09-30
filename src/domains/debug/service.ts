@@ -28,11 +28,14 @@ export type DebugSettings = typeof DebugSettings.Type;
 const readBoolean = (key: string, defaultValue: boolean): boolean => {
   try {
     const stored = localStorage.getItem(key);
+
     if (stored === "true") return true;
+
     if (stored === "false") return false;
   } catch {
     // Fall through to default
   }
+
   return defaultValue;
 };
 
@@ -65,7 +68,7 @@ export const getDebugSettingsSync = (): DebugSettings => ({
  * - `setSimulationEnabled` — persists the simulation toggle and reloads the page.
  * - `setOtelEnabled` — persists the OTel toggle and reloads the page.
  */
-export interface DebugServiceShape {
+export interface DebugServiceInterface {
   readonly get: Effect.Effect<DebugSettings>;
   readonly setSimulationEnabled: (enabled: boolean) => Effect.Effect<void>;
   readonly setOtelEnabled: (enabled: boolean) => Effect.Effect<void>;
@@ -83,7 +86,7 @@ export interface DebugServiceShape {
  */
 export class DebugService extends Context.Service<
   DebugService,
-  DebugServiceShape
+  DebugServiceInterface
 >()("effect-form/domains/debug/DebugService", {
   make: Effect.sync(() => {
     const get = Effect.sync(getDebugSettingsSync).pipe(

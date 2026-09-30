@@ -20,5 +20,9 @@
       ["index", "type-index"]
     ]
   },
-  "ignorePatterns": ["src/routeTree.gen.ts"]
+  "ignorePatterns": [
+    "src/routeTree.gen.ts",
+    ".opencode/**",
+    "tools/oxlint/anti-slop/**"
+  ]
 }

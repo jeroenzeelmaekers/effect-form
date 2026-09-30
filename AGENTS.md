@@ -2,16 +2,16 @@
 
 ## Commands
 
-- Primary workflow uses Vite+ (`vp`) for project commands; use `vp run <script>` for scripts defined in `package.json`.
-- Bun remains the package manager/runtime (`bun.lock`, Docker, Dependabot, `devEngines`); `bun run <script>` is valid but prefer `vp run <script>` in docs and automation.
+- Primary workflow uses Vite+ (`vp`) for project commands; use `vpr <script>` for scripts defined in `package.json`.
+- Bun remains the package manager/runtime (`bun.lock`, Docker, Dependabot, `devEngines`); `bun run <script>` is valid but prefer `vpr <script>` in docs and automation.
 - Install dependencies: `vp install` (or `bun install --frozen-lockfile` when reproducing Docker/CI dependency resolution).
-- Dev server: `vp run dev` (script currently runs `vp dev`).
-- Build/typecheck: `vp run build` (script currently runs `tsc -b && vp build`).
-- Lint: `vp run lint`; GitHub annotation format: `vp run lint:github`.
-- Format: `vp run fmt` (`vp fmt --ignore-path=.oxfmtignore` via script), not Prettier.
-- Node tests: `vp run test` (`vp test --project node`) for `src/**/*.test.ts`.
-- Browser tests: `vp run test:browser` (`vp test --project browser`) for `src/**/*.test.tsx`; uses Vitest browser mode with Playwright across Chromium, Firefox, and WebKit.
-- Coverage: `vp run test:coverage` (`vp test run --coverage`); coverage intentionally runs only the node project plus browser Chromium.
+- Dev server: `vpr dev` (script currently runs `vp dev`).
+- Build/typecheck: `vpr build` (script currently runs `tsc -b && vp build`).
+- Lint: `vpr lint`; GitHub annotation format: `vpr lint:github`.
+- Format: `vpr fmt` (`vp fmt --ignore-path=.oxfmtignore` via script), not Prettier.
+- Node tests: `vpr test` (`vp test --project node`) for `src/**/*.test.ts`.
+- Browser tests: `vpr test:browser` (`vp test --project browser`) for `src/**/*.test.tsx`; uses Vitest browser mode with Playwright across Chromium, Firefox, and WebKit.
+- Coverage: `vpr test:coverage` (`vp test run --coverage`); coverage intentionally runs only the node project plus browser Chromium.
 
 ## Architecture
 
@@ -43,8 +43,8 @@
 ## Vite+ Workflow
 
 - Vite+ is the unified toolchain in this repo (`vite-plus` in `devDependencies`, `vite` overridden to `@voidzero-dev/vite-plus-core`).
-- `vp <name>` runs built-in Vite+ commands; `vp run <name>` runs `package.json` scripts or `vite.config.ts` tasks.
-- Prefer `vp run <script>` when a script exists so command behavior stays repo-specific.
+- `vp <name>` runs built-in Vite+ commands; `vpr <name>` runs `package.json` scripts or `vite.config.ts` tasks.
+- Prefer `vpr <script>` when a script exists so command behavior stays repo-specific.
 - This repo configures Vite+ directly in `vite.config.ts` (`fmt`, `lint`, `staged`, and plugins), and lint enforces `vite-plus/prefer-vite-plus-imports`.
 - Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.dev/guide/.
 
@@ -59,5 +59,5 @@
 
 - [ ] Run `vp install` after pulling remote changes or before first run on a fresh checkout.
 - [ ] Run `vp check` and `vp test` for full validation (format, lint, type check, and tests) when preparing a branch.
-- [ ] Run targeted scripts via `vp run <script>` for smaller changes (`dev`, `build`, `lint`, `test`, `test:browser`, `test:coverage`).
+- [ ] Run targeted scripts via `vpr <script>` for smaller changes (`dev`, `build`, `lint`, `test`, `test:browser`, `test:coverage`).
 - [ ] If setup, runtime, or package-manager behavior looks wrong, run `vp env doctor` and include its output when asking for help.

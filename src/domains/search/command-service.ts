@@ -70,7 +70,7 @@ If the user asks for something unrelated to users or navigation, still call show
 
 Always call the show_users tool — do not respond with plain text.`;
 
-interface CommandServiceShape {
+interface CommandServiceInterface {
   readonly processPrompt: (prompt: string) => Effect.Effect<void>;
 }
 
@@ -88,7 +88,7 @@ interface CommandServiceShape {
  */
 export class CommandService extends Context.Service<
   CommandService,
-  CommandServiceShape
+  CommandServiceInterface
 >()("effect-form/domains/search/CommandService") {
   static readonly layer = Layer.effect(
     this,

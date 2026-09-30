@@ -11,7 +11,7 @@ import {
   ValidationError,
 } from "@/shared/api/errors";
 
-interface PostServiceShape {
+interface PostServiceInterface {
   readonly getPosts: Effect.Effect<
     ReadonlyArray<typeof Post.Type>,
     NetworkError | NotFoundError | ValidationError
@@ -35,7 +35,7 @@ interface PostServiceShape {
  */
 export class PostService extends Context.Service<
   PostService,
-  PostServiceShape
+  PostServiceInterface
 >()("effect-form/domains/post/PostService") {
   /** Live `Layer` that constructs `PostService` using `ApiClient`. */
   static readonly layer = Layer.effect(
@@ -46,6 +46,7 @@ export class PostService extends Context.Service<
       const getPosts = Effect.gen(function* () {
         const traceId = yield* getCurrentTraceId;
         const request = HttpClientRequest.get("/posts");
+
         const response = yield* client.execute(request).pipe(
           Effect.timeout("10 seconds"),
           Effect.catchTags({
@@ -53,6 +54,7 @@ export class PostService extends Context.Service<
             TimeoutError: () => Effect.fail(new NetworkError({ traceId })),
           }),
         );
+
         return yield* HttpClientResponse.schemaBodyJson(Schema.Array(Post))(
           response,
         ).pipe(

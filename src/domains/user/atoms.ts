@@ -17,6 +17,7 @@ export const getUsersAtom = runtimeAtom
   .atom(
     Effect.gen(function* () {
       const service = yield* UserService;
+
       return yield* service.getUsers;
     }),
   )
@@ -36,6 +37,7 @@ export const createUserAtom = runtimeAtom.fn(
   (formValues: Schema.Schema.Type<typeof UserForm>) =>
     Effect.gen(function* () {
       const service = yield* UserService;
+
       return yield* service.createUser(formValues);
     }),
   {
@@ -55,7 +57,7 @@ export const optimisticGetUsersAtom = Atom.optimistic(getUsersAtom);
 
 const createTempUser = (formValues: UserForm): User => ({
   // oxlint-disable-next-line effecttsgo/global-date
-  id: -Date.now() as UserId,
+  id: Schema.decodeSync(UserId)(-Date.now()),
   name: formValues.name,
   username: formValues.username,
   email: formValues.email,
@@ -103,6 +105,7 @@ export const filterRefAtom = runtimeAtom.atom(
     Stream.unwrap(
       Effect.gen(function* () {
         const ref = yield* FilterRef;
+
         return SubscriptionRef.changes(ref);
       }),
     ),

@@ -74,10 +74,12 @@ describe("UserService", () => {
         const exit = yield* Fiber.join(fiber).pipe(Effect.exit);
 
         expect(Exit.isFailure(exit)).toBe(true);
+
         if (Exit.isFailure(exit)) {
           const cause = exit.cause;
           const failReason = cause.reasons.find(Cause.isFailReason);
           expect(failReason).toBeDefined();
+
           if (failReason && Cause.isFailReason(failReason)) {
             expect(failReason.error).toBeInstanceOf(ValidationError);
           }
@@ -102,10 +104,12 @@ describe("UserService", () => {
         const exit = yield* Fiber.join(fiber).pipe(Effect.exit);
 
         expect(Exit.isFailure(exit)).toBe(true);
+
         if (Exit.isFailure(exit)) {
           const cause = exit.cause;
           const failReason = cause.reasons.find(Cause.isFailReason);
           expect(failReason).toBeDefined();
+
           if (failReason && Cause.isFailReason(failReason)) {
             expect(failReason.error).toBeInstanceOf(NetworkError);
           }
@@ -134,6 +138,7 @@ describe("UserService", () => {
     it.effect("should create user on successful response", () =>
       Effect.gen(function* () {
         const service = yield* UserService;
+
         const fiber = yield* service
           .createUser(validFormData)
           .pipe(Effect.forkChild);
@@ -169,6 +174,7 @@ describe("UserService", () => {
     it.effect("should fail with ValidationError on invalid response body", () =>
       Effect.gen(function* () {
         const service = yield* UserService;
+
         const fiber = yield* service
           .createUser(validFormData)
           .pipe(Effect.forkChild);
@@ -179,10 +185,12 @@ describe("UserService", () => {
         const exit = yield* Fiber.join(fiber).pipe(Effect.exit);
 
         expect(Exit.isFailure(exit)).toBe(true);
+
         if (Exit.isFailure(exit)) {
           const cause = exit.cause;
           const failReason = cause.reasons.find(Cause.isFailReason);
           expect(failReason).toBeDefined();
+
           if (failReason && Cause.isFailReason(failReason)) {
             expect(failReason.error).toBeInstanceOf(ValidationError);
           }
@@ -199,6 +207,7 @@ describe("UserService", () => {
     it.effect("should fail with NetworkError on request timeout", () =>
       Effect.gen(function* () {
         const service = yield* UserService;
+
         const fiber = yield* service
           .createUser(validFormData)
           .pipe(Effect.forkChild);
@@ -209,10 +218,12 @@ describe("UserService", () => {
         const exit = yield* Fiber.join(fiber).pipe(Effect.exit);
 
         expect(Exit.isFailure(exit)).toBe(true);
+
         if (Exit.isFailure(exit)) {
           const cause = exit.cause;
           const failReason = cause.reasons.find(Cause.isFailReason);
           expect(failReason).toBeDefined();
+
           if (failReason && Cause.isFailReason(failReason)) {
             expect(failReason.error).toBeInstanceOf(NetworkError);
           }

@@ -89,9 +89,11 @@ function ThemeMenu() {
       <DropdownMenuSubContent>
         <DropdownMenuRadioGroup
           value={theme}
-          onValueChange={(value) =>
-            setTheme(value as "light" | "dark" | "system")
-          }>
+          onValueChange={(value) => {
+            if (value === "light" || value === "dark" || value === "system") {
+              setTheme(value);
+            }
+          }}>
           <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>

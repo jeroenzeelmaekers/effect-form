@@ -60,9 +60,11 @@ describe("PostService", () => {
         const exit = yield* Fiber.join(fiber).pipe(Effect.exit);
 
         expect(Exit.isFailure(exit)).toBe(true);
+
         if (Exit.isFailure(exit)) {
           const failReason = exit.cause.reasons.find(Cause.isFailReason);
           expect(failReason).toBeDefined();
+
           if (failReason && Cause.isFailReason(failReason)) {
             expect(failReason.error).toBeInstanceOf(ValidationError);
           }
@@ -87,9 +89,11 @@ describe("PostService", () => {
         const exit = yield* Fiber.join(fiber).pipe(Effect.exit);
 
         expect(Exit.isFailure(exit)).toBe(true);
+
         if (Exit.isFailure(exit)) {
           const failReason = exit.cause.reasons.find(Cause.isFailReason);
           expect(failReason).toBeDefined();
+
           if (failReason && Cause.isFailReason(failReason)) {
             expect(failReason.error).toBeInstanceOf(NetworkError);
           }

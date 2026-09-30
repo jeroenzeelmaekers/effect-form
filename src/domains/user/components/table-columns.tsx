@@ -9,6 +9,7 @@ import type { UserTableFeatures } from "./user-list";
 
 function handleSortToggle(column: Column<UserTableFeatures, User>) {
   const current = column.getIsSorted();
+
   if (current === false) {
     column.toggleSorting(false);
   } else if (current === "asc") {
@@ -20,13 +21,17 @@ function handleSortToggle(column: Column<UserTableFeatures, User>) {
 
 function sortLabel(column: Column<UserTableFeatures, User>, name: string) {
   const sorted = column.getIsSorted();
+
   if (sorted === "asc") return `Sort ${name} descending`;
+
   if (sorted === "desc") return `Clear ${name} sort`;
+
   return `Sort ${name} ascending`;
 }
 
 function sortIcon(column: Column<UserTableFeatures, User>) {
   const sorted = column.getIsSorted();
+
   return (
     <span className="ml-2 inline-flex size-4 items-center justify-center">
       {sorted === "asc" && <ArrowUp className="text-muted-foreground" />}

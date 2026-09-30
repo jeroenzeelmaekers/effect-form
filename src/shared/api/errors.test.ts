@@ -48,15 +48,19 @@ describe("Error types", () => {
 });
 
 describe("getResponseError", () => {
-  function createMockResponseError(status: number, body: unknown) {
+  type ProblemBody = string | Record<string, string | number>;
+
+  function createMockResponseError(status: number, body: ProblemBody) {
     const bodyText = JSON.stringify(body);
     const request = HttpClientRequest.get("https://test.com");
+
     const response = HttpClientResponse.fromWeb(
       request,
       new Response(bodyText, {
         status,
       }),
     );
+
     return new StatusCodeError({
       request,
       response,

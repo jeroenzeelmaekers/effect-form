@@ -27,6 +27,7 @@ function ErrorTitle({
   level?: 2 | 3 | 4;
 }) {
   const Tag = `h${level}` as const;
+
   return (
     <Tag data-testid="error-title" className="text-xl font-bold">
       {children}
@@ -53,6 +54,7 @@ function ErrorRefresh<T>({
   label?: string;
 }) {
   const refresh = useAtomRefresh(atom);
+
   return (
     <Button data-testid="error-refresh" variant="default" onClick={refresh}>
       {label}

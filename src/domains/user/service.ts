@@ -11,7 +11,7 @@ import {
   ValidationError,
 } from "@/shared/api/errors";
 
-interface UserServiceShape {
+interface UserServiceInterface {
   readonly getUsers: Effect.Effect<
     ReadonlyArray<User>,
     NetworkError | NotFoundError | ValidationError
@@ -41,7 +41,7 @@ interface UserServiceShape {
  */
 export class UserService extends Context.Service<
   UserService,
-  UserServiceShape
+  UserServiceInterface
 >()("effect-form/domains/user/UserService") {
   /** Live `Layer` that constructs `UserService` using `ApiClient`. */
   static readonly layer = Layer.effect(
@@ -52,6 +52,7 @@ export class UserService extends Context.Service<
       const getUsers = Effect.gen(function* () {
         const traceId = yield* getCurrentTraceId;
         const request = HttpClientRequest.get("/users");
+
         const response = yield* client.execute(request).pipe(
           Effect.timeout("10 seconds"),
           Effect.catchTags({
@@ -59,6 +60,7 @@ export class UserService extends Context.Service<
             TimeoutError: () => Effect.fail(new NetworkError({ traceId })),
           }),
         );
+
         return yield* HttpClientResponse.schemaBodyJson(Schema.Array(User))(
           response,
         ).pipe(
@@ -76,14 +78,17 @@ export class UserService extends Context.Service<
         formValues: Schema.Schema.Type<typeof UserForm>,
       ) {
         const traceId = yield* getCurrentTraceId;
+
         const body = yield* HttpBody.json(formValues).pipe(
           Effect.catchTag("HttpBodyError", () =>
             Effect.fail(new ValidationError({ traceId })),
           ),
         );
+
         const request = HttpClientRequest.post("/users").pipe(
           HttpClientRequest.setBody(body),
         );
+
         const response = yield* client.execute(request).pipe(
           Effect.timeout("15 seconds"),
           Effect.catchTags({
@@ -91,6 +96,7 @@ export class UserService extends Context.Service<
             TimeoutError: () => Effect.fail(new NetworkError({ traceId })),
           }),
         );
+
         return yield* HttpClientResponse.schemaBodyJson(User)(response).pipe(
           Effect.tap((data) =>
             Effect.logInfo(`[USER] Created user with id: ${data.id}`),

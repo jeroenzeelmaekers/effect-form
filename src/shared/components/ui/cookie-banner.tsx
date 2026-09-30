@@ -6,9 +6,11 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "./card";
 
 export default function CookieBanner() {
   const posthog = usePostHog();
+
   const [consentGiven, setConsentGiven] = useState(() =>
     posthog.get_explicit_consent_status(),
   );
+
   const declineRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {

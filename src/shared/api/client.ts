@@ -12,7 +12,7 @@ import { AppConfig } from "@/infrastructure/config";
 
 import { withSimulation } from "./simulation";
 
-interface ApiClientShape {
+interface ApiClientService {
   readonly execute: (
     request: HttpClientRequest.HttpClientRequest,
   ) => Effect.Effect<
@@ -37,7 +37,7 @@ interface ApiClientShape {
  *   Effect.flatMap(client => client.execute(HttpClientRequest.get("/users")))
  * );
  */
-export class ApiClient extends Context.Service<ApiClient, ApiClientShape>()(
+export class ApiClient extends Context.Service<ApiClient, ApiClientService>()(
   "effect-form/shared/api/ApiClient",
 ) {
   /** Live `Layer` that constructs `ApiClient`. */
@@ -66,9 +66,11 @@ export class ApiClient extends Context.Service<ApiClient, ApiClientShape>()(
           request: HttpClientRequest.HttpClientRequest,
         ) {
           const settings = yield* debugService.get;
+
           const client = settings.simulationEnabled
             ? withSimulation(resilientClient)
             : resilientClient;
+
           return yield* client.execute(request);
         }),
       });

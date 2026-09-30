@@ -15,6 +15,7 @@ const debugRuntimeAtom = Atom.runtime(DebugService.layer);
 export const debugSettingsAtom = debugRuntimeAtom.atom(
   Effect.gen(function* () {
     const service = yield* DebugService;
+
     return yield* service.get;
   }),
 );
@@ -31,6 +32,7 @@ export const setSimulationEnabledAtom = debugRuntimeAtom.fn(
   (enabled: boolean) =>
     Effect.gen(function* () {
       const service = yield* DebugService;
+
       return yield* service.setSimulationEnabled(enabled);
     }),
 );
@@ -46,6 +48,7 @@ export const setSimulationEnabledAtom = debugRuntimeAtom.fn(
 export const setOtelEnabledAtom = debugRuntimeAtom.fn((enabled: boolean) =>
   Effect.gen(function* () {
     const service = yield* DebugService;
+
     return yield* service.setOtelEnabled(enabled);
   }),
 );

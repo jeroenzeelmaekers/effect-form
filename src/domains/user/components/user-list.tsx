@@ -69,17 +69,12 @@ function DataTable({ columns, data, isFiltered = false }: DataTableProps) {
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 const sorted = header.column.getIsSorted();
+
                 return (
                   <TableHead
                     key={header.id}
                     className="p-0"
-                    aria-sort={
-                      sorted === "asc"
-                        ? "ascending"
-                        : sorted === "desc"
-                          ? "descending"
-                          : "none"
-                    }>
+                    aria-sort={getAriaSort(sorted)}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -114,6 +109,7 @@ function DataTable({ columns, data, isFiltered = false }: DataTableProps) {
  */
 function DataTableRow({ row }: { row: Row<UserTableFeatures, User> }) {
   const isOptimistic = row.original.id < 0;
+
   return (
     <TableRow
       key={row.id}
@@ -126,6 +122,17 @@ function DataTableRow({ row }: { row: Row<UserTableFeatures, User> }) {
       ))}
     </TableRow>
   );
+}
+
+function getAriaSort(sorted: false | "asc" | "desc") {
+  switch (sorted) {
+    case "asc":
+      return "ascending" as const;
+    case "desc":
+      return "descending" as const;
+    default:
+      return "none" as const;
+  }
 }
 
 function EmptyDataTableRow({
@@ -166,6 +173,7 @@ function Loading({
           <TableRow>
             {columns.map((column, index) => (
               <TableHead key={index}>
+                {/* oxlint-disable-next-line anti-slop/no-runtime-typeof */}
                 {typeof column.header === "string" ? column.header : null}
               </TableHead>
             ))}

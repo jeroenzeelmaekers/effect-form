@@ -61,6 +61,7 @@ import {
 export default function EffectForm() {
   const createUser = useAtomSet(createUserOptimisticAtom);
   const usersResult = useAtomValue(optimisticGetUsersAtom);
+
   const isDisabled =
     AsyncResult.isFailure(usersResult) ||
     AsyncResult.isWaiting(usersResult) ||
@@ -97,6 +98,7 @@ export default function EffectForm() {
   const prevWaiting = useRef(false);
   useEffect(() => {
     const isWaiting = AsyncResult.isWaiting(usersResult);
+
     if (submitStatus === "pending") {
       if (prevWaiting.current && !isWaiting) {
         if (AsyncResult.isSuccess(usersResult)) {
@@ -106,6 +108,7 @@ export default function EffectForm() {
         }
       }
     }
+
     prevWaiting.current = isWaiting;
   }, [usersResult, submitStatus]);
 
@@ -113,6 +116,7 @@ export default function EffectForm() {
   useEffect(() => {
     if (submitStatus !== "success" && submitStatus !== "error") return;
     const timer = setTimeout(() => setSubmitStatus("idle"), 3000);
+
     return () => clearTimeout(timer);
   }, [submitStatus]);
 
@@ -124,7 +128,9 @@ export default function EffectForm() {
         e.preventDefault();
       }
     };
+
     window.addEventListener("beforeunload", handleBeforeUnload);
+
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isDirty]);
 
@@ -157,6 +163,7 @@ export default function EffectForm() {
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
+
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Name:</FieldLabel>
@@ -187,6 +194,7 @@ export default function EffectForm() {
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
+
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Username:</FieldLabel>
@@ -223,6 +231,7 @@ export default function EffectForm() {
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
+
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Email:</FieldLabel>
@@ -274,6 +283,7 @@ export default function EffectForm() {
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
+
                 return (
                   <Field orientation="responsive" data-invalid={isInvalid}>
                     <FieldLabel htmlFor="effect-form-select-language">

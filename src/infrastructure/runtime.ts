@@ -49,6 +49,7 @@ const MainLive = getDebugSettingsSync().otelEnabled
  * );
  */
 const runtimeMemoMap = Layer.makeMemoMapUnsafe();
+
 const runtimeFactory = Atom.context({ memoMap: runtimeMemoMap });
 
 export const runtimeAtom = runtimeFactory(MainLive);

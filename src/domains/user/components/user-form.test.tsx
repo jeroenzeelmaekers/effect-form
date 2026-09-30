@@ -9,14 +9,18 @@ import EffectForm from "./user-form";
 
 // Mocks
 const mockUseAtomValue = vi.fn();
+
 const mockUseAtomSet = vi.fn(() => vi.fn());
+
+type AtomInput = Parameters<typeof mockUseAtomValue>[0];
 
 vi.mock("@effect/atom-react", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@effect/atom-react")>();
+
   return {
     ...actual,
-    useAtomValue: (atom: unknown) => mockUseAtomValue(atom),
-    useAtomSet: (_atom: unknown) => mockUseAtomSet(),
+    useAtomValue: (atom: AtomInput) => mockUseAtomValue(atom),
+    useAtomSet: (_atom: AtomInput) => mockUseAtomSet(),
   };
 });
 
