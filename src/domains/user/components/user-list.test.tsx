@@ -4,6 +4,7 @@ import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 
+import { filterRefAtom } from "@/domains/user/atoms";
 import { User, UserId } from "@/domains/user/model";
 import {
   NetworkError,
@@ -33,7 +34,8 @@ vi.mock("@effect/atom-react", async (importOriginal) => {
 
   return {
     ...actual,
-    useAtomValue: (atom: AtomInput) => mockUseAtomValue(atom),
+    useAtomValue: (atom: AtomInput) =>
+      atom === filterRefAtom ? AsyncResult.success("") : mockUseAtomValue(atom),
     useAtomRefresh: (_atom: AtomInput) => mockUseAtomRefresh(),
   };
 });
