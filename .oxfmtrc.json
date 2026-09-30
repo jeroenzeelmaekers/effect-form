@@ -21,7 +21,9 @@
     ]
   },
   "ignorePatterns": [
+    "index.html",
     "src/routeTree.gen.ts",
+    "observability/**",
     ".opencode/**",
     "tools/oxlint/anti-slop/**"
   ]

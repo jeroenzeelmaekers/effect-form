@@ -5,13 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc -b && vp build",
-    "dev": "vp dev",
-    "fmt": "vp fmt --ignore-path=.oxfmtignore",
-    "lint": "vp lint",
-    "lint:github": "vp lint --format=github",
     "prepare": "vp config && effect-tsgo patch --oxlint",
     "preview": "vp preview",
-    "test": "vp test --project node",
     "test:browser": "vp test --project browser",
     "test:coverage": "vp test run --coverage"
   },
