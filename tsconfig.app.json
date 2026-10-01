@@ -28,6 +28,10 @@
         "name": "@effect/language-service",
         "diagnostics": true,
         "refactors": true,
+        "diagnosticSeverity": {
+          "unstableApiUsage": "suggestion"
+        },
+        "includeSuggestionsInTsc": false,
         "ignoreEffectSuggestionsInTscExitCode": true,
         "ignoreEffectWarningsInTscExitCode": false,
         "ignoreEffectErrorsInTscExitCode": false
