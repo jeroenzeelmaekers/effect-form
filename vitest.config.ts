@@ -45,7 +45,7 @@ export default defineConfig({
       },
       {
         extends: true,
-        plugins: [react()],
+        plugins: [react({ compiler: true })],
         test: {
           name: "browser",
           include: ["src/**/*.test.tsx"],

@@ -56,7 +56,7 @@ export default defineConfig(({ mode }) => {
         target: "react",
         autoCodeSplitting: true,
       }),
-      react(),
+      react({ compiler: true }),
       babel({
         presets: [reactCompilerPreset()],
         plugins:
