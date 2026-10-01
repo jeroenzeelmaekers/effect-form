@@ -6,7 +6,6 @@
   "scripts": {
     "build": "tsc -b && vp build",
     "prepare": "vp config && effect-tsgo patch --oxlint",
-    "preview": "vp preview",
     "test:browser": "vp test --project browser",
     "test:coverage": "vp test run --coverage"
   },
