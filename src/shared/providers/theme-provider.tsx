@@ -12,17 +12,17 @@ type Theme = "dark" | "light" | "system";
 
 /** Props accepted by {@link ThemeProvider}. */
 type ThemeProviderProps = {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
   /** Theme applied before the user makes an explicit choice. Defaults to `"system"`. */
-  defaultTheme?: Theme;
+  readonly defaultTheme?: Theme;
   /** `localStorage` key used to persist the selected theme. Defaults to `"theme-preference"`. */
-  storageKey?: string;
+  readonly storageKey?: string;
 };
 
 /** Shape of the value exposed by `ThemeProviderContext`. */
 type ThemeProviderState = {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
+  readonly theme: Theme;
+  readonly setTheme: (theme: Theme) => void;
 };
 
 // Initial state for the context
