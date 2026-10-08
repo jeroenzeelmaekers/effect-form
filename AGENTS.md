@@ -3,7 +3,7 @@
 ## Commands
 
 - Primary workflow uses Vite+ (`vp`) for project commands; use `vp run <script>` for scripts defined in `package.json`.
-- Bun remains the package manager/runtime (`bun.lock`, Docker, Dependabot, `devEngines`); install dependencies with `vp install`.
+- pnpm is the package manager, pinned in `package.json`; install dependencies with `vp install`.
 - Dev server: `vp dev`.
 - Build/typecheck: `vp run build` (`tsc -b && vp build`).
 - Lint: `vp lint`; GitHub annotation format: `vp lint --format=github`.

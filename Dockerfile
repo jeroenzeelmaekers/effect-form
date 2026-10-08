@@ -1,18 +1,18 @@
 # --- Build stage ---
-FROM oven/bun:1 AS build
+FROM ghcr.io/voidzero-dev/vite-plus:0.3.3 AS build
 WORKDIR /app
 
-COPY bun.lock package.json ./
-RUN bun install --frozen-lockfile
+COPY --chown=vp:vp package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN vp install --frozen-lockfile
 
-COPY . .
+COPY --chown=vp:vp . .
 
 ARG VITE_API_BASE_URL
 ARG VITE_OTLP_BASE_URL
 ARG VITE_PUBLIC_POSTHOG_KEY
 ARG VITE_PUBLIC_POSTHOG_HOST
 
-RUN bun run build
+RUN vp run build
 
 # --- Serve stage ---
 FROM nginx:1-alpine AS serve

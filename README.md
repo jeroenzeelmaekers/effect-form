@@ -1,5 +1,9 @@
 # Effect form
 
+## Development
+
+Install dependencies with `vp install`, then start the app with `vp dev`. The project pins pnpm in `package.json`; Vite+ uses that version for package commands.
+
 ## Docker
 
 ### Build

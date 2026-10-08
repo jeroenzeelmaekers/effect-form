@@ -61,15 +61,5 @@
     "vitest": "5.0.1",
     "vitest-browser-react": "^2.3.0"
   },
-  "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0",
-    "vitest": "5.0.1"
-  },
-  "devEngines": {
-    "packageManager": {
-      "name": "bun",
-      "version": "1.4.2",
-      "onFail": "download"
-    }
-  }
+  "packageManager": "pnpm@10.18.0"
 }
