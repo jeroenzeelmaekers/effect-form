@@ -2,7 +2,38 @@
 
 ## Development
 
-Install dependencies with `vp install`, then start the app with `vp dev`. The project pins pnpm in `package.json`; Vite+ uses that version for package commands.
+The project uses direnv to load its Nix shell and add local binaries to `PATH`
+when you enter the repository. After approving `.envrc` once, Node 24, the
+pinned pnpm, and the project's Vite+ commands are available in your normal Zsh
+session:
+
+```sh
+direnv allow
+```
+
+The shell provides Node.js 24 and Corepack. Corepack reads the pinned
+`pnpm@10.18.0` version from `package.json`. `.envrc` uses direnv's `PATH_add`
+to expose `node_modules/.bin`, so `vp` resolves to the project's Vite+ version
+instead of a global one. To enter the Nix environment without direnv, run
+`nix develop` from the repository root. In that shell, use `pnpm exec vp`
+instead of bare `vp`.
+
+Inside the shell, install dependencies from the lockfile and start the app:
+
+```sh
+pnpm install --frozen-lockfile
+vp dev
+```
+
+Install the Playwright browsers if you plan to run browser tests:
+
+```sh
+pnpm exec playwright install chromium firefox webkit
+```
+
+Playwright uses its standard browser cache. The Nix shell does not start Docker
+or the observability services; use `docker compose up` separately if you need
+them.
 
 ## Docker
 
