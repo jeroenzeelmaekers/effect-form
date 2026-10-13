@@ -22,7 +22,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-form": "^1.33.5",
     "@tanstack/react-hotkeys": "^0.13.0",
-    "@tanstack/react-router": "^1.170.41",
+    "@tanstack/react-router": "^1.170.42",
     "@tanstack/react-table": "^9.2.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
