@@ -47,7 +47,7 @@
     "@vitest/ui": "5.0.5",
     "babel-plugin-react-compiler": "^1.0.0",
     "babel-plugin-react-remove-properties": "^0.3.1",
-    "oxc-transform-react": "^0.154.0",
+    "oxc-transform-react": "^0.155.0",
     "playwright": "^1.64.1",
     "shadcn": "^4.22.0",
     "typescript": "~7.0.2",
