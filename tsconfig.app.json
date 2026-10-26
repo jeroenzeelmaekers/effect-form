@@ -29,7 +29,7 @@
         "diagnostics": true,
         "refactors": true,
         "diagnosticSeverity": {
-          "unstableApiUsage": "suggestion"
+          "unstableApiUsage": "off"
         },
         "includeSuggestionsInTsc": false,
         "ignoreEffectSuggestionsInTscExitCode": true,

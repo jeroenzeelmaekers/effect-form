@@ -2,6 +2,7 @@ import path from "path";
 
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
+import { redact } from "@tanstack/redact/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig, loadEnv, lazyPlugins } from "vite-plus";
@@ -57,6 +58,13 @@ export default defineConfig(({ mode }) => {
         autoCodeSplitting: true,
       }),
       react({ compiler: true }),
+      redact({
+        features: {
+          activity: false,
+          fragmentRefs: false,
+          hydration: false,
+        },
+      }),
       babel({
         presets: [reactCompilerPreset()],
         plugins:
