@@ -1,3 +1,4 @@
+import { redact } from "@tanstack/redact/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser-playwright";
@@ -45,7 +46,16 @@ export default defineConfig({
       },
       {
         extends: true,
-        plugins: [react({ compiler: true })],
+        plugins: [
+          react({ compiler: true }),
+          redact({
+            features: {
+              activity: false,
+              fragmentRefs: false,
+              hydration: false,
+            },
+          }),
+        ],
         test: {
           name: "browser",
           include: ["src/**/*.test.tsx"],

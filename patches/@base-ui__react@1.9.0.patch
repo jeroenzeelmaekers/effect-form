@@ -1,0 +1,24 @@
+diff --git a/menu/root/MenuRoot.mjs b/menu/root/MenuRoot.mjs
+index 5abff7c502febc1595b4398f56d9d571d21daf31..c39201ddede7617bc49055016b71486bb28fd46b 100644
+--- a/menu/root/MenuRoot.mjs
++++ b/menu/root/MenuRoot.mjs
+@@ -24,6 +24,7 @@ import { attachPreventUnmountOnClose, FOCUSABLE_POPUP_PROPS, createPopupOpenStat
+ import { useBaseUiId } from "../../internals/useBaseUiId.mjs";
+ import { MenuFilterProviderContext } from "../filter-provider/MenuFilterProviderContext.mjs";
+ import { isKeyboardClick, isKeyboardOpen } from "../utils/isKeyboardOpen.mjs";
++import { findRootOwnerId } from "../utils/findRootOwnerId.mjs";
+ 
+ /**
+  * @internal
+@@ -368,7 +369,10 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal(props) {
+     bubbles: {
+       escapeKey: closeParentOnEsc && parent.type === 'menu'
+     },
+-    outsidePress() {
++    outsidePress(event) {
++      if (findRootOwnerId(event.target) === store.select('rootId')) {
++        return false;
++      }
+       if (parent.type !== 'context-menu' || openEventRef.current?.type === 'contextmenu') {
+         return true;
+       }
