@@ -34,8 +34,11 @@ vi.mock("@effect/atom-react", async (importOriginal) => {
 
   return {
     ...actual,
-    useAtomValue: (atom: AtomInput) =>
-      atom === filterRefAtom ? AsyncResult.success("") : mockUseAtomValue(atom),
+    useAtomValue: (atom: AtomInput) => {
+      if (atom === filterRefAtom) return AsyncResult.success("");
+
+      return mockUseAtomValue(atom);
+    },
     useAtomRefresh: (_atom: AtomInput) => mockUseAtomRefresh(),
   };
 });

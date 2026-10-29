@@ -21,7 +21,7 @@ export default function CommandCenter() {
   useHotkey("Mod+K", () => setOpen(true));
 
   const isPending = AsyncResult.isWaiting(result);
-  const error = AsyncResult.isFailure(result) ? result.cause : null;
+  const error = AsyncResult.isFailure(result) && result.cause;
 
   function handleSubmit(value: string) {
     if (!value.trim() || isPending) return;
@@ -59,13 +59,12 @@ export default function CommandCenter() {
             )}
           </div>
           <CommandList>
-            {error ? (
+            {error && (
               <p className="text-destructive px-4 py-3 text-sm">
                 Something went wrong. Please try again.
               </p>
-            ) : (
-              <CommandEmpty>No results found.</CommandEmpty>
             )}
+            {!error && <CommandEmpty>No results found.</CommandEmpty>}
           </CommandList>
         </Command>
       </CommandDialog>

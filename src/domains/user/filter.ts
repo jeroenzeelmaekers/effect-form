@@ -108,7 +108,9 @@ export function tokenize(query: string): RawToken[] {
     if (OP_PATTERN.test(part)) {
       const op = part.toUpperCase();
 
-      return { kind: "op", op: op === "AND" ? "AND" : "OR" };
+      if (op === "AND") return { kind: "op", op: "AND" };
+
+      return { kind: "op", op: "OR" };
     }
 
     const match = FIELD_PATTERN.exec(part);
@@ -183,11 +185,12 @@ function parseExpression(
     const right = parseExpression(tokens, prec);
 
     if (!right) break;
-    left = {
-      kind: next.op === "AND" ? "and" : "or",
-      left,
-      right,
-    };
+
+    if (next.op === "AND") {
+      left = { kind: "and", left, right };
+    } else {
+      left = { kind: "or", left, right };
+    }
   }
 
   return left;
@@ -212,9 +215,11 @@ function parsePrimary(tokens: RawToken[]): FilterNode | null {
   if (t.kind === "op" || t.kind === "rparen") return null; // not a primary node
   tokens.shift();
 
-  return t.kind === "field"
-    ? { kind: "field", field: t.field, value: t.value }
-    : { kind: "text", value: t.value };
+  if (t.kind === "field") {
+    return { kind: "field", field: t.field, value: t.value };
+  }
+
+  return { kind: "text", value: t.value };
 }
 
 /**

@@ -10,15 +10,25 @@ import { defineConfig, loadEnv, lazyPlugins } from "vite-plus";
 import fmt from "./.oxfmtrc.json";
 import lintConfig from "./.oxlintrc.json";
 
-const manualChunks = {
+const vendorChunks = {
   react: ["react", "react-dom"],
   effect: ["effect", "@effect/atom-react"],
   form: ["@tanstack/react-form"],
   table: ["@tanstack/react-table"],
   icons: ["lucide-react"],
   ui: ["@base-ui/react"],
+  ai: ["@effect/ai-anthropic"],
   posthog: ["posthog-js/react"],
 } satisfies Record<string, ReadonlyArray<string>>;
+
+const babelPlugins: Array<[string, { properties: string[] }]> = [];
+
+if (process.env.NODE_ENV === "production") {
+  babelPlugins.push([
+    "react-remove-properties",
+    { properties: ["data-testid"] },
+  ]);
+}
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -67,10 +77,7 @@ export default defineConfig(({ mode }) => {
       }),
       babel({
         presets: [reactCompilerPreset()],
-        plugins:
-          process.env.NODE_ENV === "production"
-            ? [["react-remove-properties", { properties: ["data-testid"] }]]
-            : [],
+        plugins: babelPlugins,
       }),
       tailwindcss(),
     ]),
@@ -121,15 +128,33 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      rollupOptions: {
+      rolldownOptions: {
         output: {
-          manualChunks(id) {
-            for (const [chunk, deps] of Object.entries(manualChunks)) {
-              if (deps.some((dep) => id.includes(`node_modules/${dep}`))) {
-                return chunk;
+          codeSplitting: {
+            groups: Object.entries(vendorChunks).map(([name, deps]) => {
+              const group = {
+                name,
+                test: (id: string) => {
+                  const normalizedId = id.replaceAll("\\", "/");
+
+                  return deps.some((dep) =>
+                    normalizedId.includes(`node_modules/${dep}`),
+                  );
+                },
+              };
+
+              if (name === "ai") {
+                return {
+                  ...group,
+                  includeDependenciesRecursively: false,
+                  priority: 20,
+                };
               }
-            }
+
+              return group;
+            }),
           },
+          strictExecutionOrder: true,
         },
       },
     },

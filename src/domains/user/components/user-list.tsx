@@ -30,6 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
+import { cn } from "@/shared/lib/utils";
 
 import { UserColumns } from "./table-columns";
 
@@ -60,6 +61,8 @@ function DataTable({ columns, data, isFiltered = false }: DataTableProps) {
     state: { sorting },
   });
 
+  const rows = table.getRowModel().rows;
+
   return (
     <div className="w-full overflow-x-auto rounded-md border">
       <Table>
@@ -75,12 +78,11 @@ function DataTable({ columns, data, isFiltered = false }: DataTableProps) {
                     key={header.id}
                     className="p-0"
                     aria-sort={getAriaSort(sorted)}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                    {!header.isPlaceholder &&
+                      flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                   </TableHead>
                 );
               })}
@@ -88,11 +90,10 @@ function DataTable({ columns, data, isFiltered = false }: DataTableProps) {
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table
-              .getRowModel()
-              .rows.map((row) => <DataTableRow key={row.id} row={row} />)
-          ) : (
+          {rows.map((row) => (
+            <DataTableRow key={row.id} row={row} />
+          ))}
+          {rows.length === 0 && (
             <EmptyDataTableRow
               colSpan={columns.length}
               isFiltered={isFiltered}
@@ -114,7 +115,7 @@ function DataTableRow({ row }: { row: Row<UserTableFeatures, User> }) {
     <TableRow
       key={row.id}
       data-testid={`user-row-${row.original.id}`}
-      className={isOptimistic ? "text-muted-foreground" : ""}>
+      className={cn(isOptimistic && "text-muted-foreground")}>
       {row.getVisibleCells().map((cell) => (
         <TableCell key={cell.id}>
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -142,12 +143,16 @@ function EmptyDataTableRow({
   colSpan: number;
   isFiltered?: boolean;
 }) {
+  let message = "No users yet. Create one to get started.";
+
+  if (isFiltered) {
+    message = "No users match your filter.";
+  }
+
   return (
     <TableRow data-testid="empty-row">
       <TableCell colSpan={colSpan} className="h-24 text-center">
-        {isFiltered
-          ? "No users match your filter."
-          : "No users yet. Create one to get started."}
+        {message}
       </TableCell>
     </TableRow>
   );
@@ -171,12 +176,16 @@ function Loading({
       <Table>
         <TableHeader>
           <TableRow>
-            {columns.map((column, index) => (
-              <TableHead key={index}>
-                {/* oxlint-disable-next-line anti-slop/no-runtime-typeof */}
-                {typeof column.header === "string" ? column.header : null}
-              </TableHead>
-            ))}
+            {columns.map((column, index) => {
+              let header: React.ReactNode = null;
+
+              // oxlint-disable-next-line anti-slop/no-runtime-typeof
+              if (typeof column.header === "string") {
+                header = column.header;
+              }
+
+              return <TableHead key={index}>{header}</TableHead>;
+            })}
           </TableRow>
         </TableHeader>
         <TableBody>

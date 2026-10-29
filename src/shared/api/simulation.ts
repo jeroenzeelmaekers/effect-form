@@ -4,18 +4,21 @@ import {
   HttpClientError,
   HttpClientRequest,
   HttpClientResponse,
+  ProblemDetails,
 } from "effect/http";
+
+import { ProblemType } from "./errors";
 
 const mockProblemDetails = {
   notFound: {
-    type: "https://api.example.com/problems/not-found",
+    type: ProblemType.notFound,
     title: "Resource Not Found",
     status: 404,
     detail: "The requested users collection could not be found.",
     instance: "/users",
   },
   validation: {
-    type: "https://api.example.com/problems/validation-error",
+    type: ProblemType.validation,
     title: "Validation Failed",
     status: 422,
     detail: "The request payload contains invalid data.",
@@ -28,21 +31,19 @@ const mockProblemDetails = {
     detail: "An unexpected error occurred while processing your request.",
     instance: "/users",
   },
-};
-
-type ProblemBody = Record<string, string | number>;
+} satisfies Record<string, ProblemDetails.ProblemDetails>;
 
 // Create a mock HTTP response with the given status and body
 const createMockResponse = (
   request: HttpClientRequest.HttpClientRequest,
   status: number,
-  body: ProblemBody,
+  body: ProblemDetails.ProblemDetails,
 ) =>
   HttpClientResponse.fromWeb(
     request,
     new Response(JSON.stringify(body), {
       status,
-      headers: { "Content-Type": "application/problem+json" },
+      headers: { "Content-Type": ProblemDetails.contentType },
     }),
   );
 

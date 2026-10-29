@@ -36,11 +36,15 @@ const getStoredTheme = (storageKey: string, defaultTheme: Theme): Theme => {
   try {
     const storedTheme = localStorage.getItem(storageKey);
 
-    return storedTheme === "light" ||
+    if (
+      storedTheme === "light" ||
       storedTheme === "dark" ||
       storedTheme === "system"
-      ? storedTheme
-      : defaultTheme;
+    ) {
+      return storedTheme;
+    }
+
+    return defaultTheme;
   } catch {
     return defaultTheme;
   }
@@ -87,7 +91,12 @@ export function ThemeProvider({
     // Function to apply the theme class to the root element
     const applyTheme = (isDark: boolean) => {
       root.classList.remove("light", "dark");
-      root.classList.add(isDark ? "dark" : "light");
+
+      if (isDark) {
+        root.classList.add("dark");
+      } else {
+        root.classList.add("light");
+      }
     };
 
     // Handle system theme preference

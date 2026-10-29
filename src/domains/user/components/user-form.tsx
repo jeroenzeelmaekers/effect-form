@@ -348,7 +348,7 @@ export default function EffectForm() {
                   disabled={!canSubmit}
                   data-testid="user-form-submit"
                   className="w-full">
-                  {isSubmitting ? "Creating\u2026" : "Create User"}
+                  {getSubmitLabel(isSubmitting)}
                 </Button>
               )}
             </form.Subscribe>
@@ -357,4 +357,10 @@ export default function EffectForm() {
       </form>
     </Card>
   );
+}
+
+function getSubmitLabel(isSubmitting: boolean) {
+  if (isSubmitting) return "Creating...";
+
+  return "Create User";
 }

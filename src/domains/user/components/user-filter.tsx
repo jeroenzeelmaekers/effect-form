@@ -55,7 +55,9 @@ function fuzzyScore(candidate: string, query: string): number {
     ci++;
   }
 
-  return qi < q.length ? -1 : score;
+  if (qi < q.length) return -1;
+
+  return score;
 }
 
 function getFuzzySuggestions(
@@ -66,7 +68,9 @@ function getFuzzySuggestions(
   return BASE_SUGGESTIONS.flatMap((s) => {
     const score = fuzzyScore(s.label, input);
 
-    return score >= 0 ? [{ ...s, score }] : [];
+    if (score < 0) return [];
+
+    return [{ ...s, score }];
   })
     .sort((a, b) => b.score - a.score)
     .map(({ label, hint }) => ({ label, hint }));
@@ -94,18 +98,20 @@ function HighlightedLabel({ label, query }: { label: string; query: string }) {
 
   return (
     <span aria-hidden="true">
-      {label.split("").map((ch, i) =>
-        matched.has(i) ? (
-          <mark
-            key={i}
-            aria-hidden="true"
-            className="text-foreground bg-transparent font-semibold">
-            {ch}
-          </mark>
-        ) : (
-          <span key={i}>{ch}</span>
-        ),
-      )}
+      {label.split("").map((ch, i) => {
+        if (matched.has(i)) {
+          return (
+            <mark
+              key={i}
+              aria-hidden="true"
+              className="text-foreground bg-transparent font-semibold">
+              {ch}
+            </mark>
+          );
+        }
+
+        return <span key={i}>{ch}</span>;
+      })}
     </span>
   );
 }
@@ -122,6 +128,42 @@ function getSegmentKey(segment: RawToken, index: number): string {
     case "rparen":
       return `${segment.kind}-${index}`;
   }
+}
+
+function getParenSymbol(kind: "lparen" | "rparen") {
+  if (kind === "lparen") return "(";
+
+  return ")";
+}
+
+function getParenRemoveLabel(paren: "(" | ")") {
+  if (paren === "(") return "Remove opening parenthesis";
+
+  return "Remove closing parenthesis";
+}
+
+function getTokenInputValue(
+  segment: Extract<RawToken, { kind: "field" | "text" }>,
+) {
+  if (segment.kind === "field") {
+    return `${segment.field}:${segment.value}`;
+  }
+
+  return segment.value;
+}
+
+function getActiveOptionId(activeIndex: number, listboxId: string) {
+  if (activeIndex < 0) return undefined;
+
+  return `${listboxId}-option-${activeIndex}`;
+}
+
+function getFilterPlaceholder(segmentCount: number) {
+  if (segmentCount === 0) {
+    return "Filter users… e.g. name:john OR email:*@gmail.com";
+  }
+
+  return "";
 }
 
 const FilterChip = React.forwardRef<
@@ -259,11 +301,7 @@ function ParenChip({
       <span aria-hidden="true">{paren}</span>
       <button
         type="button"
-        aria-label={
-          paren === "("
-            ? "Remove opening parenthesis"
-            : "Remove closing parenthesis"
-        }
+        aria-label={getParenRemoveLabel(paren)}
         onClick={(e) => {
           e.stopPropagation();
           onRemove();
@@ -278,7 +316,7 @@ function ParenChip({
 function OperatorLabel({ op }: { op: "AND" | "OR" }) {
   return (
     <span
-      aria-label={op === "AND" ? "and" : "or"}
+      aria-label={op.toLowerCase()}
       className="text-muted-foreground px-0.5 font-mono text-[0.6rem] font-semibold tracking-wider uppercase select-none">
       <span aria-hidden="true">{op}</span>
     </span>
@@ -339,9 +377,11 @@ export function UserFilter() {
   // the nuqs setter so the URL and UserList stay in sync.
   const aiFilterResult = useAtomValue(filterRefAtom);
 
-  const aiFilter = AsyncResult.isSuccess(aiFilterResult)
-    ? aiFilterResult.value
-    : null;
+  let aiFilter: string | null = null;
+
+  if (AsyncResult.isSuccess(aiFilterResult)) {
+    aiFilter = aiFilterResult.value;
+  }
 
   const previousAiFilterRef = useRef<string | null>(null);
   useEffect(() => {
@@ -490,7 +530,12 @@ export function UserFilter() {
       return true;
     });
 
-    void setFilterQuery(next.length > 0 ? serializeTokens(next) : null);
+    if (next.length > 0) {
+      void setFilterQuery(serializeTokens(next));
+    } else {
+      void setFilterQuery(null);
+    }
+
     setAnnouncement("Filter removed.");
     inputRef.current?.focus();
   }
@@ -773,45 +818,59 @@ export function UserFilter() {
           {segments.map((seg, i) => {
             const segKey = getSegmentKey(seg, i);
 
-            return seg.kind === "op" ? (
-              <OperatorLabel key={segKey} op={seg.op} />
-            ) : seg.kind === "lparen" || seg.kind === "rparen" ? (
-              <ParenChip
-                key={segKey}
-                paren={seg.kind === "lparen" ? "(" : ")"}
-                onRemove={() => removeSegment(i)}
-              />
-            ) : editingIndex === i ? (
-              <EditingChip
-                key={segKey}
-                initialValue={
-                  seg.kind === "field" ? `${seg.field}:${seg.value}` : seg.value
+            switch (seg.kind) {
+              case "op":
+                return <OperatorLabel key={segKey} op={seg.op} />;
+              case "lparen":
+              case "rparen": {
+                const paren = getParenSymbol(seg.kind);
+
+                return (
+                  <ParenChip
+                    key={segKey}
+                    paren={paren}
+                    onRemove={() => removeSegment(i)}
+                  />
+                );
+              }
+
+              case "field":
+              case "text": {
+                if (editingIndex === i) {
+                  return (
+                    <EditingChip
+                      key={segKey}
+                      initialValue={getTokenInputValue(seg)}
+                      originalLabel={segmentLabel(i)}
+                      onCommit={(val) => commitEdit(i, val)}
+                      onCancel={cancelEdit}
+                    />
+                  );
                 }
-                originalLabel={segmentLabel(i)}
-                onCommit={(val) => commitEdit(i, val)}
-                onCancel={cancelEdit}
-              />
-            ) : (
-              <FilterChip
-                key={segKey}
-                ref={(el) => {
-                  chipRefs.current[i] = el;
-                }}
-                label={segmentLabel(i)}
-                selected={
-                  selectedRange !== null &&
-                  i >= selectedRange.start &&
-                  i <= selectedRange.end
-                }
-                onRemove={() => removeSegment(i)}
-                onSelect={(shift) => selectChip(i, shift)}
-                onEdit={() => {
-                  setSelectedRange(null);
-                  setEditingIndex(i);
-                }}
-                onChipKeyDown={(e) => handleChipKeyDown(e, i)}
-              />
-            );
+
+                return (
+                  <FilterChip
+                    key={segKey}
+                    ref={(el) => {
+                      chipRefs.current[i] = el;
+                    }}
+                    label={segmentLabel(i)}
+                    selected={
+                      selectedRange !== null &&
+                      i >= selectedRange.start &&
+                      i <= selectedRange.end
+                    }
+                    onRemove={() => removeSegment(i)}
+                    onSelect={(shift) => selectChip(i, shift)}
+                    onEdit={() => {
+                      setSelectedRange(null);
+                      setEditingIndex(i);
+                    }}
+                    onChipKeyDown={(e) => handleChipKeyDown(e, i)}
+                  />
+                );
+              }
+            }
           })}
         </div>
 
@@ -823,9 +882,7 @@ export function UserFilter() {
           aria-haspopup="listbox"
           aria-controls={listboxId}
           aria-autocomplete="list"
-          aria-activedescendant={
-            activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined
-          }
+          aria-activedescendant={getActiveOptionId(activeIndex, listboxId)}
           aria-describedby={hintId}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
@@ -838,11 +895,7 @@ export function UserFilter() {
               150,
             );
           }}
-          placeholder={
-            segments.length === 0
-              ? "Filter users… e.g. name:john OR email:*@gmail.com"
-              : ""
-          }
+          placeholder={getFilterPlaceholder(segments.length)}
           aria-label="Filter query input"
           className="placeholder:text-muted-foreground min-w-32 flex-1 bg-transparent text-xs outline-none"
         />

@@ -109,6 +109,13 @@ function DebugMenu() {
   const setOtelEnabled = useAtomSet(setOtelEnabledAtom);
 
   const isDebugLoaded = AsyncResult.isSuccess(settingsResult);
+  let simulationEnabled = false;
+  let otelEnabled = false;
+
+  if (isDebugLoaded) {
+    simulationEnabled = settingsResult.value.simulationEnabled;
+    otelEnabled = settingsResult.value.otelEnabled;
+  }
 
   return (
     <DropdownMenuSub>
@@ -120,15 +127,13 @@ function DebugMenu() {
         <DropdownMenuLabel>Debug Settings</DropdownMenuLabel>
         <DropdownMenuCheckboxItem
           disabled={!isDebugLoaded}
-          checked={
-            isDebugLoaded ? settingsResult.value.simulationEnabled : false
-          }
+          checked={simulationEnabled}
           onCheckedChange={setSimulationEnabled}>
           Simulation Mode
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
           disabled={!isDebugLoaded}
-          checked={isDebugLoaded ? settingsResult.value.otelEnabled : false}
+          checked={otelEnabled}
           onCheckedChange={setOtelEnabled}>
           OpenTelemetry
         </DropdownMenuCheckboxItem>

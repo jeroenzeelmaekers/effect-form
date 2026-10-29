@@ -1,30 +1,16 @@
 import { Effect, Option, Predicate, Schema } from "effect";
-import { HttpClientError, HttpClientResponse } from "effect/http";
+import {
+  HttpClientError,
+  HttpClientResponse,
+  ProblemDetails,
+} from "effect/http";
+import { HttpApiError } from "effect/http-api";
 import type { ResponseError } from "effect/http/HttpClientError";
 
-/**
- * Effect Schema struct representing an RFC 7807 Problem Detail object.
- *
- * All fields are optional so the struct can safely decode partial or empty
- * server error responses without failing.
- *
- * Fields:
- * - `type` — URI reference that identifies the problem type.
- * - `title` — short human-readable summary of the problem.
- * - `status` — HTTP status code associated with the problem.
- * - `detail` — human-readable explanation specific to this occurrence.
- * - `instance` — URI reference that identifies the specific occurrence.
- */
-export const ProblemDetail = Schema.Struct({
-  type: Schema.optionalKey(Schema.String),
-  title: Schema.optionalKey(Schema.String),
-  status: Schema.optionalKey(Schema.Finite),
-  detail: Schema.optionalKey(Schema.String),
-  instance: Schema.optionalKey(Schema.String),
-});
-
-/** TypeScript type inferred from the `ProblemDetail` schema. */
-export type ProblemDetail = typeof ProblemDetail.Type;
+export const ProblemType = {
+  notFound: "https://api.example.com/problems/not-found",
+  validation: "https://api.example.com/problems/validation-error",
+} as const;
 
 /**
  * Tagged error class representing a network-level failure (connection errors,
@@ -47,13 +33,18 @@ export class NetworkError extends Schema.TaggedError<NetworkError>()(
  *
  * Fields:
  * - `traceId` — optional OpenTelemetry trace ID for correlation.
- * - `problemDetail` — optional RFC 7807 problem detail decoded from the response body.
+ * - `problemDetail` — optional RFC 9457 problem details decoded from the response body.
  */
-export class NotFoundError extends Schema.TaggedError<NotFoundError>()(
+export class NotFoundError extends HttpApiError.Problem<NotFoundError>()(
   "NotFoundError",
   {
+    type: ProblemType.notFound,
+    status: 404,
+    title: "Resource Not Found",
+  },
+  {
     traceId: Schema.optional(Schema.String),
-    problemDetail: Schema.optional(ProblemDetail),
+    problemDetail: Schema.optional(ProblemDetails.Schema),
   },
 ) {}
 
@@ -63,15 +54,82 @@ export class NotFoundError extends Schema.TaggedError<NotFoundError>()(
  *
  * Fields:
  * - `traceId` — optional OpenTelemetry trace ID for correlation.
- * - `problemDetail` — optional RFC 7807 problem detail decoded from the response body.
+ * - `problemDetail` — optional RFC 9457 problem details decoded from the response body.
  */
-export class ValidationError extends Schema.TaggedError<ValidationError>()(
+export class ValidationError extends HttpApiError.Problem<ValidationError>()(
   "ValidationError",
   {
+    type: ProblemType.validation,
+    status: 422,
+    title: "Validation Failed",
+  },
+  {
     traceId: Schema.optional(Schema.String),
-    problemDetail: Schema.optional(ProblemDetail),
+    problemDetail: Schema.optional(ProblemDetails.Schema),
   },
 ) {}
+
+const notFoundErrorFromDetails = (
+  traceId: string | undefined,
+  detail: string | undefined,
+  instance: string | undefined,
+  problemDetail: ProblemDetails.ProblemDetails | undefined,
+) => {
+  if (detail === undefined) {
+    if (instance === undefined) {
+      return new NotFoundError({ traceId, problemDetail });
+    }
+
+    return new NotFoundError({ traceId, instance, problemDetail });
+  }
+
+  if (instance === undefined) {
+    return new NotFoundError({ traceId, detail, problemDetail });
+  }
+
+  return new NotFoundError({ traceId, detail, instance, problemDetail });
+};
+
+const validationErrorFromDetails = (
+  traceId: string | undefined,
+  detail: string | undefined,
+  instance: string | undefined,
+  problemDetail: ProblemDetails.ProblemDetails | undefined,
+) => {
+  if (detail === undefined) {
+    if (instance === undefined) {
+      return new ValidationError({ traceId, problemDetail });
+    }
+
+    return new ValidationError({ traceId, instance, problemDetail });
+  }
+
+  if (instance === undefined) {
+    return new ValidationError({ traceId, detail, problemDetail });
+  }
+
+  return new ValidationError({ traceId, detail, instance, problemDetail });
+};
+
+const decodeNotFoundProblem = (
+  problemDetail: ProblemDetails.ProblemDetails | undefined,
+) => {
+  if (problemDetail === undefined) return Effect.succeedNone;
+
+  return Schema.decodeUnknownEffect(NotFoundError)(problemDetail).pipe(
+    Effect.option,
+  );
+};
+
+const decodeValidationProblem = (
+  problemDetail: ProblemDetails.ProblemDetails | undefined,
+) => {
+  if (problemDetail === undefined) return Effect.succeedNone;
+
+  return Schema.decodeUnknownEffect(ValidationError)(problemDetail).pipe(
+    Effect.option,
+  );
+};
 
 /**
  * Effect that resolves to the trace ID of the current OpenTelemetry span, if any.
@@ -83,26 +141,28 @@ export class ValidationError extends Schema.TaggedError<ValidationError>()(
 export const getCurrentTraceId = Effect.gen(function* () {
   const span = yield* Effect.currentSpan.pipe(Effect.option);
 
-  return Option.isSome(span) ? span.value.traceId : undefined;
+  if (Option.isSome(span)) return span.value.traceId;
+
+  return undefined;
 });
 
 /**
  * Annotates the current OpenTelemetry span with attributes derived from a
- * `ProblemDetail` object.
+ * RFC 9457 `ProblemDetails` object.
  *
  * Attributes set: `error.type`, `error.title`, `error.status`, `error.detail`,
  * `error.instance`. Falls back to `"unknown"` or `0` for missing fields.
  *
- * @param problemDetail - The RFC 7807 problem detail to extract attributes from.
+ * @param problemDetail - The RFC 9457 problem details to extract attributes from.
  * @param statusCode - Optional HTTP status code used as fallback for `error.status`.
  * @returns An `Effect` that annotates the current span and resolves to `void`.
  */
 export const annotateSpanWithProblemDetail = (
-  problemDetail: ProblemDetail,
+  problemDetail: ProblemDetails.ProblemDetails,
   statusCode?: number,
 ) =>
   Effect.annotateCurrentSpan({
-    "error.type": problemDetail.type ?? "unknown",
+    "error.type": problemDetail.type,
     "error.title": problemDetail.title ?? "unknown",
     "error.status": problemDetail.status ?? statusCode ?? 0,
     "error.detail": problemDetail.detail ?? "unknown",
@@ -113,7 +173,7 @@ export const annotateSpanWithProblemDetail = (
  * Maps a `ResponseError` (from `effect/http`) to a typed domain error
  * by inspecting the HTTP status code.
  *
- * Also attempts to decode an RFC 7807 Problem Detail from the response body
+ * Also attempts to decode RFC 9457 Problem Details from the response body
  * and annotates the current span when one is found.
  *
  * Status code mapping:
@@ -131,11 +191,11 @@ export function getResponseError(error: ResponseError, traceId?: string) {
 
     // extract problem detail from server error
     const problemDetail = yield* HttpClientResponse.schemaBodyJson(
-      ProblemDetail,
-    )(error.response).pipe(Effect.orElseSucceed(() => ({})));
+      ProblemDetails.Schema,
+    )(error.response).pipe(Effect.orElseSucceed(() => undefined));
 
     // annotate span with problem detail
-    if (Object.keys(problemDetail).length > 0) {
+    if (problemDetail !== undefined) {
       yield* annotateSpanWithProblemDetail(
         problemDetail,
         error.response.status,
@@ -145,10 +205,42 @@ export function getResponseError(error: ResponseError, traceId?: string) {
     // map to specific error types based on status code,
     // could also map on problem detail type
     switch (error.response.status) {
-      case 404:
-        return yield* new NotFoundError({ traceId, problemDetail });
-      case 422:
-        return yield* new ValidationError({ traceId, problemDetail });
+      case 404: {
+        const decoded = yield* decodeNotFoundProblem(problemDetail);
+        let detail = problemDetail?.detail;
+        let instance = problemDetail?.instance;
+
+        if (Option.isSome(decoded)) {
+          detail = decoded.value.detail;
+          instance = decoded.value.instance;
+        }
+
+        return yield* notFoundErrorFromDetails(
+          traceId,
+          detail,
+          instance,
+          problemDetail,
+        );
+      }
+
+      case 422: {
+        const decoded = yield* decodeValidationProblem(problemDetail);
+        let detail = problemDetail?.detail;
+        let instance = problemDetail?.instance;
+
+        if (Option.isSome(decoded)) {
+          detail = decoded.value.detail;
+          instance = decoded.value.instance;
+        }
+
+        return yield* validationErrorFromDetails(
+          traceId,
+          detail,
+          instance,
+          problemDetail,
+        );
+      }
+
       default:
         return yield* new NetworkError({ traceId });
     }

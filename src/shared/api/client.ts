@@ -67,9 +67,11 @@ export class ApiClient extends Context.Service<ApiClient, ApiClientService>()(
         ) {
           const settings = yield* debugService.get;
 
-          const client = settings.simulationEnabled
-            ? withSimulation(resilientClient)
-            : resilientClient;
+          let client = resilientClient;
+
+          if (settings.simulationEnabled) {
+            client = withSimulation(resilientClient);
+          }
 
           return yield* client.execute(request);
         }),

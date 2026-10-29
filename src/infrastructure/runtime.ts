@@ -23,9 +23,11 @@ const FeatureServicesLive = Layer.mergeAll(
 
 const ServicesLive = Layer.merge(DomainDependenciesLive, FeatureServicesLive);
 
-const MainLive = getDebugSettingsSync().otelEnabled
-  ? Layer.merge(ServicesLive, TelemetryLive)
-  : ServicesLive;
+const MainLive = (() => {
+  if (!getDebugSettingsSync().otelEnabled) return ServicesLive;
+
+  return Layer.merge(ServicesLive, TelemetryLive);
+})();
 
 /**
  * Shared `Atom.runtime` instance backed by the fully-composed application `Layer`.
