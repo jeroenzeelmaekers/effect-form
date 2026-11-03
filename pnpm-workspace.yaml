@@ -1,3 +1,57 @@
+allowBuilds:
+  core-js: set this to true or false
+
+minimumReleaseAgeExclude:
+  - "@effect/tsgo-darwin-arm64@0.64.1"
+  - "@effect/tsgo-darwin-x64@0.64.1"
+  - "@effect/tsgo-linux-arm64@0.64.1"
+  - "@effect/tsgo-linux-arm@0.64.1"
+  - "@effect/tsgo-linux-x64@0.64.1"
+  - "@effect/tsgo-win32-arm64@0.64.1"
+  - "@effect/tsgo-win32-x64@0.64.1"
+  - "@effect/tsgo@0.64.1"
+  - "@oxc-transform-react/binding-android-arm-eabi@0.157.0"
+  - "@oxc-transform-react/binding-android-arm64@0.157.0"
+  - "@oxc-transform-react/binding-darwin-arm64@0.157.0"
+  - "@oxc-transform-react/binding-darwin-x64@0.157.0"
+  - "@oxc-transform-react/binding-freebsd-x64@0.157.0"
+  - "@oxc-transform-react/binding-linux-arm-gnueabihf@0.157.0"
+  - "@oxc-transform-react/binding-linux-arm-musleabihf@0.157.0"
+  - "@oxc-transform-react/binding-linux-arm64-gnu@0.157.0"
+  - "@oxc-transform-react/binding-linux-arm64-musl@0.157.0"
+  - "@oxc-transform-react/binding-linux-ppc64-gnu@0.157.0"
+  - "@oxc-transform-react/binding-linux-riscv64-gnu@0.157.0"
+  - "@oxc-transform-react/binding-linux-riscv64-musl@0.157.0"
+  - "@oxc-transform-react/binding-linux-s390x-gnu@0.157.0"
+  - "@oxc-transform-react/binding-linux-x64-gnu@0.157.0"
+  - "@oxc-transform-react/binding-linux-x64-musl@0.157.0"
+  - "@oxc-transform-react/binding-openharmony-arm64@0.157.0"
+  - "@oxc-transform-react/binding-win32-arm64-msvc@0.157.0"
+  - "@oxc-transform-react/binding-win32-ia32-msvc@0.157.0"
+  - "@oxc-transform-react/binding-win32-x64-msvc@0.157.0"
+  - "@posthog/browser-common@0.10.4"
+  - "@posthog/core@1.62.1"
+  - "@tailwindcss/node@4.3.4"
+  - "@tailwindcss/oxide-android-arm64@4.3.4"
+  - "@tailwindcss/oxide-darwin-arm64@4.3.4"
+  - "@tailwindcss/oxide-darwin-x64@4.3.4"
+  - "@tailwindcss/oxide-freebsd-x64@4.3.4"
+  - "@tailwindcss/oxide-linux-arm-gnueabihf@4.3.4"
+  - "@tailwindcss/oxide-linux-arm64-gnu@4.3.4"
+  - "@tailwindcss/oxide-linux-arm64-musl@4.3.4"
+  - "@tailwindcss/oxide-linux-x64-gnu@4.3.4"
+  - "@tailwindcss/oxide-linux-x64-musl@4.3.4"
+  - "@tailwindcss/oxide-wasm32-wasi@4.3.4"
+  - "@tailwindcss/oxide-win32-arm64-msvc@4.3.4"
+  - "@tailwindcss/oxide-win32-x64-msvc@4.3.4"
+  - "@tailwindcss/oxide@4.3.4"
+  - "@tailwindcss/vite@4.3.4"
+  - "@tanstack/redact@0.2.6"
+  - lucide-react@1.67.0
+  - oxc-transform-react@0.157.0
+  - posthog-js@1.445.0
+  - tailwindcss@4.3.4
+
 neverBuiltDependencies:
   - core-js
 
