@@ -1,5 +1,8 @@
 neverBuiltDependencies:
   - core-js
 
+overrides:
+  "vitest@*": 5.0.5
+
 patchedDependencies:
   "@base-ui/react@1.9.0": patches/@base-ui__react@1.9.0.patch
