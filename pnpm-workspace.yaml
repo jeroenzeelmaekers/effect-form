@@ -1,5 +1,5 @@
 allowBuilds:
-  core-js: set this to true or false
+  core-js: false
 
 minimumReleaseAgeExclude:
   - "@effect/tsgo-darwin-arm64@0.64.1"
@@ -52,11 +52,18 @@ minimumReleaseAgeExclude:
   - posthog-js@1.445.0
   - tailwindcss@4.3.4
 
-neverBuiltDependencies:
-  - core-js
-
 overrides:
   "vitest@*": 5.0.5
 
 patchedDependencies:
   "@base-ui/react@1.9.0": patches/@base-ui__react@1.9.0.patch
+
+permissions:
+  "@tanstack/react-hotkeys":
+    skills: true
+  "@tanstack/react-router":
+    skills: true
+  "@tanstack/react-table":
+    skills: true
+  "@tanstack/router-plugin":
+    skills: true
