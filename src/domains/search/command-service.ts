@@ -1,7 +1,6 @@
 import { Context, Effect, Layer, Schema, SubscriptionRef } from "effect";
 import { LanguageModel, Tool, Toolkit } from "effect/ai";
 
-import { LanguageModelLive } from "@/domains/ai/language-model";
 import { NavigationService } from "@/domains/search/navigation-service";
 import { FilterRef } from "@/domains/user/filter-ref";
 
@@ -97,6 +96,10 @@ export class CommandService extends Context.Service<
 
       const processPrompt = Effect.fn("CommandService.processPrompt")(
         function* (prompt: string) {
+          const { LanguageModelLive } = yield* Effect.promise(
+            () => import("@/domains/ai/language-model"),
+          );
+
           return yield* LanguageModel.generateText({
             prompt: [
               { role: "system", content: SYSTEM_PROMPT },
