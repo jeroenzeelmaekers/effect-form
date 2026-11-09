@@ -35,7 +35,7 @@
   "devDependencies": {
     "@effect/tsgo": "0.64.1",
     "@effect/vitest": "4.1.2",
-    "@oxlint/plugins": "1.90.0",
+    "@oxlint/plugins": "1.92.0",
     "@rolldown/plugin-babel": "^0.3.0",
     "@tanstack/redact": "^0.2.6",
     "@tanstack/router-plugin": "^1.168.48",
