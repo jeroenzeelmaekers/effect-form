@@ -246,8 +246,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0(@babel/core@7.29.7)(@babel/runtime@8.0.10)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@26.6.6)(jiti@2.7.0)(typescript@7.0.2))(rolldown@1.2.16)
       '@tanstack/redact':
-        specifier: ^0.2.6
-        version: 0.2.6(@voidzero-dev/vite-plus-core@1.4.0(@types/node@26.6.6)(jiti@2.7.0)(typescript@7.0.2))
+        specifier: ^0.3.1
+        version: 0.3.1(@voidzero-dev/vite-plus-core@1.4.0(@types/node@26.6.6)(jiti@2.7.0)(typescript@7.0.2))
       '@tanstack/router-plugin':
         specifier: ^1.168.48
         version: 1.168.48(@tanstack/react-router@1.170.46(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@voidzero-dev/vite-plus-core@1.4.0(@types/node@26.6.6)(jiti@2.7.0)(typescript@7.0.2))(rolldown@1.2.16)
@@ -1456,8 +1456,8 @@ packages:
     peerDependencies:
       react: '>=18'
 
-  '@tanstack/redact@0.2.6':
-    resolution: {integrity: sha512-o1DpKWv2NBpxBBV3NueYAGmcPFskiuqWaQxuXie24Yh28j2WFW637zNXIyc+BmauD8Udb0aYKLJu4Wba5lS29Q==}
+  '@tanstack/redact@0.3.1':
+    resolution: {integrity: sha512-8A4SWi2RluvHj5j3/mifSPkUrhvmBLvvVXzM2DU7eTafvcWRXFLA/8cMe7ivZAbL7W1FMKZjitnIoP0sYIAWJA==}
     peerDependencies:
       '@cloudflare/vite-plugin': 1.65.0
       next: ~15.5.0 || ~16.0.0 || ~16.1.0 || ~16.2.0 || ~16.3.0 || ~16.4.0
@@ -1945,6 +1945,11 @@ packages:
 
   '@yuku-toolchain/types@0.19.0':
     resolution: {integrity: sha512-tFkNbsP4WXX9UMUC5syJGdK9dPMLK0PPaIuXCcCYH75sZ8MrebfBZ2XvCILRTw8AgLivSSCfDa4R67iYBDa4Kg==}
+
+  acorn@8.19.0:
+    resolution: {integrity: sha512-oJlA3XiRm7Cyk6qFD2Jn8ak9B7jSy0qy00ADO3+8dpT0LSjFihQYv4C02LFCSYJV3Q37xYwwRy5m+IpIiUzqWw==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
 
   ajv-formats@2.1.1:
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
@@ -4202,8 +4207,10 @@ snapshots:
     transitivePeerDependencies:
       - react-dom
 
-  '@tanstack/redact@0.2.6(@voidzero-dev/vite-plus-core@1.4.0(@types/node@26.6.6)(jiti@2.7.0)(typescript@7.0.2))':
+  '@tanstack/redact@0.3.1(@voidzero-dev/vite-plus-core@1.4.0(@types/node@26.6.6)(jiti@2.7.0)(typescript@7.0.2))':
     dependencies:
+      '@jridgewell/remapping': 2.3.5
+      acorn: 8.19.0
       magic-string: 0.30.21
     optionalDependencies:
       vite: '@voidzero-dev/vite-plus-core@1.4.0(@types/node@26.6.6)(jiti@2.7.0)(typescript@7.0.2)'
@@ -4574,6 +4581,8 @@ snapshots:
     optional: true
 
   '@yuku-toolchain/types@0.19.0': {}
+
+  acorn@8.19.0: {}
 
   ajv-formats@2.1.1:
     dependencies:
