@@ -30,7 +30,7 @@ minimumReleaseAgeExclude:
   - "@oxc-transform-react/binding-win32-ia32-msvc@0.157.0"
   - "@oxc-transform-react/binding-win32-x64-msvc@0.157.0"
   - "@posthog/browser-common@0.10.4"
-  - "@posthog/core@1.62.1"
+  - "@posthog/core@1.62.1 || 1.63.2"
   - "@tailwindcss/node@4.3.4"
   - "@tailwindcss/oxide-android-arm64@4.3.4"
   - "@tailwindcss/oxide-darwin-arm64@4.3.4"
@@ -51,9 +51,7 @@ minimumReleaseAgeExclude:
   - oxc-transform-react@0.157.0
   - posthog-js@1.445.0
   - tailwindcss@4.3.4
-
-overrides:
-  "vitest@*": 5.0.5
+  - playwright-core@1.65.0
 
 patchedDependencies:
   "@base-ui/react@1.9.0": patches/@base-ui__react@1.9.0.patch
