@@ -35,6 +35,8 @@ describe("About page", () => {
   it("provides a main landmark targeted by the skip-to-content link", async () => {
     const screen = await renderAbout();
 
-    await expect.element(screen.getByRole("main")).toHaveAttribute("id", "main");
+    await expect
+      .element(screen.getByRole("main"))
+      .toHaveAttribute("id", "main");
   });
 });
