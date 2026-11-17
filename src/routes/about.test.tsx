@@ -11,6 +11,7 @@ import { Route } from "./about";
 
 async function renderAbout() {
   const rootRoute = createRootRoute();
+
   const router = createRouter({
     routeTree: rootRoute.addChildren([Route]),
     history: createMemoryHistory({ initialEntries: ["/about"] }),
@@ -37,7 +38,9 @@ describe("About page", () => {
 
     await expect
       .element(
-        screen.getByRole("main").getByText("Hello from About!", { exact: true }),
+        screen
+          .getByRole("main")
+          .getByText("Hello from About!", { exact: true }),
       )
       .toBeVisible();
   });
@@ -45,6 +48,8 @@ describe("About page", () => {
   it("provides the main-content anchor", async () => {
     const screen = await renderAbout();
 
-    await expect.element(screen.getByRole("main")).toHaveAttribute("id", "main");
+    await expect
+      .element(screen.getByRole("main"))
+      .toHaveAttribute("id", "main");
   });
 });
