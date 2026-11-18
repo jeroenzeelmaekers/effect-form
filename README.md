@@ -28,14 +28,14 @@ An optional Nix shell is provided for **aarch64-darwin** (Apple Silicon), with N
 
 Vite reads `.env.local` and `VITE_` variables at build/dev-server time:
 
-| Variable | Purpose |
-| --- | --- |
-| `VITE_API_BASE_URL` | Base URL for `/users` and `/posts` requests; required by the Effect API client. Use `/api` with the provided proxies. |
-| `VITE_OTLP_BASE_URL` | OTLP HTTP base URL for traces and logs when OpenTelemetry is enabled; defaults to `/otlp`. |
-| `VITE_PUBLIC_POSTHOG_KEY` | PostHog project key for analytics and the `allow-user-creation` feature flag. |
-| `VITE_PUBLIC_POSTHOG_HOST` | PostHog endpoint; use `/ingest` with the provided proxies. |
-| `VITE_ANTHROPIC_API_KEY` | Used by the **development** `/anthropic` proxy for command-center requests. |
-| `VITE_APP_VERSION` | Version attached to telemetry resources; defaults to `0.0.0`. |
+| Variable                   | Purpose                                                                                                               |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `VITE_API_BASE_URL`        | Base URL for `/users` and `/posts` requests; required by the Effect API client. Use `/api` with the provided proxies. |
+| `VITE_OTLP_BASE_URL`       | OTLP HTTP base URL for traces and logs when OpenTelemetry is enabled; defaults to `/otlp`.                            |
+| `VITE_PUBLIC_POSTHOG_KEY`  | PostHog project key for analytics and the `allow-user-creation` feature flag.                                         |
+| `VITE_PUBLIC_POSTHOG_HOST` | PostHog endpoint; use `/ingest` with the provided proxies.                                                            |
+| `VITE_ANTHROPIC_API_KEY`   | Used by the **development** `/anthropic` proxy for command-center requests.                                           |
+| `VITE_APP_VERSION`         | Version attached to telemetry resources; defaults to `0.0.0`.                                                         |
 
 The dev server proxies `/api` to JSONPlaceholder, `/otlp` to `localhost:4318`, `/ingest` to PostHog EU, and `/anthropic` to Anthropic. The Anthropic model is `claude-haiku-4-5`. Without a working AI proxy/key, the app still loads but command-center requests fail. Without a configured PostHog feature flag, the creation form may not appear.
 
