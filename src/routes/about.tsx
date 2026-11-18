@@ -25,7 +25,8 @@ export function About() {
         <ul className="list-disc space-y-2 pl-6">
           <li>
             Browse and sort users, then filter them by name, username, or email.
-            Filters support free text, wildcards, AND/OR operators, and grouping.
+            Filters support free text, wildcards, AND/OR operators, and
+            grouping.
           </li>
           <li>
             Create users with a validated form when the
