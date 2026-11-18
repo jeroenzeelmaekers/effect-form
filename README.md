@@ -39,10 +39,10 @@ intend to use:
 cp .env.example .env
 ```
 
-With direnv enabled, install dependencies and run the development server:
+With direnv enabled, install dependencies with pnpm, then run the development server:
 
 ```sh
-vp install
+pnpm install --frozen-lockfile
 vp dev
 ```
 
