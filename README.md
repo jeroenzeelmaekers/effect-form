@@ -68,7 +68,7 @@ Install from the lockfile and start the dev server:
 
 ```sh
 pnpm install --frozen-lockfile
-vp dev
+pnpm exec vp dev
 ```
 
 The Vite development server proxies `/api`, `/otlp`, `/ingest`, and
@@ -78,10 +78,10 @@ Effect runtime in `src/infrastructure/runtime.ts`.
 ### Checks
 
 ```sh
-vp run build
-vp run test
-vp run test:browser
-vp lint
+pnpm exec vp run build
+pnpm exec vp run test
+pnpm exec vp run test:browser
+pnpm exec vp lint
 ```
 
 Browser tests use Playwright. Install browsers if needed:
