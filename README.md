@@ -31,7 +31,6 @@ nix develop
 
 In a shell entered directly with `nix develop`, use `pnpm install --frozen-lockfile` to install dependencies. Prefix Vite+ commands with `pnpm exec` (for example, `pnpm exec vp dev`).
 
-
 Copy the sample environment file and configure any optional services you
 intend to use:
 
